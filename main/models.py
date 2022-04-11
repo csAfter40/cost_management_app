@@ -52,14 +52,20 @@ class IncomeCategory(MPTTModel):
 
 
 class Cost(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE, )
 
 
 class Income(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE, )
+
+
+class Transfer(models.Model):
+    from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
+    to_accout = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
