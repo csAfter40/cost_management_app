@@ -1,0 +1,27 @@
+{% extends 'main/layout.html' %}
+
+{% block body %}
+<div class="text-center my-5" ><h2>Login</h2></div>
+<div class="d-flex  justify-content-center">
+    <div class=" bg-light w-25 p-3">
+        {% if message %}
+        <div class="text-danger">{{ message }}</div>
+        {% endif %}
+    
+        <form action="{% url 'main:login' %}" method="post" class="px-3 py-4  ">
+            {% csrf_token %}
+            <div class="form-group ">
+                <input autofocus class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group my-3">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+            <input type="hidden" name="next" value="{{request.GET.next}}">
+            <input class="btn btn-primary " type="submit" value="Login">
+        </form>
+        <div>
+            Don't have an account? <a href="{% url 'main:register' %}">Register here.</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

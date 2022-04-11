@@ -66,6 +66,6 @@ class Income(models.Model):
 
 
 class Transfer(models.Model):
-    from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
-    to_accout = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True)
+    from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='outgoings')
+    to_accout = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomings' )
     amount = models.DecimalField(max_digits=14, decimal_places=2)
