@@ -1,0 +1,1 @@
+A simple cost management app in which users can input their expences and incomes so that users can monitor their financial status and view reports.
