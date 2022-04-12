@@ -69,8 +69,6 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('main:index'))
 
-def register(request):
-    pass
 
 def wallet(request):
     return render(request, 'main/wallet.html', {})

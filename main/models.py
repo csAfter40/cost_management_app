@@ -4,7 +4,9 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 
 class User(AbstractUser):
-    pass
+    
+    def __str__(self) -> str:
+        return self.username
 
 
 class Currency(models.Model):
@@ -36,6 +38,8 @@ class CostCategory(MPTTModel):
         unique_together = (('parent', 'slug'))
         verbose_name_plural = 'CostCategories'
 
+    def __str__(self) -> str:
+        return f"{self.user} - {self.slug}"
 
 class IncomeCategory(MPTTModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -49,6 +53,9 @@ class IncomeCategory(MPTTModel):
     class Meta:
         unique_together = (('parent', 'slug'))
         verbose_name_plural = 'IncomeCategories'
+
+    def __str__(self) -> str:
+        return f"{self.user} - {self.slug}"
 
 
 class Cost(models.Model):
