@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
-from .models import User
+from .models import User, CostCategory, IncomeCategory
 from django.db import IntegrityError
 
 # Create your views here.
@@ -71,4 +71,7 @@ def logout_view(request):
 
 
 def wallet(request):
-    return render(request, 'main/wallet.html', {})
+    context = {
+        'categories': CostCategory.objects.filter(user=request.user)
+    }
+    return render(request, 'main/wallet.html', context)

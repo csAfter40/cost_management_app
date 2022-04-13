@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from mptt.models import MPTTModel, TreeForeignKey
+from datetime import date
 
 
 class User(AbstractUser):
@@ -61,15 +62,19 @@ class IncomeCategory(MPTTModel):
 class Cost(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
+    description = models.CharField(max_length=1000, null=True, blank=True)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE, )
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    date = models.DateField(blank=True, default=date.today)
 
 
 class Income(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
+    description = models.CharField(max_length=1000, null=True, blank=True)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE, )
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    date = models.DateField(blank=True, default=date.today)
 
 
 class Transfer(models.Model):

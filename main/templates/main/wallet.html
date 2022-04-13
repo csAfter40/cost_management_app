@@ -3,5 +3,23 @@
 
     <h1>My wallet</h1>
     <h3>You are logged in as {{user.username}}</h3>
+    <div class="container">
+        {% load mptt_tags %}
+        <ul>
+            {% recursetree categories %}
+                <li>
+                    {{ node.name }}
+                    {% if not node.is_leaf_node %}
+                        <ul class="children">
+                            {{ children }}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endrecursetree %}
+        </ul>
+    </div>
+    <div class="container">
+        Your country is {{country}}
+    </div>
 
 {% endblock %}
