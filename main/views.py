@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.views import View
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
-from .models import User, CostCategory, IncomeCategory
+from django.urls import reverse, reverse_lazy
+from requests import request
+from .models import Account, User, CostCategory, IncomeCategory
+from .forms import AccountForm
 from django.db import IntegrityError
 
 # Create your views here.
@@ -26,7 +29,7 @@ class LoginView(View):
                 next = request.POST.get('next', None)
                 if next:
                     return HttpResponseRedirect(next)
-                return render(request, 'main/wallet.html')
+                return HttpResponseRedirect(reverse('main:wallet'))
             return render(request, 'main/login.html', {'message': 'User is not active!'})
         return render(request, 'main/login.html', {'message': 'Invalid username or password.'})
 
@@ -71,7 +74,26 @@ def logout_view(request):
 
 
 def wallet(request):
+
     context = {
         'categories': CostCategory.objects.filter(user=request.user)
     }
     return render(request, 'main/wallet.html', context)
+
+class AccountsView(ListView):
+    pass
+
+class CreateAccountView(CreateView):
+    model = Account
+    fields = ['name', 'balance', 'currency']
+    success_url = reverse_lazy('main:wallet')
+    template_name = 'main/create_account.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
+class UpdateAccount(UpdateView):
+    pass

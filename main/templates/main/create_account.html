@@ -1,0 +1,16 @@
+{% extends 'main/layout.html' %}
+{% load crispy_forms_tags %}
+{% block body %}
+<div class="d-flex justify-content-center p-3">
+    <div class="container text-center justify-content-center p-3 w-25 bg-light">
+        <h3>Create an account</h3>
+        <div class="container text-start">
+            <form action="{% url 'main:create_account' %}" method="POST">
+                {%csrf_token%}
+                {{form|crispy}}
+                <input type="submit" value="Submit" class="btn btn-primary my-3">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

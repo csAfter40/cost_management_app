@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'mptt',
+    'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'main.User'
+
+DEFAULT_CURRENCY_PK = 5 #Primary key value of default currency. It is 5 for "USD".
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

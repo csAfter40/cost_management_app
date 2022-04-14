@@ -2,13 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
+from wallet.settings import DEFAULT_CURRENCY_PK
 
 
 class User(AbstractUser):
     
     def __str__(self) -> str:
         return self.username
-
 
 class Currency(models.Model):
     code = models.CharField(max_length=2)
@@ -19,11 +19,22 @@ class Currency(models.Model):
         return self.code
 
 
+class UserPreferences(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK)
+
+    def __str__(self):
+        return f"{self.user} preferences"
+
+
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
-    balance = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK)
+
+    def __str__(self):
+        return f"{self.user} - {self.name}"
 
 
 class CostCategory(MPTTModel):
