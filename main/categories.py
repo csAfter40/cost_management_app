@@ -1,4 +1,4 @@
-cost_categories = {
+expense_categories = {
     'Automobile': {
         'slug': 'automobile',
         'children': {
@@ -30,7 +30,7 @@ cost_categories = {
         }
     },
     'Uncategorized': {
-        'slug': 'uncategorized-cost',
+        'slug': 'uncategorized-expense',
         'children': None
     },
 }

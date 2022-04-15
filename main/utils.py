@@ -1,7 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .models import User, CostCategory, IncomeCategory, UserPreferences
-from .categories import cost_categories, income_categories
+from .models import User, ExpenseCategory, IncomeCategory, UserPreferences
+from .categories import expense_categories, income_categories
 
 def create_categories(model, categories, user, parent=None):
     for key, value in categories.items():
@@ -20,7 +20,7 @@ def create_categories(model, categories, user, parent=None):
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
-        create_categories(CostCategory, cost_categories, instance)
+        create_categories(ExpenseCategory, expense_categories, instance)
         create_categories(IncomeCategory, income_categories, instance)
 
 @receiver(post_save, sender=User)

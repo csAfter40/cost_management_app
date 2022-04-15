@@ -24,7 +24,21 @@
             <a class="nav-link active" href="{% url 'main:register' %}">Register</a>
           </li>
           {% endif %}
+          
         </ul>
+        {% if user.is_authenticated %}
+          
+          <span>
+            <div class="btn-group mx-2">
+              <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                {{user.username}}
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                <li><a class="dropdown-item" href="">My Profile</a></li>
+              </ul>
+            </div>
+          </span>
+        {% endif %}
       </div>
     </div>
   </nav>

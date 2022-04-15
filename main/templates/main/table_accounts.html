@@ -1,0 +1,39 @@
+{% load static %}
+<div class="container-fluid bg-light w-100 p-3 animate-table" id="accounts_table_div">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th class="align-middle col-md-1" scope="col">#</th>
+            <th class="align-middle col-md-2" scope="col">Name</th>
+            <th class="align-middle col-md-3" scope="col">Currency</th>
+            <th class="align-middle col-md-3" scope="col">Balance</th>
+            <th class="align-middle text-center col-md-1" scope="col">Edit</th>
+            <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{ account.name }}</td>
+                    <td>{{ account.currency }}</td>
+                    <td>{{ account.balance }}</td>
+                    <td style="text-align: center;" class="align-middle">
+                        <a href="{% url 'main:edit_account' pk=account.id %}"><i class="bi bi-pencil-square"></i></a>
+                    </td>
+                    <td style="text-align: center;" class="align-middle">
+                        <a href="javascript:void(0);">
+                            <i data-employee="{{account.id}}" 
+                                class="bi bi-trash" 
+                                hx-post="accounts/{{account.id}}/del" 
+                                hx-target="#accounts_table_div" 
+                                hx-trigger="confirmed" 
+                                hx-swap="outerHTML swap:100ms"
+                                _="on click call Swal.fire({title: 'Confirm', text: 'Do you want to delete this account?'}) if result.isConfirmed trigger confirmed"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

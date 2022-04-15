@@ -5,8 +5,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
-from .models import Account, User, CostCategory, IncomeCategory
-from .forms import AccountForm
+from .models import Account, User, ExpenseCategory, IncomeCategory
+from .forms import ExpenseInputForm, IncomeInputForm
 from django.db import IntegrityError
 
 # Create your views here.
@@ -74,9 +74,13 @@ def logout_view(request):
 
 
 def wallet(request):
+    expense_form = ExpenseInputForm(request.user)
+    income_form = IncomeInputForm(request.user)
 
     context = {
-        'categories': CostCategory.objects.filter(user=request.user)
+        'accounts': Account.objects.filter(user=request.user),
+        'expense_form': expense_form,
+        'income_form': income_form
     }
     return render(request, 'main/wallet.html', context)
 
@@ -95,5 +99,38 @@ class CreateAccountView(CreateView):
         self.object.save()
         return super().form_valid(form)
 
-class UpdateAccount(UpdateView):
+class EditAccountView(UpdateView):
     pass
+
+class DeleteAccountView(DeleteView):
+    pass
+
+
+def expense_input_view(request):
+    if request.method == 'POST':
+        form = ExpenseInputForm(request.user, request.POST)
+
+        if form.is_valid():
+            account = form.cleaned_data['account']
+            amount = form.cleaned_data['amount']
+            form.save()
+            account.balance -= amount
+            account.save()
+    
+    return HttpResponseRedirect(reverse('main:wallet'))
+            
+
+
+
+def income_input_view(request):
+    if request.method == 'POST':
+        form = IncomeInputForm(request.user, request.POST)
+
+        if form.is_valid():
+            account = form.cleaned_data['account']
+            amount = form.cleaned_data['amount']
+            form.save()
+            account.balance += amount
+            account.save()
+    
+    return HttpResponseRedirect(reverse('main:wallet'))

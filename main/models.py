@@ -34,10 +34,10 @@ class Account(models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK)
 
     def __str__(self):
-        return f"{self.user} - {self.name}"
+        return self.name
 
 
-class CostCategory(MPTTModel):
+class ExpenseCategory(MPTTModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=64)
     slug = models.SlugField()
@@ -48,10 +48,10 @@ class CostCategory(MPTTModel):
 
     class Meta:
         unique_together = (('parent', 'slug'))
-        verbose_name_plural = 'CostCategories'
+        verbose_name_plural = 'ExpenseCategories'
 
     def __str__(self) -> str:
-        return f"{self.user} - {self.slug}"
+        return self.slug
 
 class IncomeCategory(MPTTModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -67,28 +67,32 @@ class IncomeCategory(MPTTModel):
         verbose_name_plural = 'IncomeCategories'
 
     def __str__(self) -> str:
-        return f"{self.user} - {self.slug}"
+        return self.slug
 
-
-class Cost(models.Model):
+class Transaction(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    description = models.CharField(max_length=1000, null=True, blank=True)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     date = models.DateField(blank=True, default=date.today)
 
+    class Meta:
+        abstract = True
 
-class Income(models.Model):
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-    name = models.CharField(max_length=128)
-    description = models.CharField(max_length=1000, null=True, blank=True)
-    amount = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
-    date = models.DateField(blank=True, default=date.today)
+    def __str__(self):
+        return f"{self.name} - {self.amount} from {self.account}"
+
+
+class Expense(Transaction):
+    category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
+
+
+class Income(Transaction):
+    category = models.ForeignKey(IncomeCategory, on_delete=models.SET_NULL, null=True)
 
 
 class Transfer(models.Model):
     from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='outgoings')
     to_accout = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomings' )
-    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    from_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    to_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    date = models.DateField(blank=True, default=date.today)
