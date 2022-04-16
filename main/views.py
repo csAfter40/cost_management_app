@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
 from .forms import ExpenseInputForm, IncomeInputForm
+from .utils import get_latest_transactions
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 
@@ -19,7 +20,8 @@ def index(request):
     context = {
         'accounts': Account.objects.filter(user=request.user),
         'expense_form': expense_form,
-        'income_form': income_form
+        'income_form': income_form,
+        'transactions': get_latest_transactions(request.user, 5)
     }
     return render(request, 'main/index.html', context)
 

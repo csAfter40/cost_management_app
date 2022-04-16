@@ -1,7 +1,33 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .models import User, ExpenseCategory, IncomeCategory, UserPreferences
+from .models import User, ExpenseCategory, IncomeCategory, UserPreferences, Expense, Income, Account
 from .categories import expense_categories, income_categories
+
+def get_latest_transactions(user, qty):
+    accounts = Account.objects.filter(user=user)
+    expenses = Expense.objects.filter(account__in=accounts).order_by('-date')
+    incomes = Income.objects.filter(account__in=accounts).order_by('-date')
+    expenses_len = expenses.count()
+    incomes_len = incomes.count()
+    transaction_list = []
+    j, k = 0, 0
+    for i in range(qty):
+        if j < expenses_len and k < incomes_len:
+            if expenses[j].date >= incomes[k].date:
+                transaction_list.append(expenses[j])
+                j += 1
+            else:
+                transaction_list.append(incomes[k])
+                k += 1
+        elif j < expenses_len:
+            transaction_list.append(expenses[j])
+            j += 1
+        elif k < incomes_len:
+            transaction_list.append(incomes[k])
+            k += 1
+        else:
+            break
+    return transaction_list
 
 def create_categories(model, categories, user, parent=None):
     for key, value in categories.items():

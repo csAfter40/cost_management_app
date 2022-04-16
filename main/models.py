@@ -85,10 +85,15 @@ class Transaction(models.Model):
 class Expense(Transaction):
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
 
+    def get_type(self):
+        return "Expense"
+
 
 class Income(Transaction):
     category = models.ForeignKey(IncomeCategory, on_delete=models.SET_NULL, null=True)
 
+    def get_type(self):
+        return "Income"
 
 class Transfer(models.Model):
     from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='outgoings')
