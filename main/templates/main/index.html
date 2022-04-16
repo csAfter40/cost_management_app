@@ -1,5 +1,58 @@
 {% extends 'main/layout.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
 {% block body %}
-<h1>HOME</h1>
-You are logged in as {{user.username}}
+    <div class="container-lg bg-light py-3 my-5">
+        <div class="row">
+            <div class="col-lg-6 text-center">
+                <h3>Accounts</h3>
+                {% include 'main/table_accounts.html' %}
+                <div class="d-flex px-3">
+                    <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary">Add New Account</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <h3>Transactions</h3>
+                <div class="row">
+                    <div class="col-6 text-start">
+                        <h4 class="text-danger">Input Expense</h4>
+                        <form action="{% url 'main:expense_create' %}" method="POST">
+                            {% csrf_token %}
+                            <div id="autocomplete_expense" class="autocomplete">
+                                {{ expense_form.name|as_crispy_field }}
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                            {{ expense_form.account|as_crispy_field }}
+                            {{ expense_form.amount|as_crispy_field }}
+                            {{ expense_form.category|as_crispy_field }}
+
+                            <div class="d-grid gap-2 my-4">
+                                <input type="submit" value="Submit" class="btn btn-outline-primary">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-6 text-start">
+                        <h4 class="text-success">Input Income</h4>
+                        <form action="{% url 'main:income_create' %}" method="POST">
+                            {% csrf_token %}
+                            <div id="autocomplete_income" class="autocomplete">
+                                {{ income_form.name|as_crispy_field }}
+                                <ul class="autocomplete-result-list"></ul>
+                            </div>
+                            {{ income_form.account|as_crispy_field }}
+                            {{ income_form.amount|as_crispy_field }}
+                            {{ income_form.category|as_crispy_field }}
+                            <div class="d-grid gap-2 my-4">
+                                <input type="submit" value="Submit" class="btn btn-outline-primary">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="{% static 'main/index.js' %}"></script>
 {% endblock %}

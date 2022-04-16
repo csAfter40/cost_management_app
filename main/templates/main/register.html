@@ -7,19 +7,19 @@
         <div class='text-danger'>{{ message }}</div>
         {% endif %}
     
-        <form action="{% url 'main:register' %}" method="post" class="px-3 py-4 ">
+        <form action="{% url 'main:register' %}" method="post" class="px-3 py-3 ">
             {% csrf_token %}
             <div class="form-group">
                 <input class="form-control" autofocus type="text" name="username" placeholder="Username" hx-post="{% url 'main:check_username' %}" hx-trigger="keyup changed delay:500ms" hx-target="#username_check_text" hx-swap="outerHTML">
                 <p class="text-muted mx-2" id="username_check_text"></p>
             </div>
-            <div class="form-group">
+            <div class="form-group my-3">
                 <input class="form-control" type="email" name="email" placeholder="Email Address">
             </div>
-            <div class="form-group">
+            <div class="form-group my-3">
                 <input class="form-control" type="password" name="password" placeholder="Password">
             </div>
-            <div class="form-group">
+            <div class="form-group my-3">
                 <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
             </div>
             <input class="btn btn-primary" type="submit" value="Register">

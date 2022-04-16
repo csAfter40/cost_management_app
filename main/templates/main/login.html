@@ -8,7 +8,7 @@
         <div class="text-danger">{{ message }}</div>
         {% endif %}
     
-        <form action="{% url 'main:login' %}" method="post" class="px-3 py-4  ">
+        <form action="{% url 'main:login' %}" method="post" class="px-3 py-3 ">
             {% csrf_token %}
             <div class="form-group ">
                 <input autofocus class="form-control" type="text" name="username" placeholder="Username">

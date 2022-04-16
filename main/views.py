@@ -2,18 +2,48 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
-from .models import Account, User, ExpenseCategory, IncomeCategory
+from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
 from .forms import ExpenseInputForm, IncomeInputForm
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
-def index(request):
-    context = {}
+@login_required(login_url=reverse_lazy('main:login'))
+def index(request): 
+    expense_form = ExpenseInputForm(request.user)
+    income_form = IncomeInputForm(request.user)
+
+    context = {
+        'accounts': Account.objects.filter(user=request.user),
+        'expense_form': expense_form,
+        'income_form': income_form
+    }
     return render(request, 'main/index.html', context)
 
+def expense_name_autocomplete(request):
+    name_query = request.GET.get('name', None)
+    name_list = []
+    if name_query:
+        user = request.user
+        accounts = Account.objects.filter(user=user)
+        expenses = Expense.objects.filter(account__in=accounts, name__icontains=name_query)
+        for expense in expenses:
+            name_list.append(expense.name)
+    return JsonResponse({'status': 200, 'data': name_list})
+
+def income_name_autocomplete(request):
+    name_query = request.GET.get('name', None)
+    name_list = []
+    if name_query:
+        user = request.user
+        accounts = Account.objects.filter(user=user)
+        incomes = Income.objects.filter(account__in=accounts, name__icontains=name_query)
+        for income in incomes:
+            name_list.append(income.name)
+    return JsonResponse({'status': 200, 'data': name_list})
 
 class LoginView(View):
     def get(self, request):
@@ -29,7 +59,7 @@ class LoginView(View):
                 next = request.POST.get('next', None)
                 if next:
                     return HttpResponseRedirect(next)
-                return HttpResponseRedirect(reverse('main:wallet'))
+                return HttpResponseRedirect(reverse('main:index'))
             return render(request, 'main/login.html', {'message': 'User is not active!'})
         return render(request, 'main/login.html', {'message': 'Invalid username or password.'})
 
@@ -55,7 +85,7 @@ class RegisterView(View):
         except IntegrityError:
             return render(request, 'main/register.html', {'message': 'Username already taken!'})
         login(request, user)
-        return HttpResponseRedirect(reverse('main:wallet'))
+        return HttpResponseRedirect(reverse('main:index'))
 
 
 def check_username(request, *args, **kwargs):
@@ -73,24 +103,14 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('main:index'))
 
 
-def wallet(request):
-    expense_form = ExpenseInputForm(request.user)
-    income_form = IncomeInputForm(request.user)
-
-    context = {
-        'accounts': Account.objects.filter(user=request.user),
-        'expense_form': expense_form,
-        'income_form': income_form
-    }
-    return render(request, 'main/wallet.html', context)
-
 class AccountsView(ListView):
     pass
 
-class CreateAccountView(CreateView):
+class CreateAccountView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('main:login')
     model = Account
     fields = ['name', 'balance', 'currency']
-    success_url = reverse_lazy('main:wallet')
+    success_url = reverse_lazy('main:index')
     template_name = 'main/create_account.html'
 
     def form_valid(self, form):
@@ -117,7 +137,7 @@ def expense_input_view(request):
             account.balance -= amount
             account.save()
     
-    return HttpResponseRedirect(reverse('main:wallet'))
+    return HttpResponseRedirect(reverse('main:index'))
             
 
 
@@ -133,4 +153,4 @@ def income_input_view(request):
             account.balance += amount
             account.save()
     
-    return HttpResponseRedirect(reverse('main:wallet'))
+    return HttpResponseRedirect(reverse('main:index'))
