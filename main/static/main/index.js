@@ -10,7 +10,7 @@ new Autocomplete('#autocomplete_expense', {
             })
         })
     }
-})
+});
 
 new Autocomplete('#autocomplete_income', {
     search: input => {
@@ -24,4 +24,13 @@ new Autocomplete('#autocomplete_income', {
             })
         })
     }
-})
+});
+
+// datepickers for expense and income input forms
+$( function() {
+    $( "#expense-datepicker" ).datepicker();
+  } );
+
+$( function() {
+    $( "#income-datepicker" ).datepicker();
+  } );

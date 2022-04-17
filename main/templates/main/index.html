@@ -29,7 +29,7 @@
                             {{ expense_form.account|as_crispy_field }}
                             {{ expense_form.amount|as_crispy_field }}
                             {{ expense_form.category|as_crispy_field }}
-
+                            {{ expense_form.date|as_crispy_field }}
                             <div class="d-grid gap-2 my-4">
                                 <input type="submit" value="Submit" class="btn btn-outline-primary">
                             </div>
@@ -46,6 +46,7 @@
                             {{ income_form.account|as_crispy_field }}
                             {{ income_form.amount|as_crispy_field }}
                             {{ income_form.category|as_crispy_field }}
+                            {{ income_form.date|as_crispy_field }}
                             <div class="d-grid gap-2 my-4">
                                 <input type="submit" value="Submit" class="btn btn-outline-primary">
                             </div>

@@ -10,9 +10,10 @@ class ExpenseInputForm(ModelForm):
     
     class Meta:
         model = Expense
-        fields = ['name', 'account', 'amount', 'category']
+        fields = ['name', 'account', 'amount', 'category', 'date']
         widgets = {
             'name': TextInput(attrs={'class': 'form-control autocomplete-input'}),
+            'date': TextInput(attrs={'id': 'expense-datepicker'}),
         }
         
     def __init__(self, user, *args, **kwargs):
@@ -29,9 +30,10 @@ class IncomeInputForm(ModelForm):
 
     class Meta:
         model = Income
-        fields = ['name', 'account', 'amount', 'category']
+        fields = ['name', 'account', 'amount', 'category', 'date']
         widgets = {
             'name': TextInput(attrs={'class': 'form-control autocomplete-input'}),
+            'date': TextInput(attrs={'id': 'income-datepicker'}),
         }
 
     def __init__(self, user, *args, **kwargs):
