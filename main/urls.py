@@ -12,8 +12,9 @@ urlpatterns = [
     path('accounts/create', views.CreateAccountView.as_view(), name='create_account'),
     path('accounts/<pk>/edit', views.EditAccountView.as_view(), name='edit_account'),
     path('accounts/<pk>/del', views.DeleteAccountView.as_view(), name='delete_account'),
-    path('transactions/expense', views.expense_input_view, name='expense_create'),
-    path('transactions/income', views.income_input_view, name='income_create'),
+    # path('transactions/expense', views.expense_input_view, name='expense_create'),
+    # path('transactions/income', views.income_input_view, name='income_create'),
+    # path('transactions/transfer', views.make_transfer_view, name='make_transfer'),
 ]
 
 htmx_urlpatterns = [

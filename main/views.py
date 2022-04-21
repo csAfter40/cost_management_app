@@ -7,20 +7,58 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
-from .forms import ExpenseInputForm, IncomeInputForm
+from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
 from .utils import get_latest_transactions
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 @login_required(login_url=reverse_lazy('main:login'))
 def index(request): 
+    transfer_form = TransferForm(request.user)
     expense_form = ExpenseInputForm(request.user)
     income_form = IncomeInputForm(request.user)
+
+    if request.method == 'POST':
+        # transfer form operations
+        if request.POST.get('submit-transfer'):
+            form = TransferForm(request.user, request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                from_account = data['from_account']
+                to_account = data['to_account']
+                with transaction.atomic():
+                    from_account.balance -= data['from_amount']
+                    to_account.balance += data['to_amount']
+                    from_account.save()
+                    to_account.save()
+                    form.save()
+            else:
+                transfer_form = form
+        # expense form operations
+        if request.POST.get('submit-expense'):
+            form = ExpenseInputForm(request.user, request.POST)
+            if form.is_valid():
+                account = form.cleaned_data['account']
+                amount = form.cleaned_data['amount']
+                form.save()
+                account.balance -= amount
+                account.save()
+        #  income form operations
+        if request.POST.get('submit-income'):
+            form = IncomeInputForm(request.user, request.POST)
+            if form.is_valid():
+                account = form.cleaned_data['account']
+                amount = form.cleaned_data['amount']
+                form.save()
+                account.balance += amount
+                account.save()
 
     context = {
         'accounts': Account.objects.filter(user=request.user),
         'expense_form': expense_form,
         'income_form': income_form,
+        'transfer_form': transfer_form,
         'transactions': get_latest_transactions(request.user, 5)
     }
     return render(request, 'main/index.html', context)
@@ -126,33 +164,3 @@ class EditAccountView(UpdateView):
 
 class DeleteAccountView(DeleteView):
     pass
-
-
-def expense_input_view(request):
-    if request.method == 'POST':
-        form = ExpenseInputForm(request.user, request.POST)
-
-        if form.is_valid():
-            account = form.cleaned_data['account']
-            amount = form.cleaned_data['amount']
-            form.save()
-            account.balance -= amount
-            account.save()
-    
-    return HttpResponseRedirect(reverse('main:index'))
-            
-
-
-
-def income_input_view(request):
-    if request.method == 'POST':
-        form = IncomeInputForm(request.user, request.POST)
-
-        if form.is_valid():
-            account = form.cleaned_data['account']
-            amount = form.cleaned_data['amount']
-            form.save()
-            account.balance += amount
-            account.save()
-    
-    return HttpResponseRedirect(reverse('main:index'))

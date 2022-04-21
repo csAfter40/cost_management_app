@@ -97,7 +97,10 @@ class Income(Transaction):
 
 class Transfer(models.Model):
     from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='outgoings')
-    to_accout = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomings' )
+    to_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomings' )
     from_amount = models.DecimalField(max_digits=14, decimal_places=2)
-    to_amount = models.DecimalField(max_digits=14, decimal_places=2)
+    to_amount = models.DecimalField(max_digits=14, decimal_places=2, blank=True)
     date = models.DateField(blank=True, default=date.today)
+
+    def __str__(self):
+        return f"On {self.date} from {self.from_account} to {self.to_account} {self.from_amount}"

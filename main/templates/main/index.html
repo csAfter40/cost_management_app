@@ -4,7 +4,7 @@
 {% block body %}
     <div class="container-lg bg-light py-3 my-5">
         <div class="row">
-            <div class="col-lg-6 text-center">
+            <div class="col-lg-6 text-center border-end border-muted">
                 <h4>Accounts</h4>
                 {% include 'main/table_accounts.html' %}
                 <div class="d-flex px-3">
@@ -20,7 +20,7 @@
                 <div class="row">
                     <div class="col-6 text-start">
                         <h5 class="text-danger">Input Expense</h5>
-                        <form action="{% url 'main:expense_create' %}" method="POST">
+                        <form action="{% url 'main:index' %}" method="POST">
                             {% csrf_token %}
                             <div id="autocomplete_expense" class="autocomplete">
                                 {{ expense_form.name|as_crispy_field }}
@@ -31,13 +31,13 @@
                             {{ expense_form.category|as_crispy_field }}
                             {{ expense_form.date|as_crispy_field }}
                             <div class="d-grid gap-2 my-4">
-                                <input type="submit" value="Submit" class="btn btn-outline-primary">
+                                <input type="submit" name="submit-expense" value="Submit" class="btn btn-outline-primary">
                             </div>
                         </form>
                     </div>
                     <div class="col-6 text-start">
                         <h5 class="text-success">Input Income</h5>
-                        <form action="{% url 'main:income_create' %}" method="POST">
+                        <form action="{% url 'main:index' %}" method="POST">
                             {% csrf_token %}
                             <div id="autocomplete_income" class="autocomplete">
                                 {{ income_form.name|as_crispy_field }}
@@ -48,7 +48,19 @@
                             {{ income_form.category|as_crispy_field }}
                             {{ income_form.date|as_crispy_field }}
                             <div class="d-grid gap-2 my-4">
-                                <input type="submit" value="Submit" class="btn btn-outline-primary">
+                                <input type="submit" name="submit-income" value="Submit" class="btn btn-outline-primary">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row border-top py-2 my-2">
+                    <div class="col-12">
+                        <h5 class="text-dark">Transfer</h5>
+                        <form action="{% url 'main:index' %}" method="POST" id="form-transfer">
+                            {% csrf_token %}
+                            {{ transfer_form|crispy }}
+                            <div class="d-grid gap-2 my-4">
+                                <input type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary" >
                             </div>
                         </form>
                     </div>
