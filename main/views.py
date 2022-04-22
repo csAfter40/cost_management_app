@@ -8,7 +8,7 @@ from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions
+from .utils import get_latest_transactions, get_account_data
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -25,14 +25,20 @@ def index(request):
             form = TransferForm(request.user, request.POST)
             if form.is_valid():
                 data = form.cleaned_data
+                print(data)
                 from_account = data['from_account']
                 to_account = data['to_account']
+                from_amount = data['from_amount']
+                to_amount = data['to_amount'] if data['to_amount'] else data['from_amount']
+                
                 with transaction.atomic():
-                    from_account.balance -= data['from_amount']
-                    to_account.balance += data['to_amount']
+                    from_account.balance -= from_amount
+                    to_account.balance += to_amount
                     from_account.save()
                     to_account.save()
-                    form.save()
+                    transfer = form.save(commit=False)
+                    transfer.to_amount = to_amount # in case to_amount field is blank
+                    transfer.save()
             else:
                 transfer_form = form
         # expense form operations
@@ -59,7 +65,9 @@ def index(request):
         'expense_form': expense_form,
         'income_form': income_form,
         'transfer_form': transfer_form,
-        'transactions': get_latest_transactions(request.user, 5)
+        'transactions': get_latest_transactions(request.user, 5),
+        'account_data': get_account_data(request.user)
+
     }
     return render(request, 'main/index.html', context)
 

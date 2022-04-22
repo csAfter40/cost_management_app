@@ -43,6 +43,16 @@ def create_categories(model, categories, user, parent=None):
                 parent=category
             )
 
+def get_account_data(user):
+    """
+        Returns all accounts of a user and currencies of those accounts.
+    """
+    accounts = Account.objects.filter(user=user).select_related('currency')
+    data = {}
+    for account in accounts:
+        data[account.id] = account.currency.code
+    return data
+    
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
