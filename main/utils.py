@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .models import User, ExpenseCategory, IncomeCategory, UserPreferences, Expense, Income, Account
+from .models import User, ExpenseCategory, IncomeCategory, UserPreferences, Expense, Income, Account, Transfer
 from .categories import expense_categories, income_categories
 
 def get_latest_transactions(user, qty):
@@ -28,6 +28,11 @@ def get_latest_transactions(user, qty):
         else:
             break
     return transaction_list
+
+def get_latest_transfers(user, qty):
+    accounts = Account.objects.filter(user=user)
+    transfers = Transfer.objects.filter(from_account__in=accounts).order_by('-date')[:qty]
+    return transfers
 
 def create_categories(model, categories, user, parent=None):
     for key, value in categories.items():

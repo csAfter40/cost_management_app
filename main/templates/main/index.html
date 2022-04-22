@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block body %}
-    <div class="container-lg bg-light py-3 my-5">
+    <div class="container-lg bg-light py-3 my-2">
         <div class="row">
             <div class="col-lg-6 text-center border-end border-muted">
                 <h4>Accounts</h4>
@@ -11,9 +11,13 @@
                 <div class="d-flex px-3">
                     <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary">Add New Account</a>
                 </div>
-                <div class="my-3">
+                <div class="my-3 border-top py-2">
                     <h4>Latest Transactions</h4>
                     {% include 'main/table_transactions.html' %}
+                </div>
+                <div class="my-3 border-top py-2">
+                    <h4>Latest Transfers</h4>
+                    {% include 'main/table_transfers.html' %}
                 </div>
             </div>
             <div class="col-lg-6 text-center">
@@ -71,7 +75,6 @@
                         </form>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
