@@ -11,8 +11,8 @@ class User(AbstractUser):
         return self.username
 
 class Currency(models.Model):
-    code = models.CharField(max_length=2)
-    name = models.CharField(max_length=32)
+    code = models.CharField(max_length=3)
+    name = models.CharField(max_length=128)
     symbol = models.CharField(max_length=8, null=True, blank=True)
 
     def __str__(self):
