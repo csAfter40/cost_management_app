@@ -1,1 +1,1 @@
-web:gunicorn wallet.wsgi
+web: gunicorn wallet.wsgi
