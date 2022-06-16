@@ -131,7 +131,8 @@ class RegisterView(View):
         try:
             user = User.objects.create_user(username=username, email=email, password=password)
             user.save()
-        except IntegrityError:
+        except IntegrityError as err:
+            print(err)
             return render(request, 'main/register.html', {'message': 'Username already taken!'})
         login(request, user)
         return HttpResponseRedirect(reverse('main:index'))
