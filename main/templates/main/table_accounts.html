@@ -12,6 +12,9 @@
         </tr>
         </thead>
         <tbody>
+            {% if not accounts %}
+                <tr><td colspan="6" class="table-info">No accounts available.</td></tr>
+            {% endif %}
             {% for account in accounts %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>

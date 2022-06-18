@@ -11,6 +11,9 @@
         </tr>
         </thead>
         <tbody>
+            {% if not transactions %}
+                <tr><td colspan="5" class="table-info">No transactions available.</td></tr>
+            {% endif %}
             {% for transaction in transactions %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>
