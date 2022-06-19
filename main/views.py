@@ -174,3 +174,36 @@ class EditAccountView(UpdateView):
 
 class DeleteAccountView(DeleteView):
     pass
+
+class CategoriesView(View):
+    def get(self, request):
+        user = request.user
+        context = {
+            'expense_categories': ExpenseCategory.objects.filter(user=user),
+            'income_categories': IncomeCategory.objects.filter(user=user),
+        }
+        return render(request, 'main/categories.html', context)
+
+class CreateExpenseCategory(View):
+    pass
+
+class CreateIncomeCategory(View):
+    pass
+
+class CreateExpenseSubcategory(View):
+    pass
+
+class CreateIncomeSubcategory(View):
+    pass
+
+class EditExpenseCategory(View):
+    pass
+
+class DeleteExpenseCategory(View):
+    pass
+
+class EditIncomeCategory(View):
+    pass
+
+class DeleteIncomeCategory(View):
+    pass
