@@ -22,7 +22,7 @@
                             &nbsp&nbsp&nbsp <!-- spaces -->
                             <a href="{% url 'main:edit_expense_category' pk=node.id %}"><i class="bi bi-pencil-square"></i></a>
                             <a href="{% url 'main:delete_expense_category' pk=node.id %}"><i class="bi bi-trash"></i></a>
-                            <a href="{% url 'main:create_expense_subcategory' pk=node.id %}"><i class="bi bi-arrow-return-right"></i></a>
+                            <a href="{% url 'main:create_expense_subcategory' pk=node.id %}"><i class="bi bi-diagram-2"></i></a>
                             {% if not node.is_leaf_node %}
                                 <ul class="list-group my-2">
                                     {{ children }}
@@ -47,7 +47,7 @@
                             &nbsp&nbsp&nbsp <!-- spaces -->
                             <a href="{% url 'main:edit_income_category' pk=node.id %}"><i class="bi bi-pencil-square"></i></a>
                             <a href="{% url 'main:delete_income_category' pk=node.id %}"><i class="bi bi-trash"></i></a>
-                            <a href="{% url 'main:create_income_subcategory' pk=node.id %}"><i class="bi bi-arrow-return-right"></i></a>
+                            <a href="{% url 'main:create_income_subcategory' pk=node.id %}"><i class="bi bi-diagram-2"></i></a>
                             {% if not node.is_leaf_node %}
                                 <ul class="list-group my-2">
                                     {{ children }}
