@@ -40,34 +40,32 @@ class Account(models.Model):
 class ExpenseCategory(MPTTModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=64)
-    slug = models.SlugField()
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     class MPTTMeta:
         order_insertion_by = ['name']
 
     class Meta:
-        unique_together = (('parent', 'slug'))
+        unique_together = (('parent', 'name'))
         verbose_name_plural = 'ExpenseCategories'
 
     def __str__(self) -> str:
-        return self.slug
+        return self.name
 
 class IncomeCategory(MPTTModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=64)
-    slug = models.SlugField()
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     class MPTTMeta:
         order_insertion_by = ['name']
 
     class Meta:
-        unique_together = (('parent', 'slug'))
+        unique_together = (('parent', 'name'))
         verbose_name_plural = 'IncomeCategories'
 
     def __str__(self) -> str:
-        return self.slug
+        return self.name
 
 class Transaction(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
