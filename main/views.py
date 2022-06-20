@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
@@ -199,11 +199,31 @@ class CreateIncomeSubcategory(View):
 class EditExpenseCategory(View):
     pass
 
-class DeleteExpenseCategory(View):
-    pass
+class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST['category_id']
+        return ExpenseCategory.objects.get(id=id).user == user
+
+    def post(self, request):
+        id = request.POST['category_id']
+        category = ExpenseCategory.objects.get(id=id)
+        category.delete()
+        return HttpResponseRedirect(reverse('main:categories'))
 
 class EditIncomeCategory(View):
     pass
 
-class DeleteIncomeCategory(View):
-    pass
+class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST['category_id']
+        return IncomeCategory.objects.get(id=id).user == user
+
+    def post(self, request):
+        id = request.POST['category_id']
+        category = IncomeCategory.objects.get(id=id)
+        category.delete()
+        return HttpResponseRedirect(reverse('main:categories'))
