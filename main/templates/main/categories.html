@@ -24,7 +24,9 @@
                             <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal" data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}">
                                 <i class="bi bi-trash"></i>
                             </button>
-                            <a href="{% url 'main:create_expense_subcategory' pk=node.id %}"><i class="bi bi-diagram-2"></i></a>
+                            <button type="button" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal" data-bs-target="#createExpenseSubcategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
+                                <i class="bi bi-diagram-2"></i>
+                            </button>
                             {% if not node.is_leaf_node %}
                                 <ul class="list-group my-2">
                                     {{ children }}
@@ -32,7 +34,10 @@
                             {% endif %}
                         </li>
                     {% endrecursetree %}
-                </ul>                
+                </ul> 
+                <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#createExpenseCategoryModal">
+                    Create Main Expense Category
+                </button>               
             </div>
             <div class="col-lg-6 text-left">
                 <div class="col text-center">
@@ -51,7 +56,9 @@
                             <button type="button" class="btn px-0 delete-income-button" data-bs-toggle="modal" data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}">
                                 <i class="bi bi-trash"></i>
                             </button>
-                            <a href="{% url 'main:create_income_subcategory' pk=node.id %}"><i class="bi bi-diagram-2"></i></a>
+                            <button type="button" class="btn px-0 create-income-subcategory-button" data-bs-toggle="modal" data-bs-target="#createIncomeSubcategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
+                                <i class="bi bi-diagram-2"></i>
+                            </button>
                             {% if not node.is_leaf_node %}
                                 <ul class="list-group my-2">
                                     {{ children }}
@@ -60,56 +67,14 @@
                         </li>
                     {% endrecursetree %}
                 </ul> 
+                <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#createIncomeCategoryModal">
+                    Create Main Income Category
+                </button> 
             </div>
         </div>
     </div>
-    
-    <!-- Modals -->
-    <div class="modal fade" id="deleteExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detele Expense Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Do you really want to delete this category? All sub-categories will be deleted.
-                </div>
-                <div class="modal-footer">
-                    <form action="{% url 'main:delete_expense_category' %}" method="post">
-                        {% csrf_token %}
-                        <input id="expense-category-id" type="hidden" name="category_id" value="">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="deleteIncomeCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detele Income Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Do you really want to delete this category? All sub-categories will be deleted.
-                </div>
-                <div class="modal-footer">
-                    <form action="{% url 'main:delete_income_category' %}" method="post">
-                        {% csrf_token %}
-                        <input id="income-category-id" type="hidden" name="category_id" value="">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-  
-
+    {% include 'main/categories_modals.html' %}  
 {% endblock %}
 {% block script %}
-<script src="{% static 'main/categories.js' %}"></script>
+    <script src="{% static 'main/categories.js' %}"></script>
 {% endblock %}

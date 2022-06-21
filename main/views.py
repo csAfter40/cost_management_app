@@ -184,11 +184,50 @@ class CategoriesView(View):
         }
         return render(request, 'main/categories.html', context)
 
-class CreateExpenseCategory(View):
-    pass
+class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST.get('category_id', None)
+        if id:
+            return ExpenseCategory.objects.get(id=id).user == user
+        else:
+            return True
 
-class CreateIncomeCategory(View):
-    pass
+    def post(self, request):
+        user = request.user
+        parent_id = request.POST.get('category_id', None)
+        if parent_id:
+            parent = ExpenseCategory.objects.get(id=parent_id)
+        else:
+            parent = None
+        name = request.POST['category_name']
+        new_category = ExpenseCategory(name=name, parent=parent, user=user)
+        new_category.save()
+        return HttpResponseRedirect(reverse('main:categories'))
+
+
+class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST.get('category_id', None)
+        if id:
+            return IncomeCategory.objects.get(id=id).user == user
+        else:
+            return True
+
+    def post(self, request):
+        user = request.user
+        parent_id = request.POST.get('category_id', None)
+        if parent_id:
+            parent = IncomeCategory.objects.get(id=parent_id)
+        else:
+            parent = None
+        name = request.POST['category_name']
+        new_category = IncomeCategory(name=name, parent=parent, user=user)
+        new_category.save()
+        return HttpResponseRedirect(reverse('main:categories'))
 
 class CreateExpenseSubcategory(View):
     pass
