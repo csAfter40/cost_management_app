@@ -36,7 +36,7 @@ def get_latest_transfers(user, qty):
 
 def create_categories(model, categories, user, parent=None):
     for key, value in categories.items():
-        category = model.objects.create(name=key, slug=value['slug'], user=user)
+        category = model.objects.create(name=key, user=user)
         if parent:
             category.parent = parent
         category.save()
