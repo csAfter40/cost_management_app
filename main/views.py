@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
@@ -229,14 +230,40 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         new_category.save()
         return HttpResponseRedirect(reverse('main:categories'))
 
-class CreateExpenseSubcategory(View):
-    pass
 
-class CreateIncomeSubcategory(View):
-    pass
+class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST['category_id']
+        return ExpenseCategory.objects.get(id=id).user == user
 
-class EditExpenseCategory(View):
-    pass
+    def post(self, request):
+        user = request.user
+        id = request.POST['category_id']
+        name = request.POST['category_name']
+        category_obj = ExpenseCategory.objects.get(id=id)
+        category_obj.name = name
+        category_obj.save()
+        return HttpResponseRedirect(reverse('main:categories'))
+
+
+class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        user = self.request.user
+        id = self.request.POST['category_id']
+        return IncomeCategory.objects.get(id=id).user == user
+
+    def post(self, request):
+        user = request.user
+        id = request.POST['category_id']
+        name = request.POST['category_name']
+        category_obj = IncomeCategory.objects.get(id=id)
+        category_obj.name = name
+        category_obj.save()
+        return HttpResponseRedirect(reverse('main:categories'))
+
 
 class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
@@ -251,8 +278,6 @@ class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))
 
-class EditIncomeCategory(View):
-    pass
 
 class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 

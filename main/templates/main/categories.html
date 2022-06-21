@@ -20,7 +20,9 @@
                         {% endif %}
                             {{ node.name }} 
                             &nbsp&nbsp&nbsp <!-- spaces -->
-                            <a href="{% url 'main:edit_expense_category' pk=node.id %}"><i class="bi bi-pencil-square"></i></a>
+                            <button type="button" class="btn px-0 edit-expense-button" data-bs-toggle="modal" data-bs-target="#editExpenseCategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
                             <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal" data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -52,7 +54,9 @@
                         {% endif %}
                             {{ node.name }} 
                             &nbsp&nbsp&nbsp <!-- spaces -->
-                            <a href="{% url 'main:edit_income_category' pk=node.id %}"><i class="bi bi-pencil-square"></i></a>
+                            <button type="button" class="btn px-0 edit-income-button" data-bs-toggle="modal" data-bs-target="#editIncomeCategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
                             <button type="button" class="btn px-0 delete-income-button" data-bs-toggle="modal" data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}">
                                 <i class="bi bi-trash"></i>
                             </button>
