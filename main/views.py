@@ -9,10 +9,11 @@ from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.contrib import messages
 
 @login_required(login_url=reverse_lazy('main:login'))
 def index(request): 
@@ -197,14 +198,23 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def post(self, request):
         user = request.user
+        name = request.POST['category_name']
+
         parent_id = request.POST.get('category_id', None)
         if parent_id:
             parent = ExpenseCategory.objects.get(id=parent_id)
         else:
-            parent = None
-        name = request.POST['category_name']
+            if validate_main_category_uniqueness(name, user, ExpenseCategory):
+                parent = None
+            else:
+                messages.error(request, f'There is already a {name} category in main categories.')
+                return HttpResponseRedirect(reverse('main:categories'))
+
         new_category = ExpenseCategory(name=name, parent=parent, user=user)
-        new_category.save()
+        try:
+            new_category.save()
+        except IntegrityError:
+            messages.error(request, f'There is already a {name} category under {parent.name} category.')
         return HttpResponseRedirect(reverse('main:categories'))
 
 
@@ -220,14 +230,22 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def post(self, request):
         user = request.user
+        name = request.POST['category_name']
         parent_id = request.POST.get('category_id', None)
         if parent_id:
             parent = IncomeCategory.objects.get(id=parent_id)
         else:
-            parent = None
-        name = request.POST['category_name']
+            if validate_main_category_uniqueness(name, user, IncomeCategory):
+                parent = None
+            else:
+                messages.error(request, f'There is already a {name} category in main categories.')
+                return HttpResponseRedirect(reverse('main:categories'))
+        
         new_category = IncomeCategory(name=name, parent=parent, user=user)
-        new_category.save()
+        try:
+            new_category.save()
+        except IntegrityError:
+            messages.error(request, f'There is already a {name} category under {parent.name} category.')
         return HttpResponseRedirect(reverse('main:categories'))
 
 

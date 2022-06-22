@@ -57,7 +57,10 @@ def get_account_data(user):
     for account in accounts:
         data[account.id] = account.currency.code
     return data
-    
+
+def validate_main_category_uniqueness(name, user, category):
+    return not category.objects.filter(name=name, user=user, parent=None).exists()
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
