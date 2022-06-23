@@ -177,7 +177,7 @@ class EditAccountView(UpdateView):
 class DeleteAccountView(DeleteView):
     pass
 
-class CategoriesView(View):
+class CategoriesView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         context = {
