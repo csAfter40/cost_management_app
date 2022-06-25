@@ -14,7 +14,7 @@
             {% if not transfers %}
                 <tr><td colspan="5" class="table-info">No transfers available.</td></tr>
             {% endif %}
-            {% for transfer in transfers %}
+            <!-- {% for transfer in transfers %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>
                     <td>{{ transfer.from_account }}</td>
@@ -22,7 +22,7 @@
                     <td>{{ transfer.to_account }}</td>
                     <td>{{ transfer.to_amount }}{{ transfer.to_account.currency.symbol }}</td>                    
                 </tr>
-            {% endfor %}
+            {% endfor %} -->
         </tbody>
     </table>
 </div>

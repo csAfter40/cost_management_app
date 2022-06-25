@@ -16,7 +16,7 @@ from django.contrib import messages
 
 @login_required(login_url=reverse_lazy('main:login'))
 def index(request): 
-    transfer_form = TransferForm(request.user)
+    transfer_form = TransferForm(user=request.user)
     expense_form = ExpenseInputForm(request.user)
     income_form = IncomeInputForm(request.user)
 
