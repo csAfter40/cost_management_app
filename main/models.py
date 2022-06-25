@@ -36,69 +36,57 @@ class Account(models.Model):
     def __str__(self):
         return self.name
 
+class Category(MPTTModel):
 
-class ExpenseCategory(MPTTModel):
+    CATEGORY_TYPES = (
+        ('E', 'Expense'),
+        ('I', 'Income'),
+    )
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=64)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    type = models.CharField(max_length=1, choices=CATEGORY_TYPES)
 
     class MPTTMeta:
         order_insertion_by = ['name']
 
     class Meta:
         unique_together = (('parent', 'name'))
-        verbose_name_plural = 'ExpenseCategories'
+        verbose_name_plural = 'Categories'
 
     def __str__(self) -> str:
         return self.name
 
-class IncomeCategory(MPTTModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(max_length=64)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-
-    class MPTTMeta:
-        order_insertion_by = ['name']
-
-    class Meta:
-        unique_together = (('parent', 'name'))
-        verbose_name_plural = 'IncomeCategories'
-
-    def __str__(self) -> str:
-        return self.name
 
 class Transaction(models.Model):
+
+    TRANSACTION_TYPES = (
+        ('E','Expense'),
+        ('I', 'Income'),
+        ('T', 'Transfer')
+    )
+
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     date = models.DateField(blank=True, default=date.today)
-
-    class Meta:
-        abstract = True
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    type = models.CharField(max_length=1, choices=TRANSACTION_TYPES)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} - {self.amount} from {self.account}"
 
 
-class Expense(Transaction):
-    category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True)
-
-    def get_type(self):
-        return "Expense"
-
-
-class Income(Transaction):
-    category = models.ForeignKey(IncomeCategory, on_delete=models.SET_NULL, null=True)
-
-    def get_type(self):
-        return "Income"
-
 class Transfer(models.Model):
-    from_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='outgoings')
-    to_account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, related_name='incomings' )
-    from_amount = models.DecimalField(max_digits=14, decimal_places=2)
-    to_amount = models.DecimalField(max_digits=14, decimal_places=2, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='Transfers')
+    from_transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='transfers_from', null=True)
+    to_transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='transfers_to', null=True)
     date = models.DateField(blank=True, default=date.today)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"On {self.date} from {self.from_account} to {self.to_account} {self.from_amount}"
+        return f"On {self.date} from {self.from_transaction.account} to {self.to_transaction.account} {self.from_transaction.amount}"

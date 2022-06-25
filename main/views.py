@@ -1,4 +1,3 @@
-from unicodedata import category
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
@@ -7,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
-from .models import Account, Expense, User, ExpenseCategory, IncomeCategory, Income
+from .models import Account, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
 from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness
 from django.db import IntegrityError
@@ -80,7 +79,7 @@ def expense_name_autocomplete(request):
     if name_query:
         user = request.user
         accounts = Account.objects.filter(user=user)
-        expenses = Expense.objects.filter(account__in=accounts, name__icontains=name_query)
+        expenses = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type='E')
         for expense in expenses:
             name_list.append(expense.name)
     return JsonResponse({'status': 200, 'data': name_list})
@@ -91,7 +90,7 @@ def income_name_autocomplete(request):
     if name_query:
         user = request.user
         accounts = Account.objects.filter(user=user)
-        incomes = Income.objects.filter(account__in=accounts, name__icontains=name_query)
+        incomes = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type='I')
         for income in incomes:
             name_list.append(income.name)
     return JsonResponse({'status': 200, 'data': name_list})
@@ -181,8 +180,8 @@ class CategoriesView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         context = {
-            'expense_categories': ExpenseCategory.objects.filter(user=user),
-            'income_categories': IncomeCategory.objects.filter(user=user),
+            'expense_categories': Category.objects.filter(user=user, type='E'),
+            'income_categories': Category.objects.filter(user=user, type='I'),
         }
         return render(request, 'main/categories.html', context)
 
@@ -192,7 +191,7 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         user = self.request.user
         id = self.request.POST.get('category_id', None)
         if id:
-            return ExpenseCategory.objects.get(id=id).user == user
+            return Category.objects.get(id=id).user == user
         else:
             return True
 
@@ -202,15 +201,15 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
         parent_id = request.POST.get('category_id', None)
         if parent_id:
-            parent = ExpenseCategory.objects.get(id=parent_id)
+            parent = Category.objects.get(id=parent_id)
         else:
-            if validate_main_category_uniqueness(name, user, ExpenseCategory):
+            if validate_main_category_uniqueness(name, user, type='E'):
                 parent = None
             else:
                 messages.error(request, f'There is already a {name} category in main categories.')
                 return HttpResponseRedirect(reverse('main:categories'))
 
-        new_category = ExpenseCategory(name=name, parent=parent, user=user)
+        new_category = Category(name=name, parent=parent, user=user, type='E')
         try:
             new_category.save()
         except IntegrityError:
@@ -224,7 +223,7 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         user = self.request.user
         id = self.request.POST.get('category_id', None)
         if id:
-            return IncomeCategory.objects.get(id=id).user == user
+            return Category.objects.get(id=id).user == user
         else:
             return True
 
@@ -233,15 +232,15 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         name = request.POST['category_name']
         parent_id = request.POST.get('category_id', None)
         if parent_id:
-            parent = IncomeCategory.objects.get(id=parent_id)
+            parent = Category.objects.get(id=parent_id)
         else:
-            if validate_main_category_uniqueness(name, user, IncomeCategory):
+            if validate_main_category_uniqueness(name, user, type='I'):
                 parent = None
             else:
                 messages.error(request, f'There is already a {name} category in main categories.')
                 return HttpResponseRedirect(reverse('main:categories'))
         
-        new_category = IncomeCategory(name=name, parent=parent, user=user)
+        new_category = Category(name=name, parent=parent, user=user, type='I')
         try:
             new_category.save()
         except IntegrityError:
@@ -254,13 +253,13 @@ class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
         user = self.request.user
         id = self.request.POST['category_id']
-        return ExpenseCategory.objects.get(id=id).user == user
+        return Category.objects.get(id=id).user == user
 
     def post(self, request):
         user = request.user
         id = request.POST['category_id']
         name = request.POST['category_name']
-        category_obj = ExpenseCategory.objects.get(id=id)
+        category_obj = Category.objects.get(id=id)
         category_obj.name = name
         category_obj.save()
         return HttpResponseRedirect(reverse('main:categories'))
@@ -271,13 +270,13 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
         user = self.request.user
         id = self.request.POST['category_id']
-        return IncomeCategory.objects.get(id=id).user == user
+        return Category.objects.get(id=id).user == user
 
     def post(self, request):
         user = request.user
         id = request.POST['category_id']
         name = request.POST['category_name']
-        category_obj = IncomeCategory.objects.get(id=id)
+        category_obj = Category.objects.get(id=id)
         category_obj.name = name
         category_obj.save()
         return HttpResponseRedirect(reverse('main:categories'))
@@ -288,11 +287,11 @@ class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
         user = self.request.user
         id = self.request.POST['category_id']
-        return ExpenseCategory.objects.get(id=id).user == user
+        return Category.objects.get(id=id).user == user
 
     def post(self, request):
         id = request.POST['category_id']
-        category = ExpenseCategory.objects.get(id=id)
+        category = Category.objects.get(id=id)
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))
 
@@ -302,10 +301,10 @@ class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
         user = self.request.user
         id = self.request.POST['category_id']
-        return IncomeCategory.objects.get(id=id).user == user
+        return Category.objects.get(id=id).user == user
 
     def post(self, request):
         id = request.POST['category_id']
-        category = IncomeCategory.objects.get(id=id)
+        category = Category.objects.get(id=id)
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))

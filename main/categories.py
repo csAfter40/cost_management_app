@@ -53,3 +53,58 @@ income_categories = {
         'children': None
     },
 }
+
+categories = {
+    # Expense Categories
+    'Automobile': {
+        'type': 'E',
+        'children': {
+            'Insurance': {
+                'type': 'E',
+                'children': None
+            },
+            'Maintenance': {
+                'type': 'E',
+                'children': None
+            },
+            'Gas': {
+                'type': 'E',
+                'children': None
+            },
+        }
+    },
+    'Food': {
+        'type': 'E',
+        'children': {
+            'Groceries': {
+                'type': 'E',
+                'children': None
+            },
+            'Restaurant': {
+                'type': 'E',
+                'children': None
+            },
+        }
+    },
+    'Uncategorized': {
+        'type': 'E',
+        'children': None
+    },
+    # Income Categories
+    'Salary': {
+        'type': 'I',
+        'children': None
+    },
+    'Rents': {
+        'type': 'I',
+        'children': None
+    },
+    'Bank': {
+        'type': 'I',
+        'children': None
+    },
+    'Uncategorized': {
+        'type': 'I',
+        'children': None
+    },
+}
