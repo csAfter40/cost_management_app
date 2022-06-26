@@ -1,30 +1,23 @@
-new Autocomplete('#autocomplete_expense', {
-    search: input => {
-        const url = `/autocomplete/expense_name?name=${input}`
-        return new Promise(resolve => {
-            fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                resolve(data.data)
+// set autocomplete for expense and income name input fields
+autocomplete_fields = document.querySelectorAll('.autocomplete');
+for (let i=0; i<autocomplete_fields.length; i++) {
+    let obj = autocomplete_fields[i];
+    let type = obj.dataset.type;
+    let id = obj.id;
+    new Autocomplete(`#${id}`, {
+        search: input => {
+            const url = `/autocomplete/transaction_name?type=${type}&name=${input}`
+            return new Promise(resolve => {
+                fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    resolve(data.data)
+                })
             })
-        })
-    }
-});
-
-new Autocomplete('#autocomplete_income', {
-    search: input => {
-        const url = `/autocomplete/income_name?name=${input}`
-        return new Promise(resolve => {
-            fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                resolve(data.data)
-            })
-        })
-    }
-});
+        }
+    });
+};
 
 // datepickers for expense and income input forms
 $( function() {

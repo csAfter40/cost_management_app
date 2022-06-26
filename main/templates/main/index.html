@@ -30,7 +30,7 @@
                         <h5 class="text-danger">Input Expense</h5>
                         <form action="{% url 'main:index' %}" method="POST">
                             {% csrf_token %}
-                            <div id="autocomplete_expense" class="autocomplete">
+                            <div id="autocomplete_expense" class="autocomplete" data-type="E">
                                 {{ expense_form.name|as_crispy_field }}
                                 <ul class="autocomplete-result-list"></ul>
                             </div>
@@ -48,7 +48,7 @@
                         <h5 class="text-success">Input Income</h5>
                         <form action="{% url 'main:index' %}" method="POST">
                             {% csrf_token %}
-                            <div id="autocomplete_income" class="autocomplete">
+                            <div id="autocomplete_income" class="autocomplete" data-type="I">
                                 {{ income_form.name|as_crispy_field }}
                                 <ul class="autocomplete-result-list"></ul>
                             </div>

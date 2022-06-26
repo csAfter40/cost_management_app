@@ -79,27 +79,19 @@ def index(request):
     }
     return render(request, 'main/index.html', context)
 
-def expense_name_autocomplete(request):
-    name_query = request.GET.get('name', None)
-    name_list = []
-    if name_query:
-        user = request.user
-        accounts = Account.objects.filter(user=user)
-        expenses = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type='E')
-        for expense in expenses:
-            name_list.append(expense.name)
-    return JsonResponse({'status': 200, 'data': name_list})
 
-def income_name_autocomplete(request):
+def transaction_name_autocomplete(request):
     name_query = request.GET.get('name', None)
+    type = request.GET.get('type', None)
     name_list = []
     if name_query:
         user = request.user
         accounts = Account.objects.filter(user=user)
-        incomes = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type='I')
+        incomes = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type=type)
         for income in incomes:
             name_list.append(income.name)
     return JsonResponse({'status': 200, 'data': name_list})
+
 
 class LoginView(View):
     def get(self, request):
@@ -163,6 +155,7 @@ def logout_view(request):
 class AccountsView(ListView):
     pass
 
+
 class CreateAccountView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('main:login')
     model = Account
@@ -179,8 +172,10 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
 class EditAccountView(UpdateView):
     pass
 
+
 class DeleteAccountView(DeleteView):
     pass
+
 
 class CategoriesView(LoginRequiredMixin, View):
     def get(self, request):
@@ -190,6 +185,7 @@ class CategoriesView(LoginRequiredMixin, View):
             'income_categories': Category.objects.filter(user=user, type='I'),
         }
         return render(request, 'main/categories.html', context)
+
 
 class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     

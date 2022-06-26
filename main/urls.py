@@ -31,8 +31,7 @@ htmx_urlpatterns = [
 ]
 
 autocomplete_urlpatterns = [
-    path('autocomplete/expense_name', views.expense_name_autocomplete, name='expense_name_autocomplete'),
-    path('autocomplete/income_name', views.income_name_autocomplete, name='income_name_autocomplete'),
+    path('autocomplete/transaction_name', views.transaction_name_autocomplete, name='transaction_name_autocomplete'),
 ]
 
 urlpatterns += htmx_urlpatterns
