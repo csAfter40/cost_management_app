@@ -267,7 +267,13 @@ class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         name = request.POST['category_name']
         category_obj = Category.objects.get(id=id)
         category_obj.name = name
-        category_obj.save()
+        if Category.objects.filter(parent=category_obj.parent, name=name).exists():
+            if category_obj.parent:
+                messages.error(request, f'There is already a {name} category under {category_obj.parent.name} category.')
+            else:
+                messages.error(request, f'There is already a {name} category in main categories.')
+        else:
+            category_obj.save()
         return HttpResponseRedirect(reverse('main:categories'))
 
 
@@ -284,7 +290,13 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         name = request.POST['category_name']
         category_obj = Category.objects.get(id=id)
         category_obj.name = name
-        category_obj.save()
+        if Category.objects.filter(parent=category_obj.parent, name=name).exists():
+            if category_obj.parent:
+                messages.error(request, f'There is already a {name} category under {category_obj.parent.name} category.')
+            else:
+                messages.error(request, f'There is already a {name} category in main categories.')
+        else:
+            category_obj.save()
         return HttpResponseRedirect(reverse('main:categories'))
 
 
