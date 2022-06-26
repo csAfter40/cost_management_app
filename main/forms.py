@@ -46,31 +46,6 @@ class IncomeInputForm(ModelForm):
         self.fields['account'].queryset = Account.objects.filter(user=self.user)
 
 
-# class TransferForm(ModelForm):
-
-
-#     class Meta:
-#         model = Transfer
-#         fields = ['date']
-#         widgets = {
-#             'date': TextInput(attrs={'id': 'transfer-datepicker'}),
-#             'from_account': Select(attrs={'id': 'from-account-field'}),
-#             'to_account': Select(attrs={'id': 'to-account-field'}),
-#         }
-
-#     def __init__(self, user, *args, **kwargs):
-#         self.user = user
-#         super().__init__(*args, **kwargs)
-#         accounts_qs = Account.objects.filter(user=self.user)
-#         self.fields['from_account'].queryset = accounts_qs
-#         self.fields['to_account'].queryset = accounts_qs
-
-#     def clean(self):
-#         cleaned_data = super().clean()
-#         if cleaned_data['from_account'] == cleaned_data['to_account']:
-#             raise ValidationError("From account and To account can not have same value")
-#         return cleaned_data # ???
-
 class TransferForm(forms.Form):
 
     from_amount = forms.DecimalField(decimal_places=2)
