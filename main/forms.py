@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import CharField, ModelForm, TextInput, Select, ValidationError
+from django.forms import CharField, HiddenInput, ModelForm, TextInput, Select, ValidationError
 from .models import Account, Transaction, Transfer, Category
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
@@ -11,10 +11,11 @@ class ExpenseInputForm(ModelForm):
     
     class Meta:
         model = Transaction
-        fields = ['name', 'account', 'amount', 'category', 'date']
+        fields = ['name', 'account', 'amount', 'category', 'date', 'type']
         widgets = {
             'name': TextInput(attrs={'class': 'form-control autocomplete-input'}),
             'date': TextInput(attrs={'id': 'expense-datepicker'}),
+            'type': HiddenInput(attrs={'value': 'E'})
         }
         
     def __init__(self, user, *args, **kwargs):
@@ -31,10 +32,11 @@ class IncomeInputForm(ModelForm):
 
     class Meta:
         model = Transaction
-        fields = ['name', 'account', 'amount', 'category', 'date']
+        fields = ['name', 'account', 'amount', 'category', 'date', 'type']
         widgets = {
             'name': TextInput(attrs={'class': 'form-control autocomplete-input'}),
             'date': TextInput(attrs={'id': 'income-datepicker'}),
+            'type': HiddenInput(attrs={'value': 'I'})
         }
 
     def __init__(self, user, *args, **kwargs):
