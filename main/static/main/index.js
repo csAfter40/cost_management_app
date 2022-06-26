@@ -45,6 +45,8 @@ $( function() {
 // get json file from script tag
 var accountData = JSON.parse(document.querySelector('#account-data').textContent);
 const toAmountField = document.querySelector('#div_id_to_amount');
+const toAmountInput = document.querySelector('#id_to_amount');
+const fromAmountInput = document.querySelector('#id_from_amount');
 const fromAmountField = document.querySelector('#div_id_from_amount');
 const fromAmountTitle = fromAmountField.querySelector('label');
 const fromAmountPrepend = fromAmountField.querySelector('.input-group-text')
@@ -60,7 +62,6 @@ fromAccountField.addEventListener("change", function() {
     } else if (accountData[fromAccountField.value] == accountData[toAccountField.value] && fromAccountField.value != '') {
         toAmountField.style.display = 'none';
         fromAmountTitle.innerHTML = 'Amount<span class="asteriskField">*</span>'
-
     } else {
         toAmountField.style.display = 'block';
         fromAmountTitle.innerHTML = 'From amount<span class="asteriskField">*</span>'
@@ -74,10 +75,16 @@ toAccountField.addEventListener("change", function() {
     } else if (accountData[fromAccountField.value] == accountData[toAccountField.value] && fromAccountField.value != '') {
         toAmountField.style.display = 'none';
         fromAmountTitle.innerHTML = 'Amount<span class="asteriskField">*</span>'
-
     } else {
         toAmountField.style.display = 'block';
         fromAmountTitle.innerHTML = 'From amount<span class="asteriskField">*</span>'
+    };
+});
+
+// sets to_amount input field value when it is not visible
+fromAmountInput.addEventListener("change", function() {
+    if (toAmountField.style.display == 'none') {
+        toAmountInput.value = fromAmountInput.value
     };
 });
 

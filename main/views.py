@@ -1,3 +1,5 @@
+from datetime import date
+from unicodedata import name
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
@@ -6,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse, reverse_lazy
 from requests import request
-from .models import Account, User, Transaction, Category
+from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
 from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness
 from django.db import IntegrityError
@@ -23,25 +25,30 @@ def index(request):
     if request.method == 'POST':
         # transfer form operations
         if request.POST.get('submit-transfer'):
-            form = TransferForm(request.user, request.POST)
+            form = TransferForm(request.POST, user=request.user)
             if form.is_valid():
                 data = form.cleaned_data
-                print(data)
+                date = data['date']
                 from_account = data['from_account']
                 to_account = data['to_account']
                 from_amount = data['from_amount']
                 to_amount = data['to_amount'] if data['to_amount'] else data['from_amount']
                 
                 with transaction.atomic():
+                    from_transaction = Transaction(account=from_account, name='Transfer', amount=from_amount, date=date, type='T')
                     from_account.balance -= from_amount
-                    to_account.balance += to_amount
                     from_account.save()
+                    from_transaction.save()
+                    to_transaction = Transaction(account=to_account, name='Transfer', amount=to_amount, date=date, type='T')
+                    to_account.balance += to_amount
                     to_account.save()
-                    transfer = form.save(commit=False)
-                    transfer.to_amount = to_amount # in case to_amount field is blank
+                    to_transaction.save()
+                    transfer = Transfer(user=request.user, from_transaction=from_transaction, to_transaction=to_transaction, date=date)
                     transfer.save()
+
             else:
                 transfer_form = form
+
         # expense form operations
         if request.POST.get('submit-expense'):
             form = ExpenseInputForm(request.user, request.POST)
@@ -69,7 +76,6 @@ def index(request):
         'transactions': get_latest_transactions(request.user, 5),
         'transfers': get_latest_transfers(request.user, 5),
         'account_data': get_account_data(request.user)
-
     }
     return render(request, 'main/index.html', context)
 
