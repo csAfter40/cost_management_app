@@ -17,9 +17,13 @@
             {% for transaction in transactions %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>
-                    <td>{{ transaction.get_type }}</td>
+                    <td>{{ transaction.get_type_display }}</td>
                     <td>{{ transaction.name }}</td>
-                    <td>{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                    {% if transaction.type == 'E' %}
+                        <td class="text-danger">{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                    {% else %}
+                        <td class="text-success">{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                    {% endif %}
                     <td>{{ transaction.account }}</td>                    
                 </tr>
             {% endfor %}

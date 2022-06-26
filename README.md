@@ -8,3 +8,4 @@ In this project I have experienced:
     * Using a tree model for the hierarchical category data.
     * Implementing a category system in which users can add, delete or edit categories.
     * Using Bootstrap's modal dialog boxes for user experience improvement.
+    * Working with branches on git.

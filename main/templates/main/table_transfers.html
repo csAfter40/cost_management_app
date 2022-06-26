@@ -17,10 +17,10 @@
             {% for transfer in transfers %}
                 <tr>
                     <th scope="row">{{forloop.counter}}</th>
-                    <td>{{ transfer.from_account }}</td>
-                    <td>{{ transfer.from_amount }}{{ transfer.from_account.currency.symbol }}</td>
-                    <td>{{ transfer.to_account }}</td>
-                    <td>{{ transfer.to_amount }}{{ transfer.to_account.currency.symbol }}</td>                    
+                    <td>{{ transfer.from_transaction.account }}</td>
+                    <td>{{ transfer.from_transaction.amount }}{{ transfer.from_transaction.account.currency.symbol }}</td>
+                    <td>{{ transfer.to_transaction.account }}</td>
+                    <td>{{ transfer.to_transaction.amount }}{{ transfer.to_transaction.account.currency.symbol }}</td>                    
                 </tr>
             {% endfor %}
         </tbody>
