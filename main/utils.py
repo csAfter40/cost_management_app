@@ -9,7 +9,7 @@ def get_latest_transactions(user, qty):
     return transactions
 
 def get_latest_transfers(user, qty):
-    transfers = Transfer.objects.filter(user=user).select_related('from_transaction', 'to_transaction').order_by('-date')[:qty]
+    transfers = Transfer.objects.filter(user=user).select_related('from_transaction__account__currency', 'to_transaction__account__currency').order_by('-date')[:qty]
     return transfers
 
 def create_categories(categories, user, parent=None):
