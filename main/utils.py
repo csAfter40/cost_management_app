@@ -3,39 +3,13 @@ from django.db.models.signals import post_save
 from .models import User, UserPreferences, Account, Transfer, Category, Transaction
 from .categories import categories
 
-# def get_latest_transactions(user, qty):
-#     accounts = Account.objects.filter(user=user)
-#     expenses = Expense.objects.filter(account__in=accounts).order_by('-date')
-#     incomes = Income.objects.filter(account__in=accounts).order_by('-date')
-#     expenses_len = expenses.count()
-#     incomes_len = incomes.count()
-#     transaction_list = []
-#     j, k = 0, 0
-#     for i in range(qty):
-#         if j < expenses_len and k < incomes_len:
-#             if expenses[j].date >= incomes[k].date:
-#                 transaction_list.append(expenses[j])
-#                 j += 1
-#             else:
-#                 transaction_list.append(incomes[k])
-#                 k += 1
-#         elif j < expenses_len:
-#             transaction_list.append(expenses[j])
-#             j += 1
-#         elif k < incomes_len:
-#             transaction_list.append(incomes[k])
-#             k += 1
-#         else:
-#             break
-#     return transaction_list
-
 def get_latest_transactions(user, qty):
     accounts = Account.objects.filter(user = user)
     transactions = Transaction.objects.filter(account__in=accounts).exclude(type='T').order_by('-date')[:qty]
     return transactions
 
 def get_latest_transfers(user, qty):
-    transfers = Transfer.objects.filter(user=user).order_by('-date')[:qty]
+    transfers = Transfer.objects.filter(user=user).select_related('from_transaction', 'to_transaction').order_by('-date')[:qty]
     return transfers
 
 def create_categories(categories, user, parent=None):
