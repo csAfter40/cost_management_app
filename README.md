@@ -1,5 +1,7 @@
 A simple cost management app in which users can input their expences and incomes so that users can monitor their financial status and view reports.
 
+App can be seen live at: https://django-wallet-app.herokuapp.com/
+
 * loading initial currency data to database:
     python manage.py loaddata currencies.json
 
