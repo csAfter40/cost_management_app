@@ -64,7 +64,8 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('E','Expense'),
         ('I', 'Income'),
-        ('T', 'Transfer')
+        ('TI', 'Transfer In'),
+        ('TO', 'Transfer Out'),
     )
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -72,7 +73,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     date = models.DateField(blank=True, default=date.today)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-    type = models.CharField(max_length=1, choices=TRANSACTION_TYPES)
+    type = models.CharField(max_length=2, choices=TRANSACTION_TYPES)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

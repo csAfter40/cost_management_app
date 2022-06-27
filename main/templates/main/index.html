@@ -65,7 +65,7 @@
                 </div>
                 <div class="row border-top py-2 my-2">
                     <div class="col-12">
-                        <h5 class="text-dark">Transfer</h5>
+                        <h4 class="text-dark">Transfer</h4>
                         <form action="{% url 'main:index' %}" method="POST" id="form-transfer">
                             {% csrf_token %}
                             {{ transfer_form.from_account|as_crispy_field }}

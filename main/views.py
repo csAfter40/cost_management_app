@@ -35,11 +35,11 @@ def index(request):
                 to_amount = data['to_amount'] if data['to_amount'] else data['from_amount']
                 
                 with transaction.atomic():
-                    from_transaction = Transaction(account=from_account, name='Transfer', amount=from_amount, date=date, type='T')
+                    from_transaction = Transaction(account=from_account, name='Transfer Out', amount=from_amount, date=date, type='TO')
                     from_account.balance -= from_amount
                     from_account.save()
                     from_transaction.save()
-                    to_transaction = Transaction(account=to_account, name='Transfer', amount=to_amount, date=date, type='T')
+                    to_transaction = Transaction(account=to_account, name='Transfer In', amount=to_amount, date=date, type='TI')
                     to_account.balance += to_amount
                     to_account.save()
                     to_transaction.save()
