@@ -155,6 +155,23 @@ def logout_view(request):
 class AccountsView(ListView):
     pass
 
+class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        user = self.request.user
+        id = self.kwargs.get('pk')
+        return Account.objects.get(id=id).user == user
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        account_id = kwargs.get('pk')
+        account = Account.objects.get(id=account_id)
+        transactions = Transaction.objects.filter(account=account).order_by('-date', '-created')
+        context = {
+            'account': account,
+            'transactions': transactions,
+        }
+        return render(request, 'main/account_detail.html', context)
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('main:login')
