@@ -75,7 +75,8 @@ def index(request):
         'transfer_form': transfer_form,
         'transactions': get_latest_transactions(request.user, 5),
         'transfers': get_latest_transfers(request.user, 5),
-        'account_data': get_account_data(request.user)
+        'account_data': get_account_data(request.user),
+        'show_account': True,
     }
     return render(request, 'main/index.html', context)
 

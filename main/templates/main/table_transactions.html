@@ -3,11 +3,16 @@
     <table class="table">
         <thead class="thead-dark">
         <tr>
-            <th class="align-middle col-md-1" scope="col">#</th>
-            <th class="align-middle col-md-2" scope="col">Type</th>
-            <th class="align-middle col-md-3" scope="col">Description</th>
-            <th class="align-middle col-md-3" scope="col">Amount</th>
-            <th class="align-middle col-md-3" scope="col">Account</th>
+            <!-- <th class="align-middle col-md-1" scope="col">#</th> -->
+            <th class="align-middle col-md-2" scope="col">Date</th>
+            {% if show_type %}
+                <th class="align-middle col-md-2" scope="col">Type</th>
+            {% endif %}
+            <th class="align-middle col-md-2" scope="col">Description</th>
+            <th class="align-middle col-md-2" scope="col">Amount</th>
+            {% if show_account %}
+                <th class="align-middle col-md-2" scope="col">Account</th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -16,15 +21,20 @@
             {% endif %}
             {% for transaction in transactions %}
                 <tr>
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td>{{ transaction.get_type_display }}</td>
+                    <!-- <th scope="row">{{forloop.counter}}</th> -->
+                    <td>{{ transaction.date|date:"d.m.y" }}</td>
+                    {% if show_type %}
+                        <td>{{ transaction.get_type_display }}</td>
+                    {% endif %}
                     <td>{{ transaction.name }}</td>
                     {% if transaction.type == 'E' or transaction.type == 'TO' %}
-                        <td class="text-danger">{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                        <td class="text-danger">-{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
                     {% else %}
-                        <td class="text-success">{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                        <td class="text-success">+{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
                     {% endif %}
-                    <td>{{ transaction.account }}</td>                    
+                    {% if show_account %}
+                        <td>{{ transaction.account }}</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
