@@ -1,4 +1,5 @@
-from datetime import date
+from datetime import date, timedelta
+import json
 from unicodedata import name
 from django.shortcuts import render
 from django.views import View
@@ -10,7 +11,7 @@ from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -173,6 +174,24 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             'transactions': transactions,
         }
         return render(request, 'main/account_detail.html', context)
+
+    def put(self, request, *args, **kwargs):
+        account_id = kwargs.get('pk')
+        account = Account.objects.get(id=account_id)
+        data = json.loads(request.body)
+        time = data['time']
+        dates = get_dates()
+        context = {}
+        if time == 'all':
+            context['transactions'] = Transaction.objects.filter(account=account).order_by('-date', '-created')
+        elif time == 'week':
+            print('week')
+            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['week_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'month':
+            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'year':
+            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
+        return render(request, 'main/table_transactions.html', context)
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('main:login')

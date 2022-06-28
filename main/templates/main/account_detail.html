@@ -5,6 +5,7 @@
 
 {% endblock %}
 {% block body %}
+{% csrf_token %}
 <div class="container">
     <div class="row justify-content-center py-3">
         <div class="col-lg-12">
@@ -25,18 +26,25 @@
             </div>
         </div>
     </div>
+    <div class="row justify-content-center mb-3">
+        <div class="col-lg-12 text-center d-grid d-sm-block">
+            <button id="all-time" type="button" class="btn btn-primary btn-lg select-time" data-time="all">All Time</button>
+            <button id="week-time" type="button" class="btn btn-outline-primary btn-lg select-time" data-time="week">This Week</button>
+            <button id="month-time" type="button" class="btn btn-outline-primary btn-lg select-time" data-time="month">This Month</button>
+            <button id="year-time" type="button" class="btn btn-outline-primary btn-lg select-time" data-time="year">This Year</button>
+        </div>
+    </div>
     <div class="row justify-content-center">
-        <div class="col-lg-6 text-center">
+        <div class="col-lg-6 text-center" id="transactions-table">
             {% include 'main/table_transactions.html' %}
         </div>
-        <div class="col-lg-6 text-center bg-light">
-            
+        <div class="col-lg-6 text-center bg-light py-3">
+            <h3> Stats & Graphs</h3>
         </div>
     </div>
 </div>
-        
 
 {% endblock %}
 {% block script %}
-
+    <script src="{% static 'main/account_detail.js' %}"></script>
 {% endblock %}
