@@ -83,6 +83,7 @@
             </div>
         </div>
     </div>
+    {% include 'main/index_modals.html' %}
 {% endblock %}
 {% block script %}
     {{ account_data|json_script:'account-data' }}
