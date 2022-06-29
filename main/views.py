@@ -166,9 +166,9 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         account_id = kwargs.get('pk')
-        account = Account.objects.get(id=account_id)
+        account = Account.objects.select_related('currency').get(id=account_id)
         transactions = Transaction.objects.filter(account=account).order_by('-date', '-created')
-        stats = get_stats(transactions)
+        stats = get_stats(transactions, account.balance)
         context = {
             'account': account,
             'transactions': transactions,
@@ -178,7 +178,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def put(self, request, *args, **kwargs):
         account_id = kwargs.get('pk')
-        account = Account.objects.get(id=account_id)
+        account = Account.objects.select_related('currency').get(id=account_id)
         data = json.loads(request.body)
         time = data['time']
         dates = get_dates()
@@ -192,7 +192,8 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
         elif time == 'year':
             context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
-        context['stats'] = get_stats(context['transactions'])
+        context['stats'] = get_stats(context['transactions'], account.balance)
+        context['account'] = account
         return render(request, 'main/account_detail_pack.html', context)
 
 

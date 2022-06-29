@@ -53,15 +53,22 @@ def get_dates():
     dates['year_start'] = date(year, 1, 1)
     return dates
 
-def get_stats(qs):
-    stats = {}
+def get_stats(qs, balance):
     expences = qs.filter(Q(type='E') | Q(type='TO'))
     expences = expences.aggregate(Sum('amount'))
     incomes = qs.filter(Q(type='I') | Q(type='TI'))
     incomes = incomes.aggregate(Sum('amount'))
     incomes_sum = incomes['amount__sum'] if incomes['amount__sum'] else 0
     expences_sum = expences['amount__sum'] if expences['amount__sum'] else 0
-    stats['diff'] = incomes_sum - expences_sum
+    diff = incomes_sum - expences_sum
+    try:
+        rate = f"{(diff / (balance-diff)):.2%}"
+    except:
+        rate = ''
+    stats = {
+        'rate': rate,
+        'diff': diff,
+    }
     return stats
 
 
