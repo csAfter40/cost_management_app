@@ -1,6 +1,7 @@
 const timeButtons = document.querySelectorAll('.select-time')
 const csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-const transactionsDiv = document.querySelector('#transactions-table')
+const transactionsDiv = document.querySelector('#transactions-table');
+const accountStats = document.querySelector('#account-stats-div');
 
 timeButtons.forEach(function(timeButton) {
     timeButton.addEventListener('click', setSelectedButton)
@@ -32,7 +33,12 @@ function getData(time){
     }).then(response => {
         return response.text()
     }).then(obj => {
-        transactionsDiv.innerHTML = obj;
+        const parser = new DOMParser();
+        const htmlDocument = parser.parseFromString(obj, "text/html");
+        let transactionHtml = htmlDocument.documentElement.querySelector('#transaction-table').innerHTML;
+        let statHtml = htmlDocument.documentElement.querySelector('#account-stats').innerHTML;
+        transactionsDiv.innerHTML = transactionHtml;
+        accountStats.innerHTML = statHtml;
     });
 
 };

@@ -11,7 +11,7 @@ from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -165,13 +165,14 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         return Account.objects.get(id=id).user == user
 
     def get(self, request, *args, **kwargs):
-        user = request.user
         account_id = kwargs.get('pk')
         account = Account.objects.get(id=account_id)
         transactions = Transaction.objects.filter(account=account).order_by('-date', '-created')
+        stats = get_stats(transactions)
         context = {
             'account': account,
             'transactions': transactions,
+            'stats': stats,
         }
         return render(request, 'main/account_detail.html', context)
 
@@ -191,7 +192,9 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
         elif time == 'year':
             context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
-        return render(request, 'main/table_transactions.html', context)
+        context['stats'] = get_stats(context['transactions'])
+        return render(request, 'main/account_detail_pack.html', context)
+
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('main:login')

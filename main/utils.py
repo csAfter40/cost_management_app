@@ -1,8 +1,11 @@
 from django.dispatch import receiver
+from django.db.models import Q, Sum, DecimalField
+from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
 from .models import User, UserPreferences, Account, Transfer, Category, Transaction
 from .categories import categories
 from datetime import date, timedelta
+
 def get_latest_transactions(user, qty):
     accounts = Account.objects.filter(user = user)
     transactions = Transaction.objects.filter(account__in=accounts).exclude(type__startswith='T').order_by('-date')[:qty]
@@ -49,6 +52,18 @@ def get_dates():
     dates['month_start'] = date(year, month, 1)
     dates['year_start'] = date(year, 1, 1)
     return dates
+
+def get_stats(qs):
+    stats = {}
+    expences = qs.filter(Q(type='E') | Q(type='TO'))
+    expences = expences.aggregate(Sum('amount'))
+    incomes = qs.filter(Q(type='I') | Q(type='TI'))
+    incomes = incomes.aggregate(Sum('amount'))
+    incomes_sum = incomes['amount__sum'] if incomes['amount__sum'] else 0
+    expences_sum = expences['amount__sum'] if expences['amount__sum'] else 0
+    stats['diff'] = incomes_sum - expences_sum
+    return stats
+
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
