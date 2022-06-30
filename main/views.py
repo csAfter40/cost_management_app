@@ -6,7 +6,7 @@ from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from requests import request
 from .models import Account, Transfer, User, Transaction, Category
@@ -70,7 +70,7 @@ def index(request):
                 account.save()
 
     context = {
-        'accounts': Account.objects.filter(user=request.user),
+        'accounts': Account.objects.filter(user=request.user, active=True),
         'expense_form': expense_form,
         'income_form': income_form,
         'transfer_form': transfer_form,
@@ -88,7 +88,7 @@ def transaction_name_autocomplete(request):
     name_list = []
     if name_query:
         user = request.user
-        accounts = Account.objects.filter(user=user)
+        accounts = Account.objects.filter(user=user, active=True)
         incomes = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type=type)
         for income in incomes:
             name_list.append(income.name)
@@ -174,6 +174,8 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             'transactions': transactions,
             'stats': stats,
         }
+        if not account.active:
+            raise Http404
         return render(request, 'main/account_detail.html', context)
 
     def put(self, request, *args, **kwargs):
@@ -214,8 +216,19 @@ class EditAccountView(UpdateView):
     pass
 
 
-class DeleteAccountView(DeleteView):
-    pass
+class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        user = self.request.user
+        self.account_id = self.request.POST['id']
+        self.account = Account.objects.get(id=self.account_id)
+        return self.account.user == user
+
+    def post(self, request):
+        account = Account.objects.get(id=self.account_id)
+        account.active = False
+        account.save()
+        return HttpResponseRedirect(reverse('main:index'))
 
 
 class CategoriesView(LoginRequiredMixin, View):

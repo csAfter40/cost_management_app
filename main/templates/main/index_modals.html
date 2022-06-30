@@ -6,14 +6,13 @@
                 <h5 class="modal-title" id="exampleModalLabel">Detele Account</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                Do you really want to delete this account?
+            <div class="modal-body" id="modal-account-delete-message">
+                <!-- will be filled by JS -->
             </div>
             <div class="modal-footer">
-                <!-- TODO -->
-                <form action="" method="post">
+                <form action="{% url 'main:delete_account' %}" method="post">
                     {% csrf_token %}
-                    <input id="income-category-id" type="hidden" name="category_id" value="">
+                    <input id="modal-account-id" type="hidden" name="id" value="">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>

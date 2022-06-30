@@ -93,4 +93,23 @@ function validateAccounts(e) {
 };
 
 var transferForm = document.querySelector('#form-transfer');
-transferForm.addEventListener('submit', validateAccounts, true)
+transferForm.addEventListener('submit', validateAccounts, true);
+
+// set account delete button events
+const deleteAccountButtons = document.querySelectorAll('.delete-account-button');
+const deleteAccountMessageDiv = document.querySelector('#modal-account-delete-message');
+const deleteAccountIdInput = document.querySelector('#modal-account-id');
+
+deleteAccountButtons.forEach(function(deleteAccountButton){
+    deleteAccountButton.addEventListener('click', function(){
+        let accountId = deleteAccountButton.dataset.id;
+        deleteAccountIdInput.setAttribute('value', accountId);
+        let balance = parseFloat(deleteAccountButton.dataset.balance);
+        let currency = deleteAccountButton.dataset.currency;
+        if (balance > 0) {
+            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;
+        } else {
+            deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this account?';
+        };
+    });
+});
