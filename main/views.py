@@ -157,9 +157,7 @@ class AccountsView(ListView):
 class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
-        user = self.request.user
-        id = self.kwargs.get('pk')
-        return Account.objects.get(id=id).user == user
+        return is_owner(self.request.user, Account, self.kwargs.get('pk'))
 
     def get(self, request, *args, **kwargs):
         account_id = kwargs.get('pk')
@@ -175,7 +173,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             raise Http404
         return render(request, 'main/account_detail.html', context)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs): #TODO
         account_id = kwargs.get('pk')
         account = Account.objects.select_related('currency').get(id=account_id)
         data = json.loads(request.body)
@@ -247,10 +245,9 @@ class CategoriesView(LoginRequiredMixin, View):
 class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
-        user = self.request.user
         id = self.request.POST.get('category_id', None)
         if id:
-            return Category.objects.get(id=id).user == user
+            return is_owner(self.request.user, Category, id)
         else:
             return True
 
@@ -279,10 +276,9 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def test_func(self):
-        user = self.request.user
         id = self.request.POST.get('category_id', None)
         if id:
-            return Category.objects.get(id=id).user == user
+            return is_owner(self.request.user, Category, id)
         else:
             return True
 
@@ -310,9 +306,7 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
-        user = self.request.user
-        id = self.request.POST['category_id']
-        return Category.objects.get(id=id).user == user
+        return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
         user = request.user
@@ -333,9 +327,7 @@ class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
-        user = self.request.user
-        id = self.request.POST['category_id']
-        return Category.objects.get(id=id).user == user
+        return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
         user = request.user
@@ -356,9 +348,7 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def test_func(self):
-        user = self.request.user
-        id = self.request.POST['category_id']
-        return Category.objects.get(id=id).user == user
+        return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
         id = request.POST['category_id']
@@ -370,9 +360,7 @@ class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def test_func(self):
-        user = self.request.user
-        id = self.request.POST['category_id']
-        return Category.objects.get(id=id).user == user
+        return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
         id = request.POST['category_id']

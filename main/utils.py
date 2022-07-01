@@ -71,6 +71,11 @@ def get_stats(qs, balance):
     }
     return stats
 
+def is_owner(user, model, id):
+    object = model.objects.get(id=id)
+    return object.user == user
+
+
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
