@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 from django.contrib.auth import authenticate, login, logout
@@ -226,7 +226,7 @@ class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
         return is_owner(self.request.user, Account, self.account_id)
 
     def post(self, request):
-        account = Account.objects.get(id=self.account_id)
+        account = get_object_or_404(Account, id=self.account_id)
         account.active = False
         account.save()
         return HttpResponseRedirect(reverse('main:index'))
@@ -257,7 +257,7 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
         parent_id = request.POST.get('category_id', None)
         if parent_id:
-            parent = Category.objects.get(id=parent_id)
+            parent = get_object_or_404(Category, id=parent_id)
         else:
             if validate_main_category_uniqueness(name, user, type='E'):
                 parent = None
@@ -287,7 +287,7 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         name = request.POST['category_name']
         parent_id = request.POST.get('category_id', None)
         if parent_id:
-            parent = Category.objects.get(id=parent_id)
+            parent = get_object_or_404(Category, id=parent_id)
         else:
             if validate_main_category_uniqueness(name, user, type='I'):
                 parent = None
@@ -309,10 +309,9 @@ class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
-        user = request.user
         id = request.POST['category_id']
         name = request.POST['category_name']
-        category_obj = Category.objects.get(id=id)
+        category_obj = get_object_or_404(Category, id=id)
         category_obj.name = name
         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
             if category_obj.parent:
@@ -330,10 +329,9 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         return is_owner(self.request.user, Category, self.request.POST['category_id'])
 
     def post(self, request):
-        user = request.user
         id = request.POST['category_id']
         name = request.POST['category_name']
-        category_obj = Category.objects.get(id=id)
+        category_obj = get_object_or_404(Category, id=id)
         category_obj.name = name
         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
             if category_obj.parent:
@@ -352,7 +350,7 @@ class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def post(self, request):
         id = request.POST['category_id']
-        category = Category.objects.get(id=id)
+        category = get_object_or_404(Category, id=id)
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))
 
@@ -364,6 +362,6 @@ class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def post(self, request):
         id = request.POST['category_id']
-        category = Category.objects.get(id=id)
+        category = get_object_or_404(Category, id=id)
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))

@@ -1,4 +1,5 @@
 from django.dispatch import receiver
+from django.shortcuts import get_object_or_404
 from django.db.models import Q, Sum, DecimalField
 from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
@@ -72,7 +73,7 @@ def get_stats(qs, balance):
     return stats
 
 def is_owner(user, model, id):
-    object = model.objects.get(id=id)
+    object = get_object_or_404(model, id=id)
     return object.user == user
 
 
