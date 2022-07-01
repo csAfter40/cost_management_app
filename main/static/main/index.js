@@ -104,7 +104,8 @@ deleteAccountButtons.forEach(function(deleteAccountButton){
     deleteAccountButton.addEventListener('click', function(){
         let accountId = deleteAccountButton.dataset.id;
         deleteAccountIdInput.setAttribute('value', accountId);
-        let balance = parseFloat(deleteAccountButton.dataset.balance);
+        let balance = parseFloat(deleteAccountButton.dataset.balance).toFixed(2);
+        
         let currency = deleteAccountButton.dataset.currency;
         if (balance > 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;

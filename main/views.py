@@ -1,6 +1,4 @@
-from datetime import date, timedelta
 import json
-from unicodedata import name
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView
@@ -8,10 +6,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
-from requests import request
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -212,17 +209,23 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
         self.object.save()
         return super().form_valid(form)
 
-class EditAccountView(UpdateView):
-    pass
+class EditAccountView(LoginRequiredMixin, UpdateView):
+    
+    model = Account
+    fields = ['name', 'balance', 'currency']
+    template_name = 'main/account_update.html'
+    success_url = reverse_lazy('main:index')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, active=True)
+
 
 
 class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
-        user = self.request.user
         self.account_id = self.request.POST['id']
-        self.account = Account.objects.get(id=self.account_id)
-        return self.account.user == user
+        return is_owner(self.request.user, Account, self.account_id)
 
     def post(self, request):
         account = Account.objects.get(id=self.account_id)
