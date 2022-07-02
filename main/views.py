@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from django.views.generic import CreateView, UpdateView, ListView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
@@ -56,6 +56,9 @@ def index(request):
                 form.save()
                 account.balance -= amount
                 account.save()
+                return HttpResponseRedirect(reverse('main:index'))
+            else:
+                expense_form = form
         #  income form operations
         if request.POST.get('submit-income'):
             form = IncomeInputForm(request.user, request.POST)
@@ -65,6 +68,8 @@ def index(request):
                 form.save()
                 account.balance += amount
                 account.save()
+                return HttpResponseRedirect(reverse('main:index'))
+            else: income_form = form
 
     context = {
         'accounts': Account.objects.filter(user=request.user, active=True),
@@ -101,14 +106,13 @@ class LoginView(View):
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
-            if user.is_active:
-                login(request, user)
-                next = request.POST.get('next', None)
-                if next:
-                    return HttpResponseRedirect(next)
-                return HttpResponseRedirect(reverse('main:index'))
-            return render(request, 'main/login.html', {'message': 'User is not active!'})
-        return render(request, 'main/login.html', {'message': 'Invalid username or password.'})
+            login(request, user)
+            next = request.POST.get('next', None)
+            if next:
+                return HttpResponseRedirect(next)
+            return HttpResponseRedirect(reverse('main:index'))            
+        messages.error(request, 'Invalid username or password.')
+        return HttpResponseRedirect(reverse('main:login'))
 
 
 class RegisterView(View):
@@ -123,15 +127,16 @@ class RegisterView(View):
         password = request.POST['password']
         confirmation = request.POST['confirmation']
         if password != confirmation:
-            return render(request, 'main/register.html', {'message': 'Passwords must match!'})
+            messages.error(request, 'Passwords must match!')
+            return HttpResponseRedirect(reverse('main:register'))
 
         #Attempt create new user
         try:
             user = User.objects.create_user(username=username, email=email, password=password)
             user.save()
         except IntegrityError as err:
-            print(err)
-            return render(request, 'main/register.html', {'message': 'Username already taken!'})
+            messages.error(request, 'Username already taken!')
+            return HttpResponseRedirect(reverse('main:register'))
         login(request, user)
         return HttpResponseRedirect(reverse('main:index'))
 
@@ -173,7 +178,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             raise Http404
         return render(request, 'main/account_detail.html', context)
 
-    def put(self, request, *args, **kwargs): #TODO
+    def put(self, request, *args, **kwargs):
         account_id = kwargs.get('pk')
         account = Account.objects.select_related('currency').get(id=account_id)
         data = json.loads(request.body)

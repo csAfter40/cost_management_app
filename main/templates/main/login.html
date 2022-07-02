@@ -4,8 +4,10 @@
 <div class="text-center my-5" ><h2>Login</h2></div>
 <div class="d-flex  justify-content-center">
     <div class=" bg-light p-3">
-        {% if message %}
-        <div class="text-danger">{{ message }}</div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="text-danger">{{ message }}</div>
+            {% endfor %}
         {% endif %}
     
         <form action="{% url 'main:login' %}" method="post" class="px-3 py-3 ">
