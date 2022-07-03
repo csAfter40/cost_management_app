@@ -245,8 +245,8 @@ class CategoriesView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         context = {
-            'expense_categories': Category.objects.filter(user=user, type='E'),
-            'income_categories': Category.objects.filter(user=user, type='I'),
+            'expense_categories': Category.objects.filter(user=user, type='E', is_transfer=False),
+            'income_categories': Category.objects.filter(user=user, type='I', is_transfer=False),
         }
         return render(request, 'main/categories.html', context)
 
@@ -321,6 +321,8 @@ class EditExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         id = request.POST['category_id']
         name = request.POST['category_name']
         category_obj = get_object_or_404(Category, id=id)
+        if category_obj.is_protected:
+            raise Http404
         category_obj.name = name
         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
             if category_obj.parent:
@@ -340,7 +342,9 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         id = request.POST['category_id']
         name = request.POST['category_name']
-        category_obj = get_object_or_404(Category, id=id)
+        category_obj = get_object_or_404(Category, id=42)
+        if category_obj.is_protected:
+            raise Http404
         category_obj.name = name
         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
             if category_obj.parent:
@@ -360,6 +364,8 @@ class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         id = request.POST['category_id']
         category = get_object_or_404(Category, id=id)
+        if category.is_protected:
+            raise Http404
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))
 
@@ -372,5 +378,7 @@ class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         id = request.POST['category_id']
         category = get_object_or_404(Category, id=id)
+        if category.is_protected:
+            raise Http404
         category.delete()
         return HttpResponseRedirect(reverse('main:categories'))
