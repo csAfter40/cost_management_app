@@ -181,6 +181,8 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             'account': account,
             'transactions': transactions,
             'stats': stats,
+            'expense_stats': expense_category_stats,
+            'income_stats': income_category_stats,
         }
         if not account.is_active:
             raise Http404

@@ -1,0 +1,45 @@
+<script>
+    const dataExpense = {
+        labels: [{% for key, value in expense_stats.items %}'{{key}}',{% endfor %}],
+        datasets: [{
+          label: 'Expences',
+          data: [{% for key, value in expense_stats.items %}{{value}},{% endfor %}],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      };
+    
+    const dataIncome = {
+      labels: [{% for key, value in income_stats.items %}'{{key}}',{% endfor %}],
+      datasets: [{
+        label: 'Incomes',
+        data: [{% for key, value in income_stats.items %}{{value}},{% endfor %}],
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)'
+        ],
+        hoverOffset: 4
+      }]
+    };
+    
+    const configExpense = {
+        type: 'pie',
+        data: dataExpense,
+    };
+    
+    const configIncome = {
+      type: 'pie',
+      data: dataIncome,
+    };
+    
+    const expensesCtx = document.querySelector('#expencesChart');
+    const incomesCtx = document.querySelector('#incomesChart');
+    const expensesChart = new Chart(expensesCtx, configExpense);
+    const incomesChart = new Chart(incomesCtx, configIncome);
+
+</script>

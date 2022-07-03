@@ -66,5 +66,5 @@
 {% endblock %}
 {% block script %}
     <script src="{% static 'main/account_detail.js' %}"></script>
-    <script src="{% static 'main/account_detail_charts.js' %}"></script>
+    {% include 'main/account_detail_chart_script.html' %}
 {% endblock %}

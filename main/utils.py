@@ -84,8 +84,8 @@ def get_category_stats(qs, category_type, parent, user):
         sum = qs.filter(category__in=descendant_categories).aggregate(Sum('amount'))
         if not sum['amount__sum']:
             continue
-        print(f'{category=}{sum=}')
         category_stats[category.name] = sum['amount__sum']
+    # print(f'{category_stats=}')
     return category_stats
 
 
