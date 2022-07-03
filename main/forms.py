@@ -21,7 +21,7 @@ class ExpenseInputForm(ModelForm):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-        self.fields['category'].queryset = Category.objects.filter(user=self.user, type='E')
+        self.fields['category'].queryset = Category.objects.filter(user=self.user, type='E', is_transfer=False)
         self.fields['account'].queryset = Account.objects.filter(user=self.user, is_active=True)
         
 
@@ -42,7 +42,7 @@ class IncomeInputForm(ModelForm):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-        self.fields['category'].queryset = Category.objects.filter(user=self.user, type='I')
+        self.fields['category'].queryset = Category.objects.filter(user=self.user, type='I', is_transfer=False)
         self.fields['account'].queryset = Account.objects.filter(user=self.user, is_active=True)
 
 

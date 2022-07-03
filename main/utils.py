@@ -9,7 +9,7 @@ from datetime import date, timedelta
 
 def get_latest_transactions(user, qty):
     accounts = Account.objects.filter(user = user)
-    transactions = Transaction.objects.filter(account__in=accounts).exclude(type__startswith='T').order_by('-date')[:qty]
+    transactions = Transaction.objects.filter(account__in=accounts).exclude(category__is_transfer=True).order_by('-date')[:qty]
     return transactions
 
 def get_latest_transfers(user, qty):

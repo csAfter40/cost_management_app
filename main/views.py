@@ -1,4 +1,5 @@
 import json
+from unicodedata import category
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView
@@ -31,18 +32,21 @@ def index(request):
                 to_account = data['to_account']
                 from_amount = data['from_amount']
                 to_amount = data['to_amount'] if data['to_amount'] else data['from_amount']
+                from_category = Category.objects.get(user=request.user, name='Transfer Out')
+                to_category = Category.objects.get(user=request.user, name='Transfer In')
                 
                 with transaction.atomic():
-                    from_transaction = Transaction(account=from_account, name='Transfer Out', amount=from_amount, date=date, type='TO')
+                    from_transaction = Transaction(account=from_account, name='Transfer Out', amount=from_amount, date=date, type='E', category=from_category )
                     from_account.balance -= from_amount
                     from_account.save()
                     from_transaction.save()
-                    to_transaction = Transaction(account=to_account, name='Transfer In', amount=to_amount, date=date, type='TI')
+                    to_transaction = Transaction(account=to_account, name='Transfer In', amount=to_amount, date=date, type='I', category=to_category)
                     to_account.balance += to_amount
                     to_account.save()
                     to_transaction.save()
                     transfer = Transfer(user=request.user, from_transaction=from_transaction, to_transaction=to_transaction, date=date)
                     transfer.save()
+                return HttpResponseRedirect(reverse('main:index'))
 
             else:
                 transfer_form = form
