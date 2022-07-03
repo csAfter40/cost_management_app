@@ -72,7 +72,7 @@ def index(request):
             else: income_form = form
 
     context = {
-        'accounts': Account.objects.filter(user=request.user, active=True),
+        'accounts': Account.objects.filter(user=request.user, is_active=True),
         'expense_form': expense_form,
         'income_form': income_form,
         'transfer_form': transfer_form,
@@ -90,7 +90,7 @@ def transaction_name_autocomplete(request):
     name_list = []
     if name_query:
         user = request.user
-        accounts = Account.objects.filter(user=user, active=True)
+        accounts = Account.objects.filter(user=user, is_active=True)
         incomes = Transaction.objects.filter(account__in=accounts, name__icontains=name_query, type=type)
         for income in incomes:
             name_list.append(income.name)
@@ -174,7 +174,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             'transactions': transactions,
             'stats': stats,
         }
-        if not account.active:
+        if not account.is_active:
             raise Http404
         return render(request, 'main/account_detail.html', context)
 
@@ -220,7 +220,7 @@ class EditAccountView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('main:index')
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user, active=True)
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
 
 
 
@@ -232,7 +232,7 @@ class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def post(self, request):
         account = get_object_or_404(Account, id=self.account_id)
-        account.active = False
+        account.is_active = False
         account.save()
         return HttpResponseRedirect(reverse('main:index'))
 

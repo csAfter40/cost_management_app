@@ -22,7 +22,7 @@ class ExpenseInputForm(ModelForm):
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.filter(user=self.user, type='E')
-        self.fields['account'].queryset = Account.objects.filter(user=self.user, active=True)
+        self.fields['account'].queryset = Account.objects.filter(user=self.user, is_active=True)
         
 
 class IncomeInputForm(ModelForm):
@@ -43,7 +43,7 @@ class IncomeInputForm(ModelForm):
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.filter(user=self.user, type='I')
-        self.fields['account'].queryset = Account.objects.filter(user=self.user, active=True)
+        self.fields['account'].queryset = Account.objects.filter(user=self.user, is_active=True)
 
 
 class TransferForm(forms.Form):
@@ -56,7 +56,7 @@ class TransferForm(forms.Form):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user:
-            qs = Account.objects.filter(user=user, active=True)
+            qs = Account.objects.filter(user=user, is_active=True)
             self.fields['from_account'] = forms.ModelChoiceField(queryset=qs, widget=Select(attrs={'id': 'from-account-field'}))
             self.fields['to_account'] = forms.ModelChoiceField(queryset=qs, widget=Select(attrs={'id': 'to-account-field'}))
 
