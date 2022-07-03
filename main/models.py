@@ -66,8 +66,6 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('E','Expense'),
         ('I', 'Income'),
-        ('TI', 'Transfer In'),
-        ('TO', 'Transfer Out'),
     )
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)

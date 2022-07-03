@@ -90,6 +90,11 @@ categories = {
         'type': 'E',
         'children': None
     },
+    'Transfer Out': {
+        'type': 'E',
+        'children': None,
+        'is_transfer': True
+    },
     # Income Categories
     'Salary': {
         'type': 'I',
@@ -106,5 +111,10 @@ categories = {
     'Uncategorized': {
         'type': 'I',
         'children': None
+    },
+    'Transfer In': {
+        'type': 'I',
+        'children': None,
+        'is_transfer': True
     },
 }
