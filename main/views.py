@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -169,6 +169,10 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         account = Account.objects.select_related('currency').get(id=account_id)
         transactions = Transaction.objects.filter(account=account).order_by('-date', '-created')
         stats = get_stats(transactions, account.balance)
+        expense_category_stats = get_category_stats(transactions, 'E', None, request.user)
+        income_category_stats = get_category_stats(transactions, 'I', None, request.user)
+        print(expense_category_stats)
+        print(income_category_stats)
         context = {
             'account': account,
             'transactions': transactions,

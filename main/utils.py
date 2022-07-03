@@ -18,7 +18,7 @@ def get_latest_transfers(user, qty):
 
 def create_categories(categories, user, parent=None):
     for key, value in categories.items():
-        category = Category.objects.create(name=key, user=user, type=value['type'])
+        category = Category.objects.create(name=key, user=user, type=value['type'], is_transfer=value.get('is_transfer', False))
         if parent:
             category.parent = parent
         category.save()
@@ -76,6 +76,17 @@ def is_owner(user, model, id):
     object = get_object_or_404(model, id=id)
     return object.user == user
 
+def get_category_stats(qs, category_type, parent, user):
+    categories = Category.objects.filter(user=user, parent=parent, type=category_type)
+    category_stats = {}
+    for category in categories:
+        descendant_categories = category.get_descendants(include_self=True)
+        sum = qs.filter(category__in=descendant_categories).aggregate(Sum('amount'))
+        if not sum['amount__sum']:
+            continue
+        print(f'{category=}{sum=}')
+        category_stats[category.name] = sum['amount__sum']
+    return category_stats
 
 
 @receiver(post_save, sender=User)

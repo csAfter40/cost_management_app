@@ -41,8 +41,24 @@
         <div class="col-lg-6 text-center" id="transactions-table">
             {% include 'main/table_transactions.html' %}
         </div>
-        <div class="col-lg-6 text-center bg-light py-3">
+        <div class="col-lg-6 text-center bg-light p-3">
             <h3> Stats & Graphs</h3>
+            
+            <div class="row my-4">
+                <div class="col-6">
+                    <h4>Expences</h4>
+                    <div>
+                        <canvas id="expencesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4>Incomes</h4>
+                    <div>
+                        <canvas id="incomesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
 </div>
@@ -50,4 +66,5 @@
 {% endblock %}
 {% block script %}
     <script src="{% static 'main/account_detail.js' %}"></script>
+    <script src="{% static 'main/account_detail_charts.js' %}"></script>
 {% endblock %}
