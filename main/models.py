@@ -48,6 +48,7 @@ class Category(MPTTModel):
     name = models.CharField(max_length=64)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     type = models.CharField(max_length=1, choices=CATEGORY_TYPES)
+    is_transfer = models.BooleanField(default=False)
 
     class MPTTMeta:
         order_insertion_by = ['name']
