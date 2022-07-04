@@ -5,6 +5,7 @@ from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category
@@ -171,21 +172,25 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         account_id = kwargs.get('pk')
         account = Account.objects.select_related('currency').get(id=account_id)
+        if not account.is_active:
+            raise Http404
         transactions = Transaction.objects.filter(account=account).order_by('-date', '-created')
         stats = get_stats(transactions, account.balance)
         expense_category_stats = get_category_stats(transactions, 'E', None, request.user)
         income_category_stats = get_category_stats(transactions, 'I', None, request.user)
-        print(expense_category_stats)
-        print(income_category_stats)
+
+        paginator = Paginator(transactions, 1)
+        page_num = request.GET.get('page', 1)
+        page_obj = paginator.get_page(page_num)
+
         context = {
             'account': account,
-            'transactions': transactions,
+            'transactions': page_obj,
             'stats': stats,
             'expense_stats': expense_category_stats,
             'income_stats': income_category_stats,
         }
-        if not account.is_active:
-            raise Http404
+        
         return render(request, 'main/account_detail.html', context)
 
     def put(self, request, *args, **kwargs):
