@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q, Sum, DecimalField
 from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
+from django.core.paginator import Paginator
 from .models import User, UserPreferences, Account, Transfer, Category, Transaction
 from .categories import categories
 from datetime import date, timedelta
@@ -88,6 +89,10 @@ def get_category_stats(qs, category_type, parent, user):
     # print(f'{category_stats=}')
     return category_stats
 
+def get_paginated_qs(qs, request, item_qty):
+        paginator = Paginator(qs, item_qty)
+        page_num = request.GET.get('page', 1)
+        return paginator.get_page(page_num)
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):

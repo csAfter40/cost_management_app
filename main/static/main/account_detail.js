@@ -24,12 +24,10 @@ function disableAllButtons() {
 }
 
 function getData(time){
-    fetch("", {
-        method: "PUT",
-        body: JSON.stringify({
-            time: time
-        }),
-        headers: {'X-CSRFToken': csrf}
+    const url = window.location.pathname + '/ajax' + `?time=${time}`
+    fetch(url, {
+        method: "GET",
+        headers: {}
     }).then(response => {
         return response.text()
     }).then(obj => {

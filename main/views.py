@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats, get_paginated_qs
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -164,6 +164,36 @@ def logout_view(request):
 class AccountsView(ListView):
     pass
 
+
+class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        return is_owner(self.request.user, Account, self.kwargs.get('pk'))
+
+    def get(self, request, *args, **kwargs):
+        account_id = kwargs.get('pk')
+        account = Account.objects.select_related('currency').get(id=account_id)
+        if not account.is_active:
+            raise Http404
+        time = self.request.GET.get('time', 'all')
+        dates = get_dates()
+        context = {}
+        if time == 'all':
+            qs = Transaction.objects.filter(account=account).order_by('-date', '-created')
+        elif time == 'week':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['week_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'month':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'year':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
+        context = {
+            'transactions': get_paginated_qs(qs, self.request, 10),
+            'stats': get_stats(qs, account.balance),
+            'account': account
+        }
+        return render(self.request, 'main/account_detail_pack.html', context)
+
+
 class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
@@ -179,9 +209,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         expense_category_stats = get_category_stats(transactions, 'E', None, request.user)
         income_category_stats = get_category_stats(transactions, 'I', None, request.user)
 
-        paginator = Paginator(transactions, 1)
-        page_num = request.GET.get('page', 1)
-        page_obj = paginator.get_page(page_num)
+        page_obj = get_paginated_qs(transactions, request, 10)
 
         context = {
             'account': account,
@@ -193,25 +221,6 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         
         return render(request, 'main/account_detail.html', context)
 
-    def put(self, request, *args, **kwargs):
-        account_id = kwargs.get('pk')
-        account = Account.objects.select_related('currency').get(id=account_id)
-        data = json.loads(request.body)
-        time = data['time']
-        dates = get_dates()
-        context = {}
-        if time == 'all':
-            context['transactions'] = Transaction.objects.filter(account=account).order_by('-date', '-created')
-        elif time == 'week':
-            print('week')
-            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['week_start'], dates['today'])).order_by('-date', '-created')
-        elif time == 'month':
-            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
-        elif time == 'year':
-            context['transactions'] = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
-        context['stats'] = get_stats(context['transactions'], account.balance)
-        context['account'] = account
-        return render(request, 'main/account_detail_pack.html', context)
 
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
