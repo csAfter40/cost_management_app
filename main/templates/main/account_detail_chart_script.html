@@ -1,14 +1,10 @@
-<script>
+<script id="chart-script">
     const dataExpense = {
         labels: [{% for key, value in expense_stats.items %}'{{key}}',{% endfor %}],
         datasets: [{
           label: 'Expences',
           data: [{% for key, value in expense_stats.items %}{{value}},{% endfor %}],
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
-          ],
+          backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
           hoverOffset: 4
         }]
       };
@@ -18,11 +14,7 @@
       datasets: [{
         label: 'Incomes',
         data: [{% for key, value in income_stats.items %}{{value}},{% endfor %}],
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgb(255, 205, 86)'
-        ],
+        backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
         hoverOffset: 4
       }]
     };
