@@ -1,0 +1,13 @@
+<script id="chart-script">
+    console.log('inside script');
+    let expenseLabels = [{% for key, value in expense_stats.items %}'{{key}}',{% endfor %}];
+    let incomeLabels = [{% for key, value in income_stats.items %}'{{key}}',{% endfor %}];
+    let expenseData =  [{% for key, value in expense_stats.items %}{{value}},{% endfor %}];
+    let incomeData = [{% for key, value in income_stats.items %}{{value}},{% endfor %}];
+    expensesChart.data.labels = expenseLabels;
+    incomesChart.data.labels = incomeLabels;
+    expensesChart.data.datasets[0].data = expenseData;
+    incomesChart.data.datasets[0].data = incomeData;
+    expensesChart.update();
+    incomesChart.update();
+</script>

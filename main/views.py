@@ -186,10 +186,14 @@ class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
             qs = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
         elif time == 'year':
             qs = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
+        expense_category_stats = get_category_stats(qs, 'E', None, request.user)
+        income_category_stats = get_category_stats(qs, 'I', None, request.user)
         context = {
             'transactions': get_paginated_qs(qs, self.request, 10),
             'stats': get_stats(qs, account.balance),
-            'account': account
+            'account': account,
+            'expense_stats': expense_category_stats,
+            'income_stats': income_category_stats,
         }
         return render(self.request, 'main/account_detail_pack.html', context)
 

@@ -54,11 +54,13 @@ function getData(time, page=1){
         let transactionHtml = htmlDocument.documentElement.querySelector('#transaction-table').innerHTML;
         let statHtml = htmlDocument.documentElement.querySelector('#account-stats').innerHTML;
         const paginatorHtml = htmlDocument.documentElement.querySelector('#pagination-buttons').innerHTML;
+        const chartScriptHtml = htmlDocument.documentElement.querySelector('#chart-script').innerHTML;
         transactionsDiv.innerHTML = transactionHtml;
         transactionsDiv.dataset.time = time;
         accountStats.innerHTML = statHtml;
         paginatorDiv.innerHTML = paginatorHtml;
         setupPgButtons();
+        eval(chartScriptHtml);
     });
 
 };
