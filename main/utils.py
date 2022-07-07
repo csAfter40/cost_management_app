@@ -90,6 +90,17 @@ def get_category_stats(qs, category_type, parent, user):
         category_stats['No data available'] = 0
     return category_stats
 
+def get_comparison_stats(expense_stats, income_stats):
+    comparison_stats = {
+        'Expense': 0,
+        'Income': 0
+    }
+    for key, value in expense_stats.items():
+        comparison_stats['Expense'] += value
+    for key, value in income_stats.items():
+        comparison_stats['Income'] += value
+    return comparison_stats
+
 def get_paginated_qs(qs, request, item_qty):
         paginator = Paginator(qs, item_qty)
         page_num = request.GET.get('page', 1)

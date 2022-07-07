@@ -18,6 +18,16 @@
         hoverOffset: 4
       }]
     };
+
+    const dataComparison = {
+      labels: [{% for key, value in comparison_stats.items %}'{{key}}',{% endfor %}],
+      datasets: [{
+        label: 'Expense & Income Comparison',
+        data: [{% for key, value in comparison_stats.items %}{{value}},{% endfor %}],
+        backgroundColor: ['#67bf5c', '#ed665d'],
+        hoverOffset: 4
+      }]
+    };
     
     const configExpense = {
         type: 'pie',
@@ -28,10 +38,17 @@
       type: 'pie',
       data: dataIncome,
     };
+
+    const configComparison = {
+      type: 'bar',
+      data: dataComparison,
+    };
     
     const expensesCtx = document.querySelector('#expensesChart');
     const incomesCtx = document.querySelector('#incomesChart');
+    const comparisonCtx = document.querySelector('#comparisonChart');
     const expensesChart = new Chart(expensesCtx, configExpense);
     const incomesChart = new Chart(incomesCtx, configIncome);
+    const comparisonChart = new Chart(comparisonCtx, configComparison);
 
 </script>
