@@ -86,7 +86,8 @@ def get_category_stats(qs, category_type, parent, user):
         if not sum['amount__sum']:
             continue
         category_stats[category.name] = sum['amount__sum']
-    # print(f'{category_stats=}')
+    if not category_stats:
+        category_stats['No data available'] = 0
     return category_stats
 
 def get_paginated_qs(qs, request, item_qty):
