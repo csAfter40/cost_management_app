@@ -85,10 +85,25 @@ def get_category_stats(qs, category_type, parent, user):
         sum = qs.filter(category__in=descendant_categories).aggregate(Sum('amount'))
         if not sum['amount__sum']:
             continue
-        category_stats[category.name] = sum['amount__sum']
+        category_stats[category.name] = {'sum':sum['amount__sum'], 'id':category.id}
     if not category_stats:
-        category_stats['No data available'] = 0
+        category_stats['No data available'] = {'sum':0, 'id':0}
     return category_stats
+
+def get_subcategory_stats(qs, category):
+    sum_data = []
+    labels = []
+    categories = category.get_descendants(include_self=True)
+    for category in categories:
+        sum = qs.filter(category=category).aggregate(Sum('amount'))
+        if sum['amount__sum']:
+            labels.append(category.name)
+            sum_data.append(sum['amount__sum'])
+    data = {
+        'data': sum_data,
+        'labels': labels,
+    }
+    return data
 
 def get_comparison_stats(expense_stats, income_stats):
     comparison_stats = {
@@ -96,9 +111,9 @@ def get_comparison_stats(expense_stats, income_stats):
         'Income': 0
     }
     for key, value in expense_stats.items():
-        comparison_stats['Expense'] += value
+        comparison_stats['Expense'] += value['sum']
     for key, value in income_stats.items():
-        comparison_stats['Income'] += value
+        comparison_stats['Income'] += value['sum']
     return comparison_stats
 
 def get_paginated_qs(qs, request, item_qty):

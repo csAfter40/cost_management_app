@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
-from .utils import get_latest_transactions, get_latest_transfers, get_account_data, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats, get_paginated_qs, get_comparison_stats
+from .utils import get_latest_transactions, get_latest_transfers, get_account_data, get_subcategory_stats, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats, get_paginated_qs, get_comparison_stats, get_subcategory_stats
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -201,6 +201,34 @@ class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
         return render(self.request, 'main/account_detail_pack.html', context)
 
 
+class AccountDetailSubcategoryAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
+    
+    def test_func(self):
+        return is_owner(self.request.user, Account, self.kwargs.get('pk'))
+
+    def get(self, request, *args, **kwargs):
+        account_id = kwargs.get('pk')
+        account = Account.objects.select_related('currency').get(id=account_id)
+        if not account.is_active:
+            raise Http404
+        category_id = kwargs.get('cat_pk')
+        category = get_object_or_404(Category, id=category_id)
+        time = self.request.GET.get('time')
+        dates = get_dates()
+        context = {}
+        if time == 'all':
+            qs = Transaction.objects.filter(account=account).order_by('-date', '-created')
+        elif time == 'week':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['week_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'month':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['month_start'], dates['today'])).order_by('-date', '-created')
+        elif time == 'year':
+            qs = Transaction.objects.filter(account=account, date__range=(dates['year_start'], dates['today'])).order_by('-date', '-created')
+        data = get_subcategory_stats(qs, category)
+
+        return JsonResponse(data)
+
+
 class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
     
     def test_func(self):
@@ -216,7 +244,6 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         expense_category_stats = get_category_stats(transactions, 'E', None, request.user)
         income_category_stats = get_category_stats(transactions, 'I', None, request.user)
         comparison_stats = get_comparison_stats(expense_category_stats, income_category_stats)
-        print(comparison_stats)
         page_obj = get_paginated_qs(transactions, request, 10)
 
         context = {
@@ -229,7 +256,6 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
         }
         
         return render(request, 'main/account_detail.html', context)
-
 
 
 class CreateAccountView(LoginRequiredMixin, CreateView):

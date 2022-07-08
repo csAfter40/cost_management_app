@@ -12,6 +12,7 @@ urlpatterns = [
     path('accounts/create', views.CreateAccountView.as_view(), name='create_account'),
     path('accounts/del', views.DeleteAccountView.as_view(), name='delete_account'),
     path('accounts/<int:pk>/ajax', views.AccountDetailAjaxView.as_view(), name='account_detail_ajax'),
+    path('accounts/<int:pk>/ajax/<int:cat_pk>', views.AccountDetailSubcategoryAjaxView.as_view(), name='account_detail_subcategory_ajax'),
     path('accounts/<int:pk>', views.AccountDetailView.as_view(), name='account_detail'),
     path('accounts/<int:pk>/edit', views.EditAccountView.as_view(), name='edit_account'),
     path('categories', views.CategoriesView.as_view(), name='categories'),
