@@ -12,7 +12,8 @@
                 <h4>Accounts</h4>
                 {% include 'main/table_accounts.html' %}
                 <div class="d-flex px-3">
-                    <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary">Add New Account</a>
+                    <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary me-2">Add New Account</a>
+                    <a href="{% url 'main:accounts' %}" class="btn btn-outline-primary me-2">View Accounts</a>
                 </div>
                 <div class="my-3 border-top py-2">
                     <h4>Latest Transactions</h4>

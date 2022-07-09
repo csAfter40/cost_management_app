@@ -161,8 +161,18 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('main:index'))
 
 
-class AccountsView(ListView):
-    pass
+class AccountsView(LoginRequiredMixin, ListView):
+    model = Account
+    template_name = 'main/accounts.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context[""] = None
+        return context
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+    
 
 
 class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
@@ -189,7 +199,6 @@ class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
         expense_category_stats = get_category_stats(qs, 'E', None, request.user)
         income_category_stats = get_category_stats(qs, 'I', None, request.user)
         comparison_stats = get_comparison_stats(expense_category_stats, income_category_stats)
-        print(comparison_stats)
         context = {
             'transactions': get_paginated_qs(qs, self.request, 10),
             'stats': get_stats(qs, account.balance),
