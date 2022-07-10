@@ -1,0 +1,36 @@
+{% load static %}
+<div class="container-fluid bg-light w-100 px-3 py-1 animate-table" id="loans_table_div">
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th class="align-middle col-md-1" scope="col">#</th>
+            <th class="align-middle col-md-3" scope="col">Name</th>
+            <th class="align-middle col-md-1" scope="col">Currency</th>
+            <th class="align-middle col-md-2" scope="col">Balance</th>
+            <th class="align-middle text-center col-md-1" scope="col">Edit</th>
+            <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% if not loans %}
+                <tr><td colspan="6" class="table-info">No Loans available.</td></tr>
+            {% endif %}
+            {% for loan in loans %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td><a href="{% url 'main:loan_detail' pk=loan.id %}">{{ loan.name }}</a></td>
+                    <td>{{ loan.currency }}</td>
+                    <td>{{ loan.balance }}</td>
+                    <td style="text-align: center;" class="align-middle">
+                        <a href="{% url 'main:edit_loan' pk=loan.id %}"><i class="bi bi-pencil-square"></i></a>
+                    </td>
+                    <td style="text-align: center;" class="align-middle">
+                        <button type="button" class="btn px-0 delete-loan-button" data-bs-toggle="modal" data-bs-target="#deleteLoanModal" data-id="{{loan.id}}" data-balance="{{ loan.balance }}" data-currency="{{ loan.currency }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

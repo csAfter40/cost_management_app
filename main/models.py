@@ -27,7 +27,7 @@ class UserPreferences(models.Model):
         return f"{self.user} preferences"
 
 
-class Account(models.Model):
+class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
@@ -36,6 +36,16 @@ class Account(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        abstract = True
+
+class Account(Assets):
+    pass
+
+class Loan(Assets):
+    pass
+
 
 class Category(MPTTModel):
 

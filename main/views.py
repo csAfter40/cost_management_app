@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
-from .models import Account, Transfer, User, Transaction, Category
+from .models import Account, Transfer, User, Transaction, Category, Loan
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
 from .utils import get_latest_transactions, get_latest_transfers, get_account_data, get_subcategory_stats, validate_main_category_uniqueness, get_dates, get_stats, is_owner, get_category_stats, get_paginated_qs, get_comparison_stats, get_subcategory_stats
 from django.db import IntegrityError
@@ -78,6 +78,7 @@ def index(request):
 
     context = {
         'accounts': Account.objects.filter(user=request.user, is_active=True),
+        'loans': Loan.objects.filter(user=request.user, is_active=True),
         'expense_form': expense_form,
         'income_form': income_form,
         'transfer_form': transfer_form,
@@ -303,6 +304,55 @@ class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
         account.is_active = False
         account.save()
         return HttpResponseRedirect(reverse('main:index'))
+
+
+class LoansView(LoginRequiredMixin, ListView):
+    pass
+
+
+class CreateLoanView(LoginRequiredMixin, CreateView):
+    
+    login_url = reverse_lazy('main:login')
+    model = Loan
+    fields = ['name', 'balance', 'currency']
+    success_url = reverse_lazy('main:index')
+    template_name = 'main/create_loan.html'
+
+    def form_valid(self, form):
+        balance = form.cleaned_data['balance']
+        balance = -abs(balance) # make balance negative
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.balance = balance
+        self.object.save()
+        return super().form_valid(form)
+
+class DeleteLoanView(UserPassesTestMixin, LoginRequiredMixin, View):
+
+    def test_func(self):
+        print(self.request.POST)
+        self.loan_id = self.request.POST['id']
+
+        return is_owner(self.request.user, Loan, self.loan_id)
+
+    def post(self, request):
+        loan = get_object_or_404(Loan, id=self.loan_id)
+        loan.is_active = False
+        loan.save()
+        return HttpResponseRedirect(reverse('main:index'))
+
+
+class LoanDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
+
+    def test_func(self):
+        self.loan_id = self.request.POST['id']
+        return is_owner(self.request.user, Loan, self.loan_id)
+
+class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
+
+    def test_func(self):
+        self.loan_id = self.request.POST['id']
+        return is_owner(self.request.user, Loan, self.loan_id)
 
 
 class CategoriesView(LoginRequiredMixin, View):

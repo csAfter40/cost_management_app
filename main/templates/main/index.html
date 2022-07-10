@@ -9,12 +9,23 @@
     <div class="container-lg bg-light py-3 my-2">
         <div class="row">
             <div class="col-lg-6 text-center border-end border-muted">
-                <h4>Accounts</h4>
-                {% include 'main/table_accounts.html' %}
-                <div class="d-flex px-3">
-                    <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary me-2">Add New Account</a>
-                    <a href="{% url 'main:accounts' %}" class="btn btn-outline-primary me-2">View Accounts</a>
+                <div class="mb-3 pb-2">
+                    <h4>Accounts</h4>
+                    {% include 'main/table_accounts.html' %}
+                    <div class="d-flex px-3">
+                        <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary me-2">Add New Account</a>
+                        <a href="{% url 'main:accounts' %}" class="btn btn-outline-primary me-2">View Accounts</a>
+                    </div>
                 </div>
+                <div class="my-3 border-top py-2">
+                    <h4>Loans</h4>
+                    {% include 'main/table_loans.html'%} 
+                    <div class="d-flex px-3">
+                        <a href="{% url 'main:create_loan' %}" class="btn btn-outline-primary me-2">Add New Loan</a>
+                        <a href="{% url 'main:loans' %}" class="btn btn-outline-primary me-2">View Loans</a>
+                    </div>
+                </div>
+                
                 <div class="my-3 border-top py-2">
                     <h4>Latest Transactions</h4>
                     {% include 'main/table_transactions.html' %}

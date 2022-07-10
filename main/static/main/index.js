@@ -114,3 +114,28 @@ deleteAccountButtons.forEach(function(deleteAccountButton){
         };
     });
 });
+
+// set loan delete button events
+const deleteLoanButtons = document.querySelectorAll('.delete-loan-button');
+const deleteLoanMessageDiv = document.querySelector('#modal-loan-delete-message');
+const deleteLoanIdInput = document.querySelector('#modal-loan-id');
+console.log(deleteLoanIdInput);
+
+deleteLoanButtons.forEach(function(deleteLoanButton){
+    deleteLoanButton.addEventListener('click', function(){
+        let loanId = deleteLoanButton.dataset.id;
+        deleteLoanIdInput.setAttribute('value', loanId);
+        console.log(deleteLoanIdInput);
+
+        let balance = parseFloat(deleteLoanButton.dataset.balance).toFixed(2);
+        
+        let currency = deleteLoanButton.dataset.currency;
+        if (balance < 0) {
+            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} loan to pay. Do you really want to delete this loan anyway?`;
+        } else if(balance > 0){
+            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency}. Do you really want to delete this loan anyway?`;
+        } else {
+            deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this loan?';
+        };
+    });
+});
