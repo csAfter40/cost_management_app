@@ -138,3 +138,11 @@ AUTH_USER_MODEL = 'main.User'
 DEFAULT_CURRENCY_PK = 5 #Primary key value of default currency. It is 5 for "USD".
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# django-debug-toolbar
+if DEBUG:
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
