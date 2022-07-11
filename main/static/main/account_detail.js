@@ -47,7 +47,7 @@ function getData(time, page = 1) {
         method: "GET",
         headers: {}
     }).then(response => {
-        return response.text()
+        return response.text();
     }).then(obj => {
         const parser = new DOMParser();
         const htmlDocument = parser.parseFromString(obj, "text/html");

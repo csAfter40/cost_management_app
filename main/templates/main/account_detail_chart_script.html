@@ -4,7 +4,7 @@
   datasets: [{
     label: 'Expences',
     data: [{% for key, value in expense_stats.items %}{{ value.sum }}, {% endfor %}],
-    ids: [{% for key, value in expense_stats.items %}{ { value.id } }, {% endfor %}],
+    ids: [{% for key, value in expense_stats.items %}{{ value.id }}, {% endfor %}],
   backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
     hoverOffset: 4
         }]
@@ -15,7 +15,7 @@
   datasets: [{
     label: 'Incomes',
     data: [{% for key, value in income_stats.items %}{{ value.sum }}, {% endfor %}],
-    ids: [{% for key, value in income_stats.items %}{ { value.id } }, {% endfor %}],
+    ids: [{% for key, value in income_stats.items %}{{ value.id }}, {% endfor %}],
   backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
     hoverOffset: 4
       }]

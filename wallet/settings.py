@@ -12,11 +12,13 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+import debug_toolbar
 import environ
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    DEBUG_TOOLBAR=(bool, False),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,6 +35,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
+DEBUG_TOOLBAR = env("DEBUG_TOOLBAR")
 
 ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com"]
 
@@ -138,7 +141,7 @@ DEFAULT_CURRENCY_PK = 5  # Primary key value of default currency. It is 5 for "U
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # django-debug-toolbar
-if DEBUG:
+if DEBUG_TOOLBAR:
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 INTERNAL_IPS = [
