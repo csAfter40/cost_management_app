@@ -1,5 +1,7 @@
 {% if stats.diff > 0 %}
-    <h4 class="d-flex align-items-center mb-0 bg-success" >+{{stats.diff}}{{account.currency.symbol}} / {{stats.rate}}<i class="bi bi-arrow-up"></i></h4>
+    <h4 class="d-flex align-items-center mb-0 bg-success">+{{stats.diff}}{{account.currency.symbol}} / {{stats.rate}}<i
+            class="bi bi-arrow-up"></i></h4>
 {% else %}
-    <h4 class="d-flex align-items-center mb-0 bg-danger" >{{stats.diff}}{{account.currency.symbol}} / {{stats.rate}}<i class="bi bi-arrow-down"></i></h4>
+    <h4 class="d-flex align-items-center mb-0 bg-danger">{{stats.diff}}{{account.currency.symbol}} / {{stats.rate}}<i
+            class="bi bi-arrow-down"></i></h4>
 {% endif %}

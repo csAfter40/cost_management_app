@@ -15,22 +15,22 @@ const expenseParentNameSpan = document.querySelector("#modal-expense-category-na
 const incomeParentInput = document.querySelector("#income-parent-category-id");
 const incomeParentNameSpan = document.querySelector("#modal-income-category-name");
 // set events for delete expense category buttons
-for (let i=0; i<deleteExpenseButtons.length; i++){
-    deleteExpenseButtons[i].addEventListener('click', function(){
+for (let i = 0; i < deleteExpenseButtons.length; i++) {
+    deleteExpenseButtons[i].addEventListener('click', function () {
         var categoryId = deleteExpenseButtons[i].getAttribute('data-node-id');
         expenseInput.setAttribute('value', categoryId);
     });
 };
 // set events for delete income category buttons
-for (let i=0; i<deleteIncomeButtons.length; i++){
-    deleteIncomeButtons[i].addEventListener('click', function(){
+for (let i = 0; i < deleteIncomeButtons.length; i++) {
+    deleteIncomeButtons[i].addEventListener('click', function () {
         var categoryId = deleteIncomeButtons[i].getAttribute('data-node-id');
         incomeInput.setAttribute('value', categoryId);
     });
 };
 // set events for create expense subcategory buttons
-for (let i=0; i<createExpenseSubcategoryButtons.length; i++){
-    createExpenseSubcategoryButtons[i].addEventListener('click', function(){
+for (let i = 0; i < createExpenseSubcategoryButtons.length; i++) {
+    createExpenseSubcategoryButtons[i].addEventListener('click', function () {
         var categoryId = createExpenseSubcategoryButtons[i].getAttribute('data-node-id');
         var categoryName = createExpenseSubcategoryButtons[i].getAttribute('data-node-name');
         expenseParentInput.setAttribute('value', categoryId);
@@ -38,8 +38,8 @@ for (let i=0; i<createExpenseSubcategoryButtons.length; i++){
     });
 };
 // set events for create income subcategory buttons
-for (let i=0; i<createIncomeSubcategoryButtons.length; i++){
-    createIncomeSubcategoryButtons[i].addEventListener('click', function(){
+for (let i = 0; i < createIncomeSubcategoryButtons.length; i++) {
+    createIncomeSubcategoryButtons[i].addEventListener('click', function () {
         var incomeCategoryId = createIncomeSubcategoryButtons[i].getAttribute('data-node-id');
         var incomeCategoryName = createIncomeSubcategoryButtons[i].getAttribute('data-node-name');
         incomeParentInput.setAttribute('value', incomeCategoryId);
@@ -47,8 +47,8 @@ for (let i=0; i<createIncomeSubcategoryButtons.length; i++){
     });
 };
 // set events for edit expense category buttons
-for (let i=0; i<editExpenseButtons.length; i++){
-    editExpenseButtons[i].addEventListener('click', function(){
+for (let i = 0; i < editExpenseButtons.length; i++) {
+    editExpenseButtons[i].addEventListener('click', function () {
         var categoryId = editExpenseButtons[i].getAttribute('data-node-id');
         var categoryName = editExpenseButtons[i].getAttribute('data-node-name');
         editExpenseIdInput.setAttribute('value', categoryId);
@@ -56,8 +56,8 @@ for (let i=0; i<editExpenseButtons.length; i++){
     });
 };
 // set events for edit income category buttons
-for (let i=0; i<editIncomeButtons.length; i++){
-    editIncomeButtons[i].addEventListener('click', function(){
+for (let i = 0; i < editIncomeButtons.length; i++) {
+    editIncomeButtons[i].addEventListener('click', function () {
         var categoryId = editIncomeButtons[i].getAttribute('data-node-id');
         var categoryName = editIncomeButtons[i].getAttribute('data-node-name');
         editIncomeIdInput.setAttribute('value', categoryId);

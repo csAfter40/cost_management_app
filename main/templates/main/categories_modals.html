@@ -1,5 +1,6 @@
 <!-- DELETE expense category modal -->
-<div class="modal fade" id="deleteExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -21,7 +22,8 @@
     </div>
 </div>
 <!-- DELETE income category modal -->
-<div class="modal fade" id="deleteIncomeCategoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteIncomeCategoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -43,18 +45,21 @@
     </div>
 </div>
 <!-- CREATE expense sub-category modal -->
-<div class="modal fade" id="createExpenseSubcategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createExpenseSubcategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add sub-category to <span id="modal-expense-category-name"></span></h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add sub-category to <span
+                        id="modal-expense-category-name"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-footer justify-content-center">
                 <form action="{% url 'main:create_expense_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input autofocus class="form-control" type="text" name="category_name" placeholder="Subcategory Name">
+                        <input autofocus class="form-control" type="text" name="category_name"
+                            placeholder="Subcategory Name">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <input id="expense-parent-category-id" type="hidden" name="category_id" value="">
@@ -67,18 +72,21 @@
     </div>
 </div>
 <!-- CREATE income sub-category modal -->
-<div class="modal fade" id="createIncomeSubcategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createIncomeSubcategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add sub-category to <span id="modal-income-category-name"></span></h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add sub-category to <span
+                        id="modal-income-category-name"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-footer justify-content-center">
                 <form action="{% url 'main:create_income_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input autofocus class="form-control" type="text" name="category_name" placeholder="Subcategory Name">
+                        <input autofocus class="form-control" type="text" name="category_name"
+                            placeholder="Subcategory Name">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <input id="income-parent-category-id" type="hidden" name="category_id" value="">
@@ -91,7 +99,8 @@
     </div>
 </div>
 <!-- CREATE expense main category modal -->
-<div class="modal fade" id="createExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -102,7 +111,8 @@
                 <form action="{% url 'main:create_expense_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input autofocus class="form-control" type="text" name="category_name" placeholder="Main Category Name">
+                        <input autofocus class="form-control" type="text" name="category_name"
+                            placeholder="Main Category Name">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">Cancel</button>
@@ -114,7 +124,8 @@
     </div>
 </div>
 <!-- CREATE income main category modal -->
-<div class="modal fade" id="createIncomeCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="createIncomeCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -125,7 +136,8 @@
                 <form action="{% url 'main:create_income_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input autofocus class="form-control" type="text" name="category_name" placeholder="Main Category Name">
+                        <input autofocus class="form-control" type="text" name="category_name"
+                            placeholder="Main Category Name">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">Cancel</button>
@@ -137,7 +149,8 @@
     </div>
 </div>
 <!-- EDIT expense category modal -->
-<div class="modal fade" id="editExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editExpenseCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -148,7 +161,8 @@
                 <form action="{% url 'main:edit_expense_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input id="expenseCategoryNameInput" autofocus class="form-control" type="text" name="category_name" value="">
+                        <input id="expenseCategoryNameInput" autofocus class="form-control" type="text"
+                            name="category_name" value="">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <input id="edit-expense-category-id" type="hidden" name="category_id" value="">
@@ -161,7 +175,8 @@
     </div>
 </div>
 <!-- EDIT income category modal -->
-<div class="modal fade" id="editIncomeCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editIncomeCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -172,7 +187,8 @@
                 <form action="{% url 'main:edit_income_category' %}" method="post">
                     {% csrf_token %}
                     <div class="form-group my-2">
-                        <input id="incomeCategoryNameInput" autofocus class="form-control" type="text" name="category_name" value="">
+                        <input id="incomeCategoryNameInput" autofocus class="form-control" type="text"
+                            name="category_name" value="">
                     </div>
                     <div class="d-flex flex-row-reverse">
                         <input id="edit-income-category-id" type="hidden" name="category_id" value="">

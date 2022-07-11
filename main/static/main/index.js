@@ -1,6 +1,6 @@
 // set autocomplete for expense and income name input fields
 autocomplete_fields = document.querySelectorAll('.autocomplete');
-for (let i=0; i<autocomplete_fields.length; i++) {
+for (let i = 0; i < autocomplete_fields.length; i++) {
     let obj = autocomplete_fields[i];
     let type = obj.dataset.type;
     let id = obj.id;
@@ -9,28 +9,28 @@ for (let i=0; i<autocomplete_fields.length; i++) {
             const url = `/autocomplete/transaction_name?type=${type}&name=${input}`
             return new Promise(resolve => {
                 fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                    resolve(data.data)
-                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        resolve(data.data)
+                    })
             })
         }
     });
 };
 
 // datepickers for expense and income input forms
-$( function() {
-    $( "#expense-datepicker" ).datepicker();
-  } );
+$(function () {
+    $("#expense-datepicker").datepicker();
+});
 
-$( function() {
-    $( "#income-datepicker" ).datepicker();
-  } );
+$(function () {
+    $("#income-datepicker").datepicker();
+});
 
-$( function() {
-    $( "#transfer-datepicker" ).datepicker();
-  } );
+$(function () {
+    $("#transfer-datepicker").datepicker();
+});
 
 // transfer form validation. from_account and to_account fields can't have the same value
 // transfer form amount input manipulation. There will be single amount input if the currencies of accounts are same.
@@ -48,7 +48,7 @@ const toAmountPrepend = toAmountField.querySelector('.input-group-text')
 const fromAccountField = document.querySelector('#from-account-field');
 const toAccountField = document.querySelector('#to-account-field');
 
-fromAccountField.addEventListener("change", function() {
+fromAccountField.addEventListener("change", function () {
     fromAmountPrepend.innerHTML = accountData[fromAccountField.value] || '-'
     if (fromAccountField.value == toAccountField.value && fromAccountField.value != '') {
         alert("'From account' and 'To account' can't have the same values.")
@@ -61,7 +61,7 @@ fromAccountField.addEventListener("change", function() {
     };
 });
 
-toAccountField.addEventListener("change", function() {
+toAccountField.addEventListener("change", function () {
     toAmountPrepend.innerHTML = accountData[toAccountField.value] || '-'
     if (fromAccountField.value == toAccountField.value && toAccountField.value != '') {
         alert("'From account' and 'To account' can't have the same values.")
@@ -75,7 +75,7 @@ toAccountField.addEventListener("change", function() {
 });
 
 // sets to_amount input field value when it is not visible
-fromAmountInput.addEventListener("change", function() {
+fromAmountInput.addEventListener("change", function () {
     if (toAmountField.style.display == 'none') {
         toAmountInput.value = fromAmountInput.value
     };
@@ -100,12 +100,12 @@ const deleteAccountButtons = document.querySelectorAll('.delete-account-button')
 const deleteAccountMessageDiv = document.querySelector('#modal-account-delete-message');
 const deleteAccountIdInput = document.querySelector('#modal-account-id');
 
-deleteAccountButtons.forEach(function(deleteAccountButton){
-    deleteAccountButton.addEventListener('click', function(){
+deleteAccountButtons.forEach(function (deleteAccountButton) {
+    deleteAccountButton.addEventListener('click', function () {
         let accountId = deleteAccountButton.dataset.id;
         deleteAccountIdInput.setAttribute('value', accountId);
         let balance = parseFloat(deleteAccountButton.dataset.balance).toFixed(2);
-        
+
         let currency = deleteAccountButton.dataset.currency;
         if (balance > 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;
@@ -121,18 +121,18 @@ const deleteLoanMessageDiv = document.querySelector('#modal-loan-delete-message'
 const deleteLoanIdInput = document.querySelector('#modal-loan-id');
 console.log(deleteLoanIdInput);
 
-deleteLoanButtons.forEach(function(deleteLoanButton){
-    deleteLoanButton.addEventListener('click', function(){
+deleteLoanButtons.forEach(function (deleteLoanButton) {
+    deleteLoanButton.addEventListener('click', function () {
         let loanId = deleteLoanButton.dataset.id;
         deleteLoanIdInput.setAttribute('value', loanId);
         console.log(deleteLoanIdInput);
 
         let balance = parseFloat(deleteLoanButton.dataset.balance).toFixed(2);
-        
+
         let currency = deleteLoanButton.dataset.currency;
         if (balance < 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} loan to pay. Do you really want to delete this loan anyway?`;
-        } else if(balance > 0){
+        } else if (balance > 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency}. Do you really want to delete this loan anyway?`;
         } else {
             deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this loan?';

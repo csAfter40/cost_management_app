@@ -5,17 +5,17 @@ const transactionsDiv = document.querySelector('#transactions-table');
 const accountStats = document.querySelector('#account-stats-div');
 const paginatorDiv = document.querySelector('#paginator-div');
 
-timeButtons.forEach(function(timeButton) {
+timeButtons.forEach(function (timeButton) {
     timeButton.addEventListener('click', setSelectedButton)
 });
 
 setupPgButtons();
 
-function setupPgButtons(){
+function setupPgButtons() {
     const pgButtons = document.querySelectorAll('.pg-btn');
-    pgButtons.forEach(function(pgButton) {
+    pgButtons.forEach(function (pgButton) {
         pgButton.addEventListener('click', pgEventHandler);
-    });    
+    });
 };
 
 function pgEventHandler(event) {
@@ -35,13 +35,13 @@ function setSelectedButton(event) {
 };
 
 function disableAllButtons() {
-    timeButtons.forEach(function(timeButton) {
+    timeButtons.forEach(function (timeButton) {
         timeButton.classList.remove("btn-primary");
         timeButton.classList.add("btn-outline-primary");
     });
 }
 
-function getData(time, page=1){
+function getData(time, page = 1) {
     const url = window.location.pathname + '/ajax' + `?time=${time}` + `&page=${page}`
     fetch(url, {
         method: "GET",

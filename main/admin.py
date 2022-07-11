@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import User, Currency, Account, Category, Transaction, Transfer, UserPreferences, Loan
+from .models import (
+    User,
+    Currency,
+    Account,
+    Category,
+    Transaction,
+    Transfer,
+    UserPreferences,
+    Loan,
+)
 
 # Register your models here.
 admin.site.register(User)

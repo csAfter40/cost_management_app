@@ -1,121 +1,121 @@
 <script id="chart-script">
-    const dataExpense = {
-        labels: [{% for key, value in expense_stats.items %}'{{key}}',{% endfor %}],
-        datasets: [{
-          label: 'Expences',
-          data: [{% for key, value in expense_stats.items %}{{value.sum}},{% endfor %}],
-          ids: [{% for key, value in expense_stats.items %}{{value.id}},{% endfor %}],
-          backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
-          hoverOffset: 4
+  const dataExpense = {
+    labels: [{% for key, value in expense_stats.items %}'{{key}}', {% endfor %}],
+  datasets: [{
+    label: 'Expences',
+    data: [{% for key, value in expense_stats.items %}{{ value.sum }}, {% endfor %}],
+    ids: [{% for key, value in expense_stats.items %}{ { value.id } }, {% endfor %}],
+  backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
+    hoverOffset: 4
         }]
       };
-    
-    const dataIncome = {
-      labels: [{% for key, value in income_stats.items %}'{{key}}',{% endfor %}],
-      datasets: [{
-        label: 'Incomes',
-        data: [{% for key, value in income_stats.items %}{{value.sum}},{% endfor %}],
-        ids: [{% for key, value in income_stats.items %}{{value.id}},{% endfor %}],
-        backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
-        hoverOffset: 4
+
+  const dataIncome = {
+    labels: [{% for key, value in income_stats.items %}'{{key}}', {% endfor %}],
+  datasets: [{
+    label: 'Incomes',
+    data: [{% for key, value in income_stats.items %}{{ value.sum }}, {% endfor %}],
+    ids: [{% for key, value in income_stats.items %}{ { value.id } }, {% endfor %}],
+  backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
+    hoverOffset: 4
       }]
     };
 
-    const dataComparison = {
-      labels: [{% for key, value in comparison_stats.items %}'{{key}}',{% endfor %}],
-      datasets: [{
-        label: 'Expense & Income Comparison',
-        data: [{% for key, value in comparison_stats.items %}{{value}},{% endfor %}],
-        backgroundColor: ['#ed665d', '#67bf5c'],
-        hoverOffset: 4
+  const dataComparison = {
+    labels: [{% for key, value in comparison_stats.items %}'{{key}}', {% endfor %}],
+  datasets: [{
+    label: 'Expense & Income Comparison',
+    data: [{% for key, value in comparison_stats.items %}{{ value }}, {% endfor %}],
+    backgroundColor: ['#ed665d', '#67bf5c'],
+      hoverOffset: 4
       }]
     };
 
-    const dataModal = {
-      labels: [],
-      datasets: [{
-        label: '',
-        data: [],
-        backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
-        hoverOffset: 4
-      }]
-    };
-    
-    const configExpense = {
-        type: 'pie',
-        data: dataExpense,
-    };
-    
-    const configIncome = {
-      type: 'pie',
-      data: dataIncome,
-    };
+  const dataModal = {
+    labels: [],
+    datasets: [{
+      label: '',
+      data: [],
+      backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
+      hoverOffset: 4
+    }]
+  };
 
-    const configComparison = {
-      type: 'bar',
-      data: dataComparison,
-    };
+  const configExpense = {
+    type: 'pie',
+    data: dataExpense,
+  };
 
-    const configModal = {
-      type: 'pie',
-      data: dataModal,
-      options: {
-        plugins: {
-          title: {
-            display: true,
-            text: '',
-            font: {
-              size: 20,
-            }
+  const configIncome = {
+    type: 'pie',
+    data: dataIncome,
+  };
+
+  const configComparison = {
+    type: 'bar',
+    data: dataComparison,
+  };
+
+  const configModal = {
+    type: 'pie',
+    data: dataModal,
+    options: {
+      plugins: {
+        title: {
+          display: true,
+          text: '',
+          font: {
+            size: 20,
           }
         }
       }
-    };
-    
-    const expensesCtx = document.querySelector('#expensesChart');
-    const incomesCtx = document.querySelector('#incomesChart');
-    const comparisonCtx = document.querySelector('#comparisonChart');
-    const modalCtx = document.querySelector('#subcategoryChart');
-    const expensesChart = new Chart(expensesCtx, configExpense);
-    const incomesChart = new Chart(incomesCtx, configIncome);
-    const comparisonChart = new Chart(comparisonCtx, configComparison);
-    const modalChart = new Chart(modalCtx, configModal);
-    const charts = [expensesChart, incomesChart];
-    const canvases = document.querySelectorAll('canvas');
+    }
+  };
 
-    canvases.forEach(canvas => {
-        canvas.addEventListener('click', canvasEventHandler)
-    });
+  const expensesCtx = document.querySelector('#expensesChart');
+  const incomesCtx = document.querySelector('#incomesChart');
+  const comparisonCtx = document.querySelector('#comparisonChart');
+  const modalCtx = document.querySelector('#subcategoryChart');
+  const expensesChart = new Chart(expensesCtx, configExpense);
+  const incomesChart = new Chart(incomesCtx, configIncome);
+  const comparisonChart = new Chart(comparisonCtx, configComparison);
+  const modalChart = new Chart(modalCtx, configModal);
+  const charts = [expensesChart, incomesChart];
+  const canvases = document.querySelectorAll('canvas');
 
-    function canvasEventHandler(event) {
-      charts.forEach(chart => {
-        if (chart.canvas == event.currentTarget) {
-          let activePoints = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
-          const pointIndex = activePoints[0].index;
-          let categoryIndex = chart.config.data.datasets[0].ids[pointIndex];
-          let categoryLabel = chart.config.data.labels[pointIndex]
-          getSubcategoryChartData(categoryIndex).then(data => {
+  canvases.forEach(canvas => {
+    canvas.addEventListener('click', canvasEventHandler)
+  });
+
+  function canvasEventHandler(event) {
+    charts.forEach(chart => {
+      if (chart.canvas == event.currentTarget) {
+        let activePoints = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+        const pointIndex = activePoints[0].index;
+        let categoryIndex = chart.config.data.datasets[0].ids[pointIndex];
+        let categoryLabel = chart.config.data.labels[pointIndex]
+        getSubcategoryChartData(categoryIndex).then(data => {
           modalChart.data.labels = data.labels;
-          modalChart.data.datasets[0].data = data.data; 
-          modalChart.options.plugins.title.text = categoryLabel + ' & subcategories'; 
+          modalChart.data.datasets[0].data = data.data;
+          modalChart.options.plugins.title.text = categoryLabel + ' & subcategories';
           modalChart.update();
           $('#chartModal').modal('toggle');
-          });
-        };
-      });
-    };
+        });
+      };
+    });
+  };
 
-    function getSubcategoryChartData(categoryIndex) {
-      const transactionsDiv = document.querySelector('#transactions-table');
-      const time = transactionsDiv.dataset.time;
-      let url = window.location.pathname + '/ajax' + `/${categoryIndex}` + `?time=${time}`;
-      return fetch(url, {
-        method: 'GET',
-        headers: {},
-      }).then(response => {
-        return response.json()
-      }).then(data => {
-        return data;
-      });
-    };
+  function getSubcategoryChartData(categoryIndex) {
+    const transactionsDiv = document.querySelector('#transactions-table');
+    const time = transactionsDiv.dataset.time;
+    let url = window.location.pathname + '/ajax' + `/${categoryIndex}` + `?time=${time}`;
+    return fetch(url, {
+      method: 'GET',
+      headers: {},
+    }).then(response => {
+      return response.json()
+    }).then(data => {
+      return data;
+    });
+  };
 </script>

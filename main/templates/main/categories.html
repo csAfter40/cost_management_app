@@ -5,91 +5,105 @@
 {% endblock %}
 {% block body %}
 
-    <div class="container-lg bg-light py-3 my-2">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<div class="container-lg bg-light py-3 my-2">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="row">
+        <div class="col-lg-6 text-left border-end border-muted my-3">
+            <div class="col text-center">
+                <h4>Expense Categories</h4>
             </div>
-            {% endfor %}
-        {% endif %}
-        <div class="row">
-            <div class="col-lg-6 text-left border-end border-muted my-3">
-                <div class="col text-center">
-                    <h4>Expense Categories</h4>
-                </div>
-                
-                <ul class="list-group my-2">
-                    {% recursetree expense_categories %}
-                        {% if node.level|divisibleby:2 %}
-                            <li class="list-group-item bg-white">
-                        {% else %}
-                            <li class="list-group-item bg-light">
-                        {% endif %}
-                            {{ node.name }} 
-                            &nbsp&nbsp&nbsp <!-- spaces -->
-                            <button type="button" class="btn px-0 edit-expense-button" data-bs-toggle="modal" data-bs-target="#editExpenseCategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
-                            <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal" data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <button type="button" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal" data-bs-target="#createExpenseSubcategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
-                                <i class="bi bi-diagram-2"></i>
-                            </button>
-                            {% if not node.is_leaf_node %}
-                                <ul class="list-group my-2">
-                                    {{ children }}
-                                </ul>
-                            {% endif %}
-                        </li>
-                    {% endrecursetree %}
-                </ul> 
-                <button type="button" class="btn btn-outline-primary my-3" data-bs-toggle="modal" data-bs-target="#createExpenseCategoryModal">
-                    Create Main Expense Category
-                </button>               
+
+            <ul class="list-group my-2">
+                {% recursetree expense_categories %}
+                {% if node.level|divisibleby:2 %}
+                <li class="list-group-item bg-white">
+                    {% else %}
+                <li class="list-group-item bg-light">
+                    {% endif %}
+                    {{ node.name }}
+                    &nbsp&nbsp&nbsp
+                    <!-- spaces -->
+                    <button type="button" class="btn px-0 edit-expense-button" data-bs-toggle="modal"
+                        data-bs-target="#editExpenseCategoryModal" data-node-id="{{node.id}}"
+                        data-node-name="{{node.name}}">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal"
+                        data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button type="button" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal"
+                        data-bs-target="#createExpenseSubcategoryModal" data-node-id="{{node.id}}"
+                        data-node-name="{{node.name}}">
+                        <i class="bi bi-diagram-2"></i>
+                    </button>
+                    {% if not node.is_leaf_node %}
+                    <ul class="list-group my-2">
+                        {{ children }}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endrecursetree %}
+            </ul>
+            <button type="button" class="btn btn-outline-primary my-3" data-bs-toggle="modal"
+                data-bs-target="#createExpenseCategoryModal">
+                Create Main Expense Category
+            </button>
+        </div>
+        <div class="col-lg-6 text-left my-3">
+            <div class="col text-center">
+                <h4>Income Categories</h4>
             </div>
-            <div class="col-lg-6 text-left my-3">
-                <div class="col text-center">
-                    <h4>Income Categories</h4>
-                </div>
-                <ul class="list-group my-2">
-                    {% recursetree income_categories %}
-                        {% if node.level|divisibleby:2 %}
-                            <li class="list-group-item bg-white">
-                        {% else %}
-                            <li class="list-group-item bg-light">
-                        {% endif %}
-                            {{ node.name }} 
-                            &nbsp&nbsp&nbsp <!-- spaces -->
-                            <button type="button" class="btn px-0 edit-income-button" data-bs-toggle="modal" data-bs-target="#editIncomeCategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
-                            <button type="button" class="btn px-0 delete-income-button" data-bs-toggle="modal" data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                            <button type="button" class="btn px-0 create-income-subcategory-button" data-bs-toggle="modal" data-bs-target="#createIncomeSubcategoryModal" data-node-id="{{node.id}}" data-node-name="{{node.name}}">
-                                <i class="bi bi-diagram-2"></i>
-                            </button>
-                            {% if not node.is_leaf_node %}
-                                <ul class="list-group my-2">
-                                    {{ children }}
-                                </ul>
-                            {% endif %}
-                        </li>
-                    {% endrecursetree %}
-                </ul> 
-                <button type="button" class="btn btn-outline-primary my-3" data-bs-toggle="modal" data-bs-target="#createIncomeCategoryModal">
-                    Create Main Income Category
-                </button> 
-            </div>
+            <ul class="list-group my-2">
+                {% recursetree income_categories %}
+                {% if node.level|divisibleby:2 %}
+                <li class="list-group-item bg-white">
+                    {% else %}
+                <li class="list-group-item bg-light">
+                    {% endif %}
+                    {{ node.name }}
+                    &nbsp&nbsp&nbsp
+                    <!-- spaces -->
+                    <button type="button" class="btn px-0 edit-income-button" data-bs-toggle="modal"
+                        data-bs-target="#editIncomeCategoryModal" data-node-id="{{node.id}}"
+                        data-node-name="{{node.name}}">
+                        <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button type="button" class="btn px-0 delete-income-button" data-bs-toggle="modal"
+                        data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button type="button" class="btn px-0 create-income-subcategory-button" data-bs-toggle="modal"
+                        data-bs-target="#createIncomeSubcategoryModal" data-node-id="{{node.id}}"
+                        data-node-name="{{node.name}}">
+                        <i class="bi bi-diagram-2"></i>
+                    </button>
+                    {% if not node.is_leaf_node %}
+                    <ul class="list-group my-2">
+                        {{ children }}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endrecursetree %}
+            </ul>
+            <button type="button" class="btn btn-outline-primary my-3" data-bs-toggle="modal"
+                data-bs-target="#createIncomeCategoryModal">
+                Create Main Income Category
+            </button>
         </div>
     </div>
-    {% include 'main/categories_modals.html' %}  
+</div>
+{% include 'main/categories_modals.html' %}
 {% endblock %}
 {% block script %}
-    <script src="{% static 'main/categories.js' %}"></script>
+<script src="{% static 'main/categories.js' %}"></script>
 {% endblock %}

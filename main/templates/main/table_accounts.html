@@ -2,34 +2,38 @@
 <div class="container-fluid bg-light w-100 px-3 py-1 animate-table" id="accounts_table_div">
     <table class="table">
         <thead class="thead-dark">
-        <tr>
-            <th class="align-middle col-md-1" scope="col">#</th>
-            <th class="align-middle col-md-3" scope="col">Name</th>
-            <th class="align-middle col-md-1" scope="col">Currency</th>
-            <th class="align-middle col-md-2" scope="col">Balance</th>
-            <th class="align-middle text-center col-md-1" scope="col">Edit</th>
-            <th class="align-middle text-center col-md-1" scope="col">Delete</th>
-        </tr>
+            <tr>
+                <th class="align-middle col-md-1" scope="col">#</th>
+                <th class="align-middle col-md-3" scope="col">Name</th>
+                <th class="align-middle col-md-1" scope="col">Currency</th>
+                <th class="align-middle col-md-2" scope="col">Balance</th>
+                <th class="align-middle text-center col-md-1" scope="col">Edit</th>
+                <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+            </tr>
         </thead>
         <tbody>
             {% if not accounts %}
-                <tr><td colspan="6" class="table-info">No accounts available.</td></tr>
+            <tr>
+                <td colspan="6" class="table-info">No accounts available.</td>
+            </tr>
             {% endif %}
             {% for account in accounts %}
-                <tr>
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td><a href="{% url 'main:account_detail' pk=account.id %}">{{ account.name }}</a></td>
-                    <td>{{ account.currency }}</td>
-                    <td>{{ account.balance }}</td>
-                    <td style="text-align: center;" class="align-middle">
-                        <a href="{% url 'main:edit_account' pk=account.id %}"><i class="bi bi-pencil-square"></i></a>
-                    </td>
-                    <td style="text-align: center;" class="align-middle">
-                        <button type="button" class="btn px-0 delete-account-button" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" data-id="{{account.id}}" data-balance="{{ account.balance }}" data-currency="{{ account.currency }}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td><a href="{% url 'main:account_detail' pk=account.id %}">{{ account.name }}</a></td>
+                <td>{{ account.currency }}</td>
+                <td>{{ account.balance }}</td>
+                <td style="text-align: center;" class="align-middle">
+                    <a href="{% url 'main:edit_account' pk=account.id %}"><i class="bi bi-pencil-square"></i></a>
+                </td>
+                <td style="text-align: center;" class="align-middle">
+                    <button type="button" class="btn px-0 delete-account-button" data-bs-toggle="modal"
+                        data-bs-target="#deleteAccountModal" data-id="{{account.id}}"
+                        data-balance="{{ account.balance }}" data-currency="{{ account.currency }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>

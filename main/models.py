@@ -6,9 +6,9 @@ from wallet.settings import DEFAULT_CURRENCY_PK
 
 
 class User(AbstractUser):
-    
     def __str__(self) -> str:
         return self.username
+
 
 class Currency(models.Model):
     code = models.CharField(max_length=3)
@@ -21,7 +21,9 @@ class Currency(models.Model):
 
 class UserPreferences(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK)
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
+    )
 
     def __str__(self):
         return f"{self.user} preferences"
@@ -31,7 +33,9 @@ class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK)
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
+    )
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -40,8 +44,10 @@ class Assets(models.Model):
     class Meta:
         abstract = True
 
+
 class Account(Assets):
     pass
+
 
 class Loan(Assets):
     pass
@@ -50,23 +56,25 @@ class Loan(Assets):
 class Category(MPTTModel):
 
     CATEGORY_TYPES = (
-        ('E', 'Expense'),
-        ('I', 'Income'),
+        ("E", "Expense"),
+        ("I", "Income"),
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=64)
-    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+    parent = TreeForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
+    )
     type = models.CharField(max_length=1, choices=CATEGORY_TYPES)
     is_transfer = models.BooleanField(default=False)
     is_protected = models.BooleanField(default=False)
 
     class MPTTMeta:
-        order_insertion_by = ['name']
+        order_insertion_by = ["name"]
 
     class Meta:
-        unique_together = (('parent', 'name'))
-        verbose_name_plural = 'Categories'
+        unique_together = ("parent", "name")
+        verbose_name_plural = "Categories"
 
     def __str__(self) -> str:
         return self.name
@@ -75,8 +83,8 @@ class Category(MPTTModel):
 class Transaction(models.Model):
 
     TRANSACTION_TYPES = (
-        ('E','Expense'),
-        ('I', 'Income'),
+        ("E", "Expense"),
+        ("I", "Income"),
     )
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -93,9 +101,13 @@ class Transaction(models.Model):
 
 
 class Transfer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='Transfers')
-    from_transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='transfers_from', null=True)
-    to_transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='transfers_to', null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
+    from_transaction = models.ForeignKey(
+        Transaction, on_delete=models.CASCADE, related_name="transfers_from", null=True
+    )
+    to_transaction = models.ForeignKey(
+        Transaction, on_delete=models.CASCADE, related_name="transfers_to", null=True
+    )
     date = models.DateField(blank=True, default=date.today)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
