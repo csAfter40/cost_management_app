@@ -364,9 +364,6 @@ class EditAccountView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     template_name = "main/account_update.html"
     success_url = reverse_lazy("main:index")
 
-    def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user, is_active=True)
-
 
 class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
