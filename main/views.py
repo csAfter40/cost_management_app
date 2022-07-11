@@ -353,7 +353,11 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditAccountView(LoginRequiredMixin, UpdateView):
+class EditAccountView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
+
+    def test_func(self):
+        self.account_id = self.kwargs.get('pk')
+        return is_owner(self.request.user, Account, self.account_id)
 
     model = Account
     fields = ["name", "balance", "currency"]
