@@ -76,10 +76,8 @@ def get_dates():
 
 
 def get_stats(qs, balance):
-    expences = qs.filter(Q(type="E") | Q(type="TO"))
-    expences = expences.aggregate(Sum("amount"))
-    incomes = qs.filter(Q(type="I") | Q(type="TI"))
-    incomes = incomes.aggregate(Sum("amount"))
+    expences = qs.filter(Q(type="E") | Q(type="TO")).aggregate(Sum("amount"))
+    incomes = qs.filter(Q(type="I") | Q(type="TI")).aggregate(Sum("amount"))
     incomes_sum = incomes["amount__sum"] if incomes["amount__sum"] else 0
     expences_sum = expences["amount__sum"] if expences["amount__sum"] else 0
     diff = incomes_sum - expences_sum
@@ -95,7 +93,7 @@ def get_stats(qs, balance):
 
 
 def is_owner(user, model, id):
-    object = get_object_or_404(model, id=id)
+    object = get_object_or_404(model.objects.select_related('user'), id=id)
     return object.user == user
 
 

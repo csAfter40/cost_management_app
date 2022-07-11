@@ -304,12 +304,12 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         account_id = kwargs.get("pk")
-        account = Account.objects.select_related("currency").get(id=account_id)
+        account = get_object_or_404(Account.objects.select_related("currency"), id=account_id)
         if not account.is_active:
             raise Http404
         transactions = Transaction.objects.filter(account=account).order_by(
             "-date", "-created"
-        )
+        ).select_related('account__currency')
         stats = get_stats(transactions, account.balance)
         expense_category_stats = get_category_stats(
             transactions, "E", None, request.user
