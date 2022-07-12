@@ -42,9 +42,8 @@ const toAmountInput = document.querySelector('#id_to_amount');
 const fromAmountInput = document.querySelector('#id_from_amount');
 const fromAmountField = document.querySelector('#div_id_from_amount');
 const fromAmountTitle = fromAmountField.querySelector('label');
-const fromAmountPrepend = fromAmountField.querySelector('.input-group-text')
-const toAmountPrepend = toAmountField.querySelector('.input-group-text')
-
+const fromAmountPrepend = fromAmountField.querySelector('.input-group-text');
+const toAmountPrepend = toAmountField.querySelector('.input-group-text');
 const fromAccountField = document.querySelector('#from-account-field');
 const toAccountField = document.querySelector('#to-account-field');
 

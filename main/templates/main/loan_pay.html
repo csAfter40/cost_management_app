@@ -1,0 +1,33 @@
+{% extends 'main/user_layout.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block body %}
+<div class="container ">
+    <div class="row py-2 my-2 justify-content-center">
+        <div class="col-md-6 col-lg-4 bg-light px-3">
+            <div class="text-center mt-3">
+                <h4 class="text-dark">Pay Loan</h4>
+            </div>
+            <form action="{% url 'main:pay_loan' %}" method="POST" id="form-pay-loan">
+                {% csrf_token %}
+                {{ form.account|as_crispy_field }}
+                <div><small id="account-field-message" class="text-danger"></small></div>
+                {{ form.loan|as_crispy_field }}
+                <div><small id="loan-field-message" class="text-danger"></small></div>
+                <!-- Added prepend feature to from_amount and to_amount fields -->
+                {% crispy_addon form.amount prepend='-' %}
+                {{ form.date|as_crispy_field }}
+                <div class="d-grid gap-2 my-4">
+                    <input type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    {{ account_data|json_script:'account-data' }}
+    {{ loan_data|json_script:'loan-data' }}
+    <script src="{% static 'main/loan_pay.js' %}"></script>
+{% endblock %}

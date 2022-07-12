@@ -4,7 +4,7 @@ from django.db.models import Q, Sum, DecimalField
 from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
-from .models import User, UserPreferences, Account, Transfer, Category, Transaction
+from .models import User, UserPreferences, Account, Transfer, Category, Transaction, Loan
 from .categories import categories
 from datetime import date, timedelta
 
@@ -49,12 +49,22 @@ def get_account_data(user):
     """
     Returns all accounts of a user and currencies of those accounts.
     """
-    accounts = Account.objects.filter(user=user).select_related("currency")
+    accounts = Account.objects.filter(user=user, is_active=True).select_related("currency")
     data = {}
     for account in accounts:
         data[account.id] = account.currency.code
     return data
 
+
+def get_loan_data(user):
+    """
+    Returns all accounts of a user and currencies of those accounts.
+    """
+    loans = Loan.objects.filter(user=user, is_active=True).select_related("currency")
+    data = {}
+    for loan in loans:
+        data[loan.id] = loan.currency.code
+    return data
 
 def validate_main_category_uniqueness(name, user, type):
     return not Category.objects.filter(

@@ -9,11 +9,12 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan
-from .forms import ExpenseInputForm, IncomeInputForm, TransferForm
+from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm
 from .utils import (
     get_latest_transactions,
     get_latest_transfers,
     get_account_data,
+    get_loan_data,
     get_subcategory_stats,
     validate_main_category_uniqueness,
     get_dates,
@@ -415,19 +416,32 @@ class LoanDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
 
 class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
-    def test_func(self):
-        print(self.kwargs)
-        self.loan_id = self.kwargs.get('pk')
-        return is_owner(self.request.user, Loan, self.loan_id)
 
     model = Loan
     fields = ["name", "balance", "currency"]
     template_name = "main/loan_update.html"
     success_url = reverse_lazy("main:index")
 
+    def test_func(self):
+        self.loan_id = self.kwargs.get('pk')
+        return is_owner(self.request.user, Loan, self.loan_id)
+
     def form_valid(self, form):
         form.instance.balance = -abs(form.cleaned_data["balance"])
         return super().form_valid(form)
+
+
+class PayLoanView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = PayLoanForm(user=self.request.user)
+        account_data = get_account_data(request.user)
+        loan_data = get_loan_data(request.user)
+        context = {
+            'form': form,
+            'account_data': account_data,
+            'loan_data': loan_data,
+        }
+        return render(self.request, 'main/loan_pay.html', context)
 
 
 class CategoriesView(LoginRequiredMixin, View):

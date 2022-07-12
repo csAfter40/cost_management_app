@@ -7,7 +7,7 @@ from django.forms import (
     Select,
     ValidationError,
 )
-from .models import Account, Transaction, Transfer, Category
+from .models import Account, Transaction, Transfer, Category, Loan
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
 
@@ -87,5 +87,34 @@ class TransferForm(forms.Form):
         if cleaned_data["from_account"] == cleaned_data["to_account"]:
             raise ValidationError(
                 "From account and To account can not have same value."
+            )
+        return cleaned_data
+
+
+class PayLoanForm(forms.Form):
+
+    amount = forms.DecimalField(decimal_places=2)
+    date = forms.DateField(
+        initial=date.today, widget=TextInput(attrs={"id": "loan-pay-datepicker"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if user:
+            qs_account = Account.objects.filter(user=user, is_active=True)
+            qs_loan = Loan.objects.filter(user=user, is_active=True)
+            self.fields["account"] = forms.ModelChoiceField(
+                queryset=qs_account, widget=Select(attrs={"id": "account-field"})
+            )
+            self.fields["loan"] = forms.ModelChoiceField(
+                queryset=qs_loan, widget=Select(attrs={"id": "loan-field"})
+            )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data["account"].currency != cleaned_data["loan"].currency:
+            raise ValidationError(
+                "Account and loan currencies can not be different."
             )
         return cleaned_data
