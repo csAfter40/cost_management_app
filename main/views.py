@@ -416,8 +416,18 @@ class LoanDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
 class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     def test_func(self):
-        self.loan_id = self.request.POST["id"]
+        print(self.kwargs)
+        self.loan_id = self.kwargs.get('pk')
         return is_owner(self.request.user, Loan, self.loan_id)
+
+    model = Loan
+    fields = ["name", "balance", "currency"]
+    template_name = "main/loan_update.html"
+    success_url = reverse_lazy("main:index")
+
+    def form_valid(self, form):
+        form.instance.balance = -abs(form.cleaned_data["balance"])
+        return super().form_valid(form)
 
 
 class CategoriesView(LoginRequiredMixin, View):
