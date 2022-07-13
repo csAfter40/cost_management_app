@@ -432,16 +432,48 @@ class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
 
 
 class PayLoanView(LoginRequiredMixin, View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         form = PayLoanForm(user=self.request.user)
-        account_data = get_account_data(request.user)
-        loan_data = get_loan_data(request.user)
+        context = self.get_context_data(form)
+        return render(self.request, 'main/loan_pay.html', context)
+
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        form = PayLoanForm(request.POST, user=request.user)
+        if form.is_valid():
+            data = form.cleaned_data
+            account = data.get('account')
+            loan = data.get('loan')
+            amount = abs(data.get('amount'))
+            date = data.get('date')
+            category = Category.objects.get(user=request.user, name='Pay Loan')
+            try:
+                with transaction.atomic():
+                    transaction_loan = Transaction(account=account, name='Pay Loan', amount=amount, date=date, category=category, type='E')
+                    transaction_loan.save()
+                    loan.balance += amount
+                    if loan.balance > 0:
+                        loan.balance = 0
+                    loan.save()
+                    account.balance -= amount
+                    account.save()
+            except IntegrityError:
+                messages.error(request, 'Error during loan payment')
+                context = self.get_context_data(form)
+                return render(request, 'main/loan_pay.html', context)
+            return HttpResponseRedirect(reverse('main:index'))
+        context = self.get_context_data(form)
+        return render(request, 'main/loan_pay.html', context)
+    
+    def get_context_data(self, form):
+        account_data = get_account_data(self.request.user)
+        loan_data = get_loan_data(self.request.user)
         context = {
-            'form': form,
             'account_data': account_data,
             'loan_data': loan_data,
+            'form': form,
         }
-        return render(self.request, 'main/loan_pay.html', context)
+        return context
 
 
 class CategoriesView(LoginRequiredMixin, View):
@@ -449,10 +481,10 @@ class CategoriesView(LoginRequiredMixin, View):
         user = request.user
         context = {
             "expense_categories": Category.objects.filter(
-                user=user, type="E", is_transfer=False
+                user=user, type="E", is_protected=False
             ),
             "income_categories": Category.objects.filter(
-                user=user, type="I", is_transfer=False
+                user=user, type="I", is_protected=False
             ),
         }
         return render(request, "main/categories.html", context)

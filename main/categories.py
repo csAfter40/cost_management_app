@@ -42,11 +42,13 @@ categories = {
         },
     },
     "Uncategorized": {"type": "E", "children": None},
-    "Transfer Out": {"type": "E", "children": None, "is_transfer": True},
+    "Transfer Out": {"type": "E", "children": None, "is_transfer": True, 'is_protected': True},
+    "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
     # Income Categories
     "Salary": {"type": "I", "children": None},
     "Rents": {"type": "I", "children": None},
     "Bank": {"type": "I", "children": None},
     "Uncategorized": {"type": "I", "children": None},
-    "Transfer In": {"type": "I", "children": None, "is_transfer": True},
+    "Transfer In": {"type": "I", "children": None, "is_transfer": True, 'is_protected': True},
+    "Loan In": {"type": 'I', 'children': None, 'is_protected': True},
 }

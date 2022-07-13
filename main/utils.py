@@ -37,6 +37,7 @@ def create_categories(categories, user, parent=None):
             user=user,
             type=value["type"],
             is_transfer=value.get("is_transfer", False),
+            is_protected=value.get("is_protected", False),
         )
         if parent:
             category.parent = parent
