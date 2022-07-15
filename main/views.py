@@ -1,5 +1,3 @@
-import json
-from unicodedata import category
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import CreateView, UpdateView, ListView
@@ -337,7 +335,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
 
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
-    login_url = reverse_lazy("main:login")
+
     model = Account
     fields = ["name", "balance", "currency"]
     success_url = reverse_lazy("main:index")

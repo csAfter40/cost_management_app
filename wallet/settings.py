@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import debug_toolbar
 import environ
+from django.urls import reverse, reverse_lazy
 
 env = environ.Env(
     # set casting, default value
@@ -139,6 +140,9 @@ AUTH_USER_MODEL = "main.User"
 DEFAULT_CURRENCY_PK = 5  # Primary key value of default currency. It is 5 for "USD".
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+#  needed for testing views with LoginRequiredMixin
+LOGIN_URL = reverse_lazy('main:login')
 
 # django-debug-toolbar
 if DEBUG and DEBUG_TOOLBAR:
