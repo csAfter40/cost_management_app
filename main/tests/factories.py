@@ -1,5 +1,5 @@
 import factory
-from .models import User, Currency
+from main.models import User, Currency
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
