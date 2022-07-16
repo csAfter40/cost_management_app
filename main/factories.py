@@ -1,11 +1,15 @@
 import factory
 from .models import User, Currency
 
-class UserFactory(factory.Factory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
     
-class CurrencyFactory(factory.Factory):
+class CurrencyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Currency
+
+    code = 'ABC'
+    name = 'some currency'
+    symbol = '&'
