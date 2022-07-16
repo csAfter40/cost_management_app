@@ -3,6 +3,9 @@
 {% block style %}
 <link rel="stylesheet" type="text/css" href="{% static 'main/account.css' %}">
 {% endblock style %}
+{% block title %}
+    <title>Accounts</title>
+{% endblock %}
 {% block body %}
 <div class="container py-5">
     {% for account in object_list %}

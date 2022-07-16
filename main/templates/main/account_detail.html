@@ -4,6 +4,9 @@
 <link rel="stylesheet" type="text/css" href="{% static 'main/account.css' %}">
 
 {% endblock %}
+{% block title %}
+    <title>Account Details</title>
+{% endblock %}
 {% block body %}
 {% csrf_token %}
 <div class="container">
