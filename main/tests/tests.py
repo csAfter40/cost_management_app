@@ -1,12 +1,12 @@
 from decimal import Decimal
-from test_plus.test import TestCase
+from test_plus.test import TestCase as TestPlusCase
 import factory
 from django.db.models import signals
 
 from main.models import Account
 from .factories import CurrencyFactory
 
-class TestCreateAccountView(TestCase):
+class TestCreateAccountView(TestPlusCase):
     # decorator prevents user preferences object creation by signals.
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):

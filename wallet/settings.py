@@ -151,3 +151,5 @@ if DEBUG and DEBUG_TOOLBAR:
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+TESTING_HOST = 'http://127.0.0.1:8000'
