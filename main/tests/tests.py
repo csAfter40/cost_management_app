@@ -16,10 +16,16 @@ class TestCreateAccountView2(TestCreateViewMixin, TestPlusCase):
         self.success_url = reverse('main:index')
         self.model = Account
         self.context_list = ('form', )
+        self.template_name = 'main/create_account.html'
         currency = CurrencyFactory()
-        self.data = {
+        self.valid_data = {
             'name': 'sample_account',
             'balance': Decimal(12.00),
+            'currency': currency.id,
+        }
+        self.invalid_data = {
+            'name': 'sample_account',
+            'balance': 'abc', # balance must be a number so data is invalid.
             'currency': currency.id,
         }
     # decorator prevents user preferences object creation by signals.

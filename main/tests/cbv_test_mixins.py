@@ -6,8 +6,10 @@ class TestCreateViewMixin(object):
     test_url_pattern = None
     success_url = None
     model = None
-    data = None
+    valid_data = None
+    invalid_data = None
     context_list = None
+    template_name = None
 
     def setUp(self) -> None:
         self.user = self.get_user()
@@ -23,25 +25,36 @@ class TestCreateViewMixin(object):
 
     def test_get(self):
         with self.login(self.user):
+            response = self.get(self.test_url_pattern)
+            assert response.status_code == 200
+            assert response.template_name[0] == self.template_name
             self.get_check_200(self.test_url_pattern)
         # test context
         for item in self.context_list:
             self.assertInContext(item)
 
     def test_post_success(self):
-        print(self.data)
         with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=self.data)
+            response = self.post(self.test_url_pattern, data=self.valid_data)
         # test response code
         self.response_302(response)
         # test created object
-        object = self.get_object()
-        for key, value in self.data.items():
-            if isinstance(getattr(object, key), models.Model):
-                assert getattr(object, key).id == value
+        valid_object = self.get_object()
+        assert valid_object != None
+        for key, value in self.valid_data.items():
+            if isinstance(getattr(valid_object, key), models.Model):
+                assert getattr(valid_object, key).id == value
             else:
-                assert getattr(object, key) == value
-        # assert object.name == data['name']
-        assert object.user == self.user
+                assert getattr(valid_object, key) == value
+        assert valid_object.user == self.user
         # test redirect link
         assert self.success_url in response.get('Location')
+
+    def test_post_failure(self):
+        with self.login(self.user):
+            response = self.post(self.test_url_pattern, data=self.invalid_data)
+        # test response code
+        self.response_200(response)
+        # test created object
+        invalid_object = self.get_object()
+        assert invalid_object == None

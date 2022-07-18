@@ -38,7 +38,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 DEBUG_TOOLBAR = env("DEBUG_TOOLBAR")
 
-ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com", 'testserver']
 
 
 # Application definition
