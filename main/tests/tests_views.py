@@ -51,7 +51,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        self.assertRedirects(response, self.success_url, status_code=302, fetch_redirect_response=False)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
         # test created object
         self.valid_object = self.get_object()
         self.assertNotEqual(self.valid_object, None)
@@ -105,7 +105,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        self.assertRedirects(response, self.success_url, status_code=302, fetch_redirect_response=False)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
         # test created object
         self.valid_object = self.get_object()
         self.assertNotEqual(self.valid_object, None)
