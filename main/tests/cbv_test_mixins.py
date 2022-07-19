@@ -1,11 +1,14 @@
+from cgi import test
 from django.db import models
+from django.test import Client
+from main.tests.factories import UserFactory
 
 
 class TestCreateViewMixin(object):
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_url_pattern = None
+        cls.test_url = None
         cls.success_url = None
         cls.model = None
         cls.context_list = None
@@ -15,31 +18,33 @@ class TestCreateViewMixin(object):
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        self.client = Client()
 
     def get_user(self):
-        return self.make_user()
+        user = UserFactory()
+        return user
 
     def get_object(self):
         return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
-        self.assertLoginRequired(self.test_url_pattern)
+        response = self.client.get(self.test_url)
+        assert response.status_code == 302
 
     def test_get(self):
-        with self.login(self.user):
-            response = self.get(self.test_url_pattern)
-            assert response.status_code == 200
-            assert response.template_name[0] == self.template_name
-            self.get_check_200(self.test_url_pattern)
+        self.client.force_login(self.user)
+        response = self.client.get(self.test_url)
+        assert response.status_code == 200
+        assert response.template_name[0] == self.template_name        
         # test context
         for item in self.context_list:
-            self.assertInContext(item)
+            assert item in response.context.keys()
 
     def unit_post_success(self, data):
-        with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=data)
+        self.client.force_login(self.user)
+        response = self.client.post(self.test_url, data=data)
         # test response code
-        self.response_302(response)
+        assert response.status_code == 302
         # test created object
         self.valid_object = self.get_object()
         assert self.valid_object != None
@@ -56,10 +61,10 @@ class TestCreateViewMixin(object):
             self.unit_post_success(data)
 
     def unit_post_failure(self, data):
-        with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=data)
+        self.client.force_login(self.user)
+        response = self.client.post(self.test_url, data=data)
         # test response code
-        self.response_200(response)
+        assert response.status_code == 200
         # test no objects are created
         invalid_object = self.get_object()
         assert invalid_object == None

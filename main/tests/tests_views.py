@@ -1,24 +1,25 @@
 from decimal import Decimal
-from test_plus.test import TestCase as TestPlusCase
 import factory
 from django.db.models import signals
 from .cbv_test_mixins import  TestCreateViewMixin
 from main.models import Account, Loan
-from .factories import CurrencyFactory
+from .factories import CurrencyFactory, UserFactory
 from django.urls import reverse
 from django.db import models
+from django.test import TestCase
 
 
-class TestCreateAccountView(TestCreateViewMixin, TestPlusCase):
+class TestCreateAccountView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url_pattern = 'main:create_account'
+        # cls.test_url_pattern = 'main:create_account'
+        cls.test_url = reverse('main:create_account')
         cls.success_url = reverse('main:index')
         cls.model = Account
         cls.context_list = ('form', )
         cls.template_name = 'main/create_account.html'
-    
+
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
@@ -30,34 +31,47 @@ class TestCreateAccountView(TestCreateViewMixin, TestPlusCase):
             },
             {
                 'name': 'sample_account',
-                'balance': Decimal(0.00),
+                'balance': Decimal(-32.00),
                 'currency': currency.id,
             },
+        ]
+        self.invalid_data = [
             {
                 'name': 'sample_account',
-                'balance': Decimal(-12.00),
+                'balance': 'abc', # balance must be a number so data is invalid.
                 'currency': currency.id,
             }
-        ]
-        self.invalid_data = [{
-            'name': 'sample_account',
-            'balance': 'abc', # balance must be a number so data is invalid.
-            'currency': currency.id,
-        }]
-    # decorator prevents user preferences object creation by signals.
+        ]    
+    
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):
-        return self.make_user()
+        user = UserFactory()
+        return user
 
     def unit_post_success(self, data):
-        super().unit_post_success(data)
-        assert self.valid_object.user == self.user
+        # with self.login(self.user):
+        self.client.force_login(self.user)
+        response = self.client.post(self.test_url, data=data)
+        # test response code
+        assert response.status_code == 302
+        # test created object
+        self.valid_object = self.get_object()
+        assert self.valid_object != None
+        for key, value in data.items():
+            if isinstance(getattr(self.valid_object, key), models.Model):
+                assert getattr(self.valid_object, key).id == value
+            else:
+                assert getattr(self.valid_object, key) == value
+        # test success redirect url
+        assert self.success_url in response.get('Location')
 
-class TestCreateLoanView(TestCreateViewMixin, TestPlusCase):
+
+class TestCreateLoanView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url_pattern = 'main:create_loan'
+        # cls.test_url_pattern = 'main:create_loan'
+        cls.test_url = reverse('main:create_loan')
         cls.success_url = reverse('main:index')
         cls.model = Loan
         cls.context_list = ('form', )
@@ -80,7 +94,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestPlusCase):
         ]
         self.invalid_data = [
             {
-                'name': 'sample_account',
+                'name': 'sample_loan',
                 'balance': 'abc', # balance must be a number so data is invalid.
                 'currency': currency.id,
             }
@@ -88,13 +102,15 @@ class TestCreateLoanView(TestCreateViewMixin, TestPlusCase):
     
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):
-        return self.make_user()
+        user = UserFactory()
+        return user
 
     def unit_post_success(self, data):
-        with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=data)
+        # with self.login(self.user):
+        self.client.force_login(self.user)
+        response = self.client.post(self.test_url, data=data)
         # test response code
-        self.response_302(response)
+        assert response.status_code == 302
         # test created object
         self.valid_object = self.get_object()
         assert self.valid_object != None
