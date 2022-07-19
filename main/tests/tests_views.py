@@ -10,14 +10,17 @@ from django.db import models
 
 
 class TestCreateAccountView(TestCreateViewMixin, TestPlusCase):
-
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = 'main:create_account'
+        cls.success_url = reverse('main:index')
+        cls.model = Account
+        cls.context_list = ('form', )
+        cls.template_name = 'main/create_account.html'
+    
     def setUp(self) -> None:
         super().setUp()
-        self.test_url_pattern = 'main:create_account'
-        self.success_url = reverse('main:index')
-        self.model = Account
-        self.context_list = ('form', )
-        self.template_name = 'main/create_account.html'
         currency = CurrencyFactory()
         self.valid_data = [
             {
@@ -51,13 +54,17 @@ class TestCreateAccountView(TestCreateViewMixin, TestPlusCase):
         assert self.valid_object.user == self.user
 
 class TestCreateLoanView(TestCreateViewMixin, TestPlusCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = 'main:create_loan'
+        cls.success_url = reverse('main:index')
+        cls.model = Loan
+        cls.context_list = ('form', )
+        cls.template_name = 'main/create_loan.html'
+
     def setUp(self) -> None:
         super().setUp()
-        self.test_url_pattern = 'main:create_loan'
-        self.success_url = reverse('main:index')
-        self.model = Loan
-        self.context_list = ('form', )
-        self.template_name = 'main/create_loan.html'
         currency = CurrencyFactory()
         self.valid_data = [
             {

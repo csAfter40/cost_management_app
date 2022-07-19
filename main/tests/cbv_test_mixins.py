@@ -3,13 +3,15 @@ from django.db import models
 
 class TestCreateViewMixin(object):
 
-    test_url_pattern = None
-    success_url = None
-    model = None
-    valid_data = None
-    invalid_data = None
-    context_list = None
-    template_name = None
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url_pattern = None
+        cls.success_url = None
+        cls.model = None
+        cls.context_list = None
+        cls.template_name = None
+        cls.valid_data = None
+        cls.invalid_data = None
 
     def setUp(self) -> None:
         self.user = self.get_user()
