@@ -58,7 +58,6 @@ class TestCreateViewMixin(object):
 
     def test_post_success(self):
         for data in self.valid_data:
-            # self.unit_post_success(data)
             with self.subTest(data=data):
                 self.subtest_post_success(data)
 
@@ -73,6 +72,5 @@ class TestCreateViewMixin(object):
 
     def test_post_failure(self):
         for data in self.invalid_data:
-            # self.unit_post_failure(data)
             with self.subTest(data=data):
                 self.subtest_post_failure

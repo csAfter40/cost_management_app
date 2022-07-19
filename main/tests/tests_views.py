@@ -13,7 +13,6 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        # cls.test_url_pattern = 'main:create_account'
         cls.test_url = reverse('main:create_account')
         cls.success_url = reverse('main:index')
         cls.model = Account
@@ -49,7 +48,6 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         return user
 
     def subtest_post_success(self, data):
-        # with self.login(self.user):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
@@ -106,7 +104,6 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         return user
 
     def subtest_post_success(self, data):
-        # with self.login(self.user):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
