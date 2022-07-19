@@ -29,32 +29,30 @@ class TestCreateViewMixin(object):
 
     def test_unauthenticated_access(self):
         response = self.client.get(self.test_url)
-        assert response.status_code == 302
+        self.assertEquals(response.status_code, 302)
 
     def test_get(self):
         self.client.force_login(self.user)
         response = self.client.get(self.test_url)
-        assert response.status_code == 200
-        assert response.template_name[0] == self.template_name        
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template_name)
         # test context
         for item in self.context_list:
-            assert item in response.context.keys()
+            self.assertIn(item, response.context.keys())
 
     def subtest_post_success(self, data):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        assert response.status_code == 302
+        self.assertRedirects(response, self.success_url, status_code=302, fetch_redirect_response=False)
         # test created object
         self.valid_object = self.get_object()
-        assert self.valid_object != None
+        self.assertNotEquals(self.valid_object, None)
         for key, value in data.items():
             if isinstance(getattr(self.valid_object, key), models.Model):
-                assert getattr(self.valid_object, key).id == value
+                self.assertEquals(getattr(self.valid_object, key).id, value)
             else:
-                assert getattr(self.valid_object, key) == value
-        # test success redirect url
-        assert self.success_url in response.get('Location')
+                self.assertEquals(getattr(self.valid_object, key), value)
 
     def test_post_success(self):
         for data in self.valid_data:
@@ -65,10 +63,10 @@ class TestCreateViewMixin(object):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        assert response.status_code == 200
+        self.assertEquals(response.status_code, 200)
         # test no objects are created
         invalid_object = self.get_object()
-        assert invalid_object == None
+        self.assertEquals(invalid_object, None)
 
     def test_post_failure(self):
         for data in self.invalid_data:

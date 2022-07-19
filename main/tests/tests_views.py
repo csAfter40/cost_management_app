@@ -51,17 +51,15 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        assert response.status_code == 302
+        self.assertRedirects(response, self.success_url, status_code=302, fetch_redirect_response=False)
         # test created object
         self.valid_object = self.get_object()
-        assert self.valid_object != None
+        self.assertNotEqual(self.valid_object, None)
         for key, value in data.items():
             if isinstance(getattr(self.valid_object, key), models.Model):
-                assert getattr(self.valid_object, key).id == value
+                self.assertEquals(getattr(self.valid_object, key).id, value)
             else:
-                assert getattr(self.valid_object, key) == value
-        # test success redirect url
-        assert self.success_url in response.get('Location')
+                self.assertEquals(getattr(self.valid_object, key), value)
 
 
 class TestCreateLoanView(TestCreateViewMixin, TestCase):
@@ -107,16 +105,14 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
-        assert response.status_code == 302
+        self.assertRedirects(response, self.success_url, status_code=302, fetch_redirect_response=False)
         # test created object
         self.valid_object = self.get_object()
-        assert self.valid_object != None
+        self.assertNotEqual(self.valid_object, None)
         for key, value in data.items():
             if isinstance(getattr(self.valid_object, key), models.Model):
-                assert getattr(self.valid_object, key).id == value
+                self.assertEquals(getattr(self.valid_object, key).id, value)
             elif isinstance(getattr(self.valid_object, key), Decimal):
-                assert getattr(self.valid_object, key) == -abs(value)
+                self.assertEquals(getattr(self.valid_object, key), -abs(value))
             else:
-                assert getattr(self.valid_object, key) == value
-        # test success redirect url
-        assert self.success_url in response.get('Location')
+                self.assertEquals(getattr(self.valid_object, key), value)
