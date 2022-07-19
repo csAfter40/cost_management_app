@@ -48,7 +48,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         user = UserFactory()
         return user
 
-    def unit_post_success(self, data):
+    def subtest_post_success(self, data):
         # with self.login(self.user):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
@@ -105,7 +105,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         user = UserFactory()
         return user
 
-    def unit_post_success(self, data):
+    def subtest_post_success(self, data):
         # with self.login(self.user):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)

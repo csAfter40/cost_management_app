@@ -40,7 +40,7 @@ class TestCreateViewMixin(object):
         for item in self.context_list:
             assert item in response.context.keys()
 
-    def unit_post_success(self, data):
+    def subtest_post_success(self, data):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
@@ -58,9 +58,11 @@ class TestCreateViewMixin(object):
 
     def test_post_success(self):
         for data in self.valid_data:
-            self.unit_post_success(data)
+            # self.unit_post_success(data)
+            with self.subTest(data=data):
+                self.subtest_post_success(data)
 
-    def unit_post_failure(self, data):
+    def subtest_post_failure(self, data):
         self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
@@ -71,4 +73,6 @@ class TestCreateViewMixin(object):
 
     def test_post_failure(self):
         for data in self.invalid_data:
-            self.unit_post_failure(data)
+            # self.unit_post_failure(data)
+            with self.subTest(data=data):
+                self.subtest_post_failure
