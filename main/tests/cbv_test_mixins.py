@@ -18,7 +18,6 @@ class TestCreateViewMixin(object):
         return self.make_user()
 
     def get_object(self):
-        # return self.model.objects.all().first()
         return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
