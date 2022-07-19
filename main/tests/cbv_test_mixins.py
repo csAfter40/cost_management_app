@@ -18,7 +18,8 @@ class TestCreateViewMixin(object):
         return self.make_user()
 
     def get_object(self):
-        return self.model.objects.all().first()
+        # return self.model.objects.all().first()
+        return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
         self.assertLoginRequired(self.test_url_pattern)
@@ -33,28 +34,35 @@ class TestCreateViewMixin(object):
         for item in self.context_list:
             self.assertInContext(item)
 
-    def test_post_success(self):
+    def unit_post_success(self, data):
         with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=self.valid_data)
+            response = self.post(self.test_url_pattern, data=data)
         # test response code
         self.response_302(response)
         # test created object
-        valid_object = self.get_object()
-        assert valid_object != None
-        for key, value in self.valid_data.items():
-            if isinstance(getattr(valid_object, key), models.Model):
-                assert getattr(valid_object, key).id == value
+        self.valid_object = self.get_object()
+        assert self.valid_object != None
+        for key, value in data.items():
+            if isinstance(getattr(self.valid_object, key), models.Model):
+                assert getattr(self.valid_object, key).id == value
             else:
-                assert getattr(valid_object, key) == value
-        assert valid_object.user == self.user
-        # test redirect link
+                assert getattr(self.valid_object, key) == value
+        # test success redirect url
         assert self.success_url in response.get('Location')
 
-    def test_post_failure(self):
+    def test_post_success(self):
+        for data in self.valid_data:
+            self.unit_post_success(data)
+
+    def unit_post_failure(self, data):
         with self.login(self.user):
-            response = self.post(self.test_url_pattern, data=self.invalid_data)
+            response = self.post(self.test_url_pattern, data=data)
         # test response code
         self.response_200(response)
-        # test created object
+        # test no objects are created
         invalid_object = self.get_object()
         assert invalid_object == None
+
+    def test_post_failure(self):
+        for data in self.invalid_data:
+            self.unit_post_failure(data)
