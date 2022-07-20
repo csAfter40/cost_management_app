@@ -4,13 +4,20 @@ from django.urls import reverse
 from django.test import LiveServerTestCase
 
 class FuncTestLogin(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.browser = webdriver.Firefox()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.browser.quit()
+        super().tearDownClass()
+
     def setUp(self) -> None:
-        self.browser = webdriver.Firefox()
         self.url = self.live_server_url + reverse('main:login')
 
-    def tearDown(self) -> None:
-        self.browser.quit()
-    
     def test_page_has_title(self):
         self.browser.get(self.url)
         assert 'Login' in self.browser.title
