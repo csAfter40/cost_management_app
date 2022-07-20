@@ -76,3 +76,56 @@ class TestCreateViewMixin(object):
         if self.view_function:
             match = resolve(self.test_url)
             self.assertEquals(self.function.__name__, match.func.__name__)
+
+
+class TestListViewMixin(object):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = None
+        cls.model = None
+        cls.context_list = None
+        cls.template_name = None
+        cls.function = None # Add .as_view()
+        cls.login_required = False
+        cls.model_factory = None
+        cls.object_list_name = None
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+        self.view_function = resolve(self.test_url)
+        if self.login_required:
+            self.client.force_login(self.user)
+
+    def get_user(self):
+        user = UserFactory()
+        return user
+
+    def test_unauthenticated_access(self):
+        if not self.login_required:
+            pass
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 302)
+
+    def test_get(self):    
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template_name)
+        # test context
+        for item in self.context_list:
+            self.assertIn(item, response.context.keys())
+
+    def test_view_function(self):
+        if self.view_function:
+            match = resolve(self.test_url)
+            self.assertEquals(self.function.__name__, match.func.__name__)
+
+    def test_queryset(self):
+        if self.model_factory:
+            self.model_factory.create_batch(5)
+            qs = self.model.objects.all()
+            response = self.client.get(self.test_url)
+            context_qs = response.context[self.object_list_name]
+            # self.assertQuerysetEqual(qs, context_qs, transform=lambda x: x, ordered=False)
+            self.assertQuerysetEqual(qs, context_qs, ordered=False)
