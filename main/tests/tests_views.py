@@ -44,11 +44,9 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
     
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):
-        user = UserFactory()
-        return user
+        return super().get_user()
 
     def subtest_post_success(self, data):
-        self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
         self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
@@ -98,11 +96,9 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
     
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):
-        user = UserFactory()
-        return user
+        return super().get_user()
 
     def subtest_post_success(self, data):
-        self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
         self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)

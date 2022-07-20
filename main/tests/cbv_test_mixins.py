@@ -1,6 +1,4 @@
-from cgi import test
 from django.db import models
-from django.test import Client
 from main.tests.factories import UserFactory
 
 
@@ -18,7 +16,7 @@ class TestCreateViewMixin(object):
 
     def setUp(self) -> None:
         self.user = self.get_user()
-        self.client = Client()
+        self.client.force_login(self.user)
 
     def get_user(self):
         user = UserFactory()
@@ -28,11 +26,11 @@ class TestCreateViewMixin(object):
         return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
+        self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 302)
 
-    def test_get(self):
-        self.client.force_login(self.user)
+    def test_get(self):    
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
@@ -41,7 +39,6 @@ class TestCreateViewMixin(object):
             self.assertIn(item, response.context.keys())
 
     def subtest_post_success(self, data):
-        self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
         self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
@@ -60,7 +57,6 @@ class TestCreateViewMixin(object):
                 self.subtest_post_success(data)
 
     def subtest_post_failure(self, data):
-        self.client.force_login(self.user)
         response = self.client.post(self.test_url, data=data)
         # test response code
         self.assertEquals(response.status_code, 200)
