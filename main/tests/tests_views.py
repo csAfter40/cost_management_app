@@ -7,6 +7,7 @@ from .factories import CurrencyFactory, UserFactory
 from django.urls import reverse
 from django.db import models
 from django.test import TestCase
+from main import views
 
 
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
@@ -18,6 +19,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         cls.model = Account
         cls.context_list = ('form', )
         cls.template_name = 'main/create_account.html'
+        cls.function = views.CreateAccountView.as_view()
 
     def setUp(self) -> None:
         super().setUp()
@@ -70,6 +72,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         cls.model = Loan
         cls.context_list = ('form', )
         cls.template_name = 'main/create_loan.html'
+        cls.function = views.CreateLoanView.as_view()
 
     def setUp(self) -> None:
         super().setUp()

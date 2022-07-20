@@ -1,5 +1,6 @@
 from django.db import models
 from main.tests.factories import UserFactory
+from django.urls import resolve
 
 
 class TestCreateViewMixin(object):
@@ -13,10 +14,12 @@ class TestCreateViewMixin(object):
         cls.template_name = None
         cls.valid_data = None
         cls.invalid_data = None
+        cls.function = None # Add .as_view()
 
     def setUp(self) -> None:
         self.user = self.get_user()
         self.client.force_login(self.user)
+        self.view_function = resolve(self.test_url)
 
     def get_user(self):
         user = UserFactory()
@@ -68,3 +71,8 @@ class TestCreateViewMixin(object):
         for data in self.invalid_data:
             with self.subTest(data=data):
                 self.subtest_post_failure
+
+    def test_view_function(self):
+        if self.view_function:
+            match = resolve(self.test_url)
+            self.assertEquals(self.function.__name__, match.func.__name__)
