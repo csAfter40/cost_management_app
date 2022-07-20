@@ -29,11 +29,18 @@ class TestCreateViewMixin(object):
         return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
+        '''
+            Tests unauthenticated access in case view has LoginRequired mixin.
+        '''
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 302)
 
     def test_get(self):    
+        '''
+            Tests get request response has status 200 and 
+            response context has expected keys.
+        ''' 
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
@@ -55,6 +62,9 @@ class TestCreateViewMixin(object):
                 self.assertEquals(getattr(self.valid_object, key), value)
 
     def test_post_success(self):
+        '''
+            Test post request with valid data.
+        '''
         for data in self.valid_data:
             with self.subTest(data=data):
                 self.subtest_post_success(data)
@@ -68,11 +78,17 @@ class TestCreateViewMixin(object):
         self.assertEquals(invalid_object, None)
 
     def test_post_failure(self):
+        '''
+            Test post request with invalid data.
+        '''
         for data in self.invalid_data:
             with self.subTest(data=data):
                 self.subtest_post_failure
 
     def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
         if self.view_function:
             match = resolve(self.test_url)
             self.assertEquals(self.function.__name__, match.func.__name__)
@@ -102,13 +118,20 @@ class TestListViewMixin(object):
         return user
 
     def test_unauthenticated_access(self):
+        '''
+            Tests unauthenticated access in case view has LoginRequired mixin.
+        '''
         if not self.login_required:
             pass
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 302)
 
-    def test_get(self):    
+    def test_get(self):   
+        '''
+            Tests get request response has status 200 and 
+            response context has expected keys.
+        ''' 
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
@@ -117,15 +140,20 @@ class TestListViewMixin(object):
             self.assertIn(item, response.context.keys())
 
     def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
         if self.view_function:
             match = resolve(self.test_url)
             self.assertEquals(self.function.__name__, match.func.__name__)
 
     def test_queryset(self):
+        '''
+            Tests if response context has the expected queryset.
+        '''
         if self.model_factory:
             self.model_factory.create_batch(5)
             qs = self.model.objects.all()
             response = self.client.get(self.test_url)
             context_qs = response.context[self.object_list_name]
-            # self.assertQuerysetEqual(qs, context_qs, transform=lambda x: x, ordered=False)
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
