@@ -1,12 +1,12 @@
 from selenium import webdriver
 import unittest
 from django.urls import reverse
-from wallet.settings import TESTING_HOST
+from django.test import LiveServerTestCase
 
-class FuncTestLogin(unittest.TestCase):
+class FuncTestLogin(LiveServerTestCase):
     def setUp(self) -> None:
         self.browser = webdriver.Firefox()
-        self.url = TESTING_HOST + reverse('main:login')
+        self.url = self.live_server_url + reverse('main:login')
 
     def tearDown(self) -> None:
         self.browser.quit()
