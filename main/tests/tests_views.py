@@ -1,9 +1,9 @@
 from decimal import Decimal
 import factory
 from django.db.models import signals
-from .cbv_test_mixins import  TestCreateViewMixin
+from .cbv_test_mixins import  TestCreateViewMixin, TestListViewMixin
 from main.models import Account, Loan
-from .factories import CurrencyFactory, UserFactory
+from .factories import AccountFactory, CurrencyFactory, UserFactory
 from django.urls import reverse
 from django.db import models
 from django.test import TestCase
@@ -66,7 +66,6 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        # cls.test_url_pattern = 'main:create_loan'
         cls.test_url = reverse('main:create_loan')
         cls.success_url = reverse('main:index')
         cls.model = Loan
@@ -115,3 +114,38 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
                 self.assertEquals(getattr(self.valid_object, key), -abs(value))
             else:
                 self.assertEquals(getattr(self.valid_object, key), value)
+
+
+class TestAccountsView(TestListViewMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:accounts')
+        cls.model = Account
+        cls.context_list = ['object_list']
+        cls.template_name = 'main/accounts.html'
+        cls.function = views.AccountsView.as_view()
+        cls.login_required = True
+        cls.model_factory = AccountFactory
+        cls.object_list_name = 'object_list'
+
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def get_user(self):
+        return super().get_user()
+
+    def test_queryset(self):
+        if self.model_factory:
+            # active accounts belongs to self.user
+            self.model_factory.create_batch(5, user=self.user)
+            # deleted accounts belongs to self.user
+            self.model_factory.create_batch(5, user=self.user, is_active=False)
+            # active accounts doesn't belong to self.user
+            self.model_factory.create_batch(5)
+            # deleted accounts doesn't belong to self.user
+            self.model_factory.create_batch(5, is_active=False)
+            qs = self.model.objects.filter(user=self.user, is_active=True)
+            response = self.client.get(self.test_url)
+            context_qs = response.context[self.object_list_name]
+            # self.assertQuerysetEqual(qs, context_qs, transform=lambda x: x, ordered=False)
+            self.assertQuerysetEqual(qs, context_qs, ordered=False)
