@@ -18,8 +18,9 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         cls.success_url = reverse('main:index')
         cls.model = Account
         cls.context_list = ('form', )
-        cls.template_name = 'main/create_account.html'
-        cls.function = views.CreateAccountView.as_view()
+        cls.template = 'main/create_account.html'
+        cls.view_function = views.CreateAccountView.as_view()
+        cls.login_required = True
 
     def setUp(self) -> None:
         super().setUp()
@@ -70,8 +71,9 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         cls.success_url = reverse('main:index')
         cls.model = Loan
         cls.context_list = ('form', )
-        cls.template_name = 'main/create_loan.html'
-        cls.function = views.CreateLoanView.as_view()
+        cls.template = 'main/create_loan.html'
+        cls.view_function = views.CreateLoanView.as_view()
+        cls.login_required = True
 
     def setUp(self) -> None:
         super().setUp()
@@ -124,11 +126,10 @@ class TestAccountsView(TestListViewMixin, TestCase):
         cls.test_url = reverse('main:accounts')
         cls.model = Account
         cls.context_list = ['object_list']
-        cls.template_name = 'main/accounts.html'
-        cls.function = views.AccountsView.as_view()
+        cls.template = 'main/accounts.html'
+        cls.view_function = views.AccountsView.as_view()
         cls.login_required = True
         cls.model_factory = AccountFactory
-        cls.object_list_name = 'object_list'
 
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def get_user(self):

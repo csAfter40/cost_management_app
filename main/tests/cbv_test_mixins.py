@@ -1,6 +1,8 @@
 from django.db import models
 from main.tests.factories import UserFactory
 from django.urls import resolve
+from django.core.exceptions import ImproperlyConfigured
+import logging
 
 
 class TestCreateViewMixin(object):
@@ -11,27 +13,34 @@ class TestCreateViewMixin(object):
         cls.success_url = None
         cls.model = None
         cls.context_list = None
-        cls.template_name = None
+        cls.template = None
         cls.valid_data = None
         cls.invalid_data = None
-        cls.function = None # Add .as_view()
+        cls.view_function = None # Add .as_view()
+        cls.login_required = False
 
     def setUp(self) -> None:
         self.user = self.get_user()
-        self.client.force_login(self.user)
-        self.view_function = resolve(self.test_url)
+        if not self.test_url:
+            raise ImproperlyConfigured('No test url available. Please provide a test_url')
+        if self.login_required:
+            self.client.force_login(self.user)
 
     def get_user(self):
         user = UserFactory()
         return user
 
     def get_object(self):
+        if not self.model:
+            raise ImproperlyConfigured('No model available. Please provide a model.')
         return self.model.objects.all().last()
 
     def test_unauthenticated_access(self):
         '''
             Tests unauthenticated access in case view has LoginRequired mixin.
         '''
+        if not self.login_required:
+            return
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 302)
@@ -43,14 +52,23 @@ class TestCreateViewMixin(object):
         ''' 
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, self.template_name)
+        # test template
+        if self.template:
+            self.assertTemplateUsed(response, self.template)
+        else:
+            logging.warning('\nWarning: No template available. Template test not implemented.')
         # test context
-        for item in self.context_list:
-            self.assertIn(item, response.context.keys())
+        if self.context_list:
+            for item in self.context_list:
+                self.assertIn(item, response.context.keys())
+        else:
+            logging.warning('\nWarning: No context_list available. Context test not implemented.')
 
     def subtest_post_success(self, data):
         response = self.client.post(self.test_url, data=data)
         # test response code
+        if not self.success_url:
+            raise ImproperlyConfigured('No URL to redirect to. Please provide a success_url.')
         self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
         # test created object
         self.valid_object = self.get_object()
@@ -89,9 +107,10 @@ class TestCreateViewMixin(object):
         '''
             Tests url resolves to view function.
         '''
-        if self.view_function:
-            match = resolve(self.test_url)
-            self.assertEquals(self.function.__name__, match.func.__name__)
+        if not self.view_function:
+            raise ImproperlyConfigured('No view function available. Please provide a view_function.')
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 
 class TestListViewMixin(object):
@@ -101,15 +120,14 @@ class TestListViewMixin(object):
         cls.test_url = None
         cls.model = None
         cls.context_list = None
-        cls.template_name = None
-        cls.function = None # Add .as_view()
+        cls.template = None
+        cls.view_function = None # Add .as_view()
         cls.login_required = False
         cls.model_factory = None
-        cls.object_list_name = None
+        cls.object_list_name = 'object_list'
 
     def setUp(self) -> None:
         self.user = self.get_user()
-        self.view_function = resolve(self.test_url)
         if self.login_required:
             self.client.force_login(self.user)
 
@@ -122,7 +140,7 @@ class TestListViewMixin(object):
             Tests unauthenticated access in case view has LoginRequired mixin.
         '''
         if not self.login_required:
-            pass
+            return
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 302)
@@ -134,7 +152,11 @@ class TestListViewMixin(object):
         ''' 
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, self.template_name)
+        # test template
+        if self.template:
+            self.assertTemplateUsed(response, self.template)
+        else:
+            logging.warning('\nWarning: No template available. Template test not implemented.')
         # test context
         for item in self.context_list:
             self.assertIn(item, response.context.keys())
@@ -143,17 +165,19 @@ class TestListViewMixin(object):
         '''
             Tests url resolves to view function.
         '''
-        if self.view_function:
-            match = resolve(self.test_url)
-            self.assertEquals(self.function.__name__, match.func.__name__)
+        if not self.view_function:
+            raise ImproperlyConfigured('No view function available. Please provide a view_function.')
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
     def test_queryset(self):
         '''
             Tests if response context has the expected queryset.
         '''
-        if self.model_factory:
-            self.model_factory.create_batch(5)
-            qs = self.model.objects.all()
-            response = self.client.get(self.test_url)
-            context_qs = response.context[self.object_list_name]
-            self.assertQuerysetEqual(qs, context_qs, ordered=False)
+        if not self.model_factory:
+            raise ImproperlyConfigured('No model factory available. Please provide a model_factory.')
+        self.model_factory.create_batch(5)
+        qs = self.model.objects.all()
+        response = self.client.get(self.test_url)
+        context_qs = response.context[self.object_list_name]
+        self.assertQuerysetEqual(qs, context_qs, ordered=False)
