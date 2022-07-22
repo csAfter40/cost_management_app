@@ -9,15 +9,15 @@ class TestCreateViewMixin(object):
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_url = None
-        cls.success_url = None
-        cls.model = None
-        cls.context_list = None
-        cls.template = None
-        cls.valid_data = None
-        cls.invalid_data = None
+        cls.test_url = None # str
+        cls.success_url = None # str 
+        cls.model = None # model.Model
+        cls.context_list = None # List of strings
+        cls.template = None # str 'app_name/template_name.html'
+        cls.valid_data = None # List of dictionaries
+        cls.invalid_data = None # List of dictionaries
         cls.view_function = None # Add .as_view()
-        cls.login_required = False
+        cls.login_required = False # bool
 
     def setUp(self) -> None:
         self.user = self.get_user()
@@ -83,6 +83,8 @@ class TestCreateViewMixin(object):
         '''
             Test post request with valid data.
         '''
+        if not self.valid_data:
+            raise ImproperlyConfigured('No data to test valid post requests. Please provide valid_data')
         for data in self.valid_data:
             with self.subTest(data=data):
                 self.subtest_post_success(data)
@@ -99,6 +101,9 @@ class TestCreateViewMixin(object):
         '''
             Test post request with invalid data.
         '''
+        if not self.invalid_data:
+            logging.warning('\nWarning: No invalid_data available. Invalid post test not implemented.')
+            return
         for data in self.invalid_data:
             with self.subTest(data=data):
                 self.subtest_post_failure
@@ -128,6 +133,8 @@ class TestListViewMixin(object):
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        if not self.test_url:
+            raise ImproperlyConfigured('No test url available. Please provide a test_url')
         if self.login_required:
             self.client.force_login(self.user)
 
@@ -158,8 +165,11 @@ class TestListViewMixin(object):
         else:
             logging.warning('\nWarning: No template available. Template test not implemented.')
         # test context
-        for item in self.context_list:
-            self.assertIn(item, response.context.keys())
+        if self.context_list:
+            for item in self.context_list:
+                self.assertIn(item, response.context.keys())
+        else:
+            logging.warning('\nWarning: No context_list available. Context test not implemented.')
 
     def test_view_function(self):
         '''
@@ -177,7 +187,12 @@ class TestListViewMixin(object):
         if not self.model_factory:
             raise ImproperlyConfigured('No model factory available. Please provide a model_factory.')
         self.model_factory.create_batch(5)
+        if not self.model:
+            raise ImproperlyConfigured('No model available. Please provide a model.')
         qs = self.model.objects.all()
         response = self.client.get(self.test_url)
-        context_qs = response.context[self.object_list_name]
-        self.assertQuerysetEqual(qs, context_qs, ordered=False)
+        context_qs = response.context.get(self.object_list_name, None)
+        if context_qs:
+            self.assertQuerysetEqual(qs, context_qs, ordered=False)
+        else:
+            raise ImproperlyConfigured('No object list name not available. Please provide a valid object_list_name')

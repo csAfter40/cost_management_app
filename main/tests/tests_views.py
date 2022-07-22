@@ -3,7 +3,7 @@ import factory
 from django.db.models import signals
 from .cbv_test_mixins import  TestCreateViewMixin, TestListViewMixin
 from main.models import Account, Loan
-from .factories import AccountFactory, CurrencyFactory, UserFactory
+from .factories import AccountFactory, CurrencyFactory
 from django.urls import reverse
 from django.db import models
 from django.test import TestCase
@@ -56,6 +56,8 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         # test created object
         self.valid_object = self.get_object()
         self.assertNotEqual(self.valid_object, None)
+        # test object's user is self.user
+        self.assertEquals(self.user, self.valid_object.user)
         for key, value in data.items():
             if isinstance(getattr(self.valid_object, key), models.Model):
                 self.assertEquals(getattr(self.valid_object, key).id, value)
