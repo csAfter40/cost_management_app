@@ -1,7 +1,7 @@
 from decimal import Decimal
 import factory
 from django.db.models import signals
-from .cbv_test_mixins import  TestCreateViewMixin, TestListViewMixin
+from .cbv_test_mixins import  TestCreateViewMixin, TestListViewMixin, TestUpdateViewMixin
 from main.models import Account, Loan
 from .factories import AccountFactory, CurrencyFactory
 from django.urls import reverse
@@ -152,3 +152,51 @@ class TestAccountsView(TestListViewMixin, TestCase):
             context_qs = response.context[self.object_list_name]
             # self.assertQuerysetEqual(qs, context_qs, transform=lambda x: x, ordered=False)
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
+
+
+class TestUpdateAccountView(TestUpdateViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/accounts/<pk>/edit'
+        cls.success_url = reverse('main:index')
+        cls.model = Account
+        cls.context_list = ('form', )
+        cls.template = 'main/account_update.html'
+        cls.view_function = views.EditAccountView.as_view()
+        cls.login_required = True
+        cls.model_factory = AccountFactory
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        self.valid_data = [
+            {
+                'name': 'new_account_name',
+                'balance': Decimal(20.00),
+                'currency': currency.id,
+            },
+        ]
+        self.invalid_data = [
+            {
+                'name': 'new_account_name',
+                'balance': Decimal(20.00),
+                'currency': 'XYZ',
+            },
+            {
+                'name': 'new_account_name',
+                'balance': 'abc',
+                'currency': currency.id,
+            },
+        ]    
+
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def get_user(self):
+        return super().get_user()
+
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def set_object(self):
+        super().set_object()
+        self.object.user = self.user
+        self.object.save()
+    
