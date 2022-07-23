@@ -16,9 +16,9 @@ class CurrencyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Currency
 
-    code = 'ABC'
-    name = 'some currency'
-    symbol = '&'
+    code = factory.Faker('currency_code')
+    name = factory.Faker('currency_name')
+    symbol = factory.Faker('currency_symbol')
 
 
 class AccountFactory(factory.django.DjangoModelFactory):
