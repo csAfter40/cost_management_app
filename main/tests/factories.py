@@ -4,11 +4,8 @@ from main.models import Account, Category, Transaction, Transfer, User, Currency
 from django.db.models import signals
 import string
 
-def get_string_faker(length):
-    return factory.Faker('bothify', text=length*'?', letters=string.ascii_lowercase)
 
 class UserFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = User
 
@@ -22,7 +19,6 @@ class UserFactoryNoSignal(UserFactory):
 
     
 class CurrencyFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = Currency
 
@@ -32,13 +28,12 @@ class CurrencyFactory(factory.django.DjangoModelFactory):
 
 
 class AccountFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = Account
 
     user = factory.SubFactory(UserFactoryNoSignal)
-    name = get_string_faker(4)
-    balance = factory.Faker('random_int')
+    name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
+    balance = factory.fuzzy.FuzzyDecimal(low=0)
     currency = factory.SubFactory(CurrencyFactory)
 
 
@@ -47,22 +42,32 @@ class LoanFactory(factory.django.DjangoModelFactory):
         model = Loan
 
     user = factory.SubFactory(UserFactoryNoSignal)
-    name = get_string_faker(4)
-    balance = factory.Faker('random_int')
+    name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
+    balance = factory.fuzzy.FuzzyDecimal(low=0)
     currency = factory.SubFactory(CurrencyFactory)
 
 
-class TransactionFactory(factory.django.DjangoModelFactory):
+class CategoryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Category
 
+    user = factory.SubFactory(UserFactoryNoSignal)
+    name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_lowercase)
+    # parent = factory.fuzzy.FuzzyChoice((factory.SubFactory('main.tests.factories.CategoryFactory'), None))
+    parent = factory.SubFactory('main.tests.factories.CategoryFactory')
+    type = factory.fuzzy.FuzzyChoice(('I', 'E'))
+
+
+class TransactionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Transaction
 
     account = factory.SubFactory(AccountFactory)
-    name = get_string_faker(6)
+    name = factory.fuzzy.FuzzyText(length=6, chars=string.ascii_lowercase)
     amount = factory.Faker('random_int')
     date = factory.Faker('date')
-    category = None
-    type = None
+    category = factory.SubFactory(CategoryFactory, parent__parent=None)
+    type = factory.fuzzy.FuzzyChoice(('I', 'E'))
 
 
 class TransferFactory(factory.django.DjangoModelFactory):
