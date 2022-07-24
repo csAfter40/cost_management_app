@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .factories import TransactionFactory, TransferFactory, UserFactoryNoSignal
+from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
@@ -13,6 +13,7 @@ from django.db import models
 from django.test import TestCase
 from main import views
 from django.db import models
+from datetime import date
 
 
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
@@ -329,6 +330,30 @@ class TestIndexView(TestCase):
     def test_show_account(self):
         response = self.client.get(self.test_url)
         self.assertIsInstance(response.context['show_account'], bool)
+
+    def test_post_transfer(self):
+        # categories needed in the view
+        CategoryFactory(user=self.user, name='Transfer Out', parent=None)
+        CategoryFactory(user=self.user, name='Transfer In', parent=None)
+        from_account = AccountFactory(user=self.user)
+        to_account = AccountFactory(user=self.user)
+        data = {
+            'submit-transfer': True,
+            'from_account': from_account.id,
+            'from_amount': 12,
+            'to_account': to_account.id,
+            'to_amount': 14,
+            'date': date.today()
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            reverse('main:index'), 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertTrue(Transfer.objects.all().exists())
 
     # def subtest_post_success(self, data):
     #     response = self.client.post(self.test_url, data=data)
