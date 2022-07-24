@@ -1,15 +1,15 @@
 from decimal import Decimal
 import random
-from .factories import TransactionFactory, UserFactoryNoSignal
+from .factories import TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
     TestUpdateViewMixin,
 )
-from main.models import Account, Category, Loan, Transaction
+from main.models import Account, Category, Loan, Transaction, Transfer
 from main.utils import create_categories
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.db import models
 from django.test import TestCase
 from main import views
@@ -297,8 +297,34 @@ class TestIndexView(TestCase):
         self.assertQuerysetEqual(transactions, context_qs, ordered=True)
         
 
-    # def test_latest_transfers_list(self):
-    #     pass
+    def test_latest_transfers_list(self):
+        from main.categories import categories
+        create_categories(categories, self.user)
+        categories = Category.objects.all()
+        accounts = AccountFactory.create_batch(5, user=self.user)
+        TransactionFactory.create_batch(
+            10,
+            account=random.choice(accounts),
+            type=random.choice(('I', 'E')),
+            category=random.choice(categories)
+        )
+        transactions = Transaction.objects.all()
+        TransferFactory.create_batch(
+            10,
+            user=self.user,
+            from_transaction=random.choice(transactions),
+            to_transaction=random.choice(transactions),
+        )
+        TransferFactory.create_batch(
+            10,
+            from_transaction=random.choice(transactions),
+            to_transaction=random.choice(transactions),
+        )
+        qs = Transfer.objects.filter(user=self.user).order_by('-date')[:5]
+        response = self.client.get(self.test_url)
+        self.assertQuerysetEqual(qs, response.context['transfers'], ordered=True)
+        
+
 
     # def subtest_post_success(self, data):
     #     response = self.client.post(self.test_url, data=data)
@@ -344,11 +370,9 @@ class TestIndexView(TestCase):
     #         with self.subTest(data=data):
     #             self.subtest_post_failure
 
-    # def test_view_function(self):
-    #     '''
-    #         Tests url resolves to view function.
-    #     '''
-    #     if not self.view_function:
-    #         raise ImproperlyConfigured('No view function available. Please provide a view_function.')
-    #     match = resolve(self.test_url)
-    #     self.assertEquals(self.view_function.__name__, match.func.__name__)
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
