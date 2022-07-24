@@ -1,12 +1,11 @@
 from decimal import Decimal
-import random
 from .factories import TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
     TestUpdateViewMixin,
 )
-from main.models import Account, Category, Loan, Transaction, Transfer
+from main.models import Account, Category, Loan, Transaction, Transfer, User
 from main.utils import create_categories
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
@@ -45,7 +44,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         self.invalid_data = [
             {
                 'name': 'sample_account',
-                'balance': 'abc', # balance must be a number so data is invalid.
+                'balance': 'abc', # balance must be a number.
                 'currency': currency.id,
             }
         ]    
@@ -57,7 +56,12 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
     def subtest_post_success(self, data):
         response = self.client.post(self.test_url, data=data)
         # test response code
-        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.assertRedirects(response, 
+            self.success_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
         # test created object
         self.valid_object = self.get_object()
         self.assertNotEqual(self.valid_object, None)
@@ -100,7 +104,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         self.invalid_data = [
             {
                 'name': 'sample_loan',
-                'balance': 'abc', # balance must be a number so data is invalid.
+                'balance': 'abc', # balance must be a number.
                 'currency': currency.id,
             }
         ]    
@@ -112,7 +116,12 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
     def subtest_post_success(self, data):
         response = self.client.post(self.test_url, data=data)
         # test response code
-        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.assertRedirects(response, 
+            self.success_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
         # test created object
         self.valid_object = self.get_object()
         self.assertNotEqual(self.valid_object, None)
@@ -155,7 +164,6 @@ class TestAccountsView(TestListViewMixin, TestCase):
             qs = self.model.objects.filter(user=self.user, is_active=True)
             response = self.client.get(self.test_url)
             context_qs = response.context[self.object_list_name]
-            # self.assertQuerysetEqual(qs, context_qs, transform=lambda x: x, ordered=False)
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
 
@@ -273,22 +281,19 @@ class TestIndexView(TestCase):
 
 
     def test_latest_transactions_list(self):
-        from main.categories import categories
-        create_categories(categories, self.user)
-        other_user = UserFactoryNoSignal()
-        create_categories(categories, other_user)
-        categories = Category.objects.filter(user=self.user)
-        AccountFactory.create_batch(5) # create accounts with random users.
-        for _ in range(12):
-            account = AccountFactory(user=self.user)
-            TransactionFactory.create(
-                category=random.choice(categories), 
-                type=random.choice(('I', 'E')), 
-                account=account
-            )
-        user_accounts = Account.objects.filter(user=self.user) 
+        TransactionFactory.create_batch(
+            10, 
+            account__user=self.user, 
+            category__is_transfer=False
+        )
+        TransactionFactory.create_batch(
+            10, 
+            account__user=self.user, 
+            category__is_transfer=True
+        )
+        TransactionFactory.create_batch(10)
         transactions = (
-            Transaction.objects.filter(account__in=user_accounts)
+            Transaction.objects.filter(account__user=self.user)
             .exclude(category__is_transfer=True)
             .order_by('-date')[:5]
         ) 
@@ -298,31 +303,15 @@ class TestIndexView(TestCase):
         
 
     def test_latest_transfers_list(self):
-        from main.categories import categories
-        create_categories(categories, self.user)
-        categories = Category.objects.all()
-        accounts = AccountFactory.create_batch(5, user=self.user)
-        TransactionFactory.create_batch(
-            10,
-            account=random.choice(accounts),
-            type=random.choice(('I', 'E')),
-            category=random.choice(categories)
-        )
-        transactions = Transaction.objects.all()
-        TransferFactory.create_batch(
-            10,
-            user=self.user,
-            from_transaction=random.choice(transactions),
-            to_transaction=random.choice(transactions),
-        )
-        TransferFactory.create_batch(
-            10,
-            from_transaction=random.choice(transactions),
-            to_transaction=random.choice(transactions),
-        )
+        TransferFactory.create_batch(10)
+        TransferFactory.create_batch(10, user=self.user)
         qs = Transfer.objects.filter(user=self.user).order_by('-date')[:5]
         response = self.client.get(self.test_url)
-        self.assertQuerysetEqual(qs, response.context['transfers'], ordered=True)
+        self.assertQuerysetEqual(
+            qs, 
+            response.context['transfers'], 
+            ordered=True
+        )
         
 
 
@@ -376,3 +365,13 @@ class TestIndexView(TestCase):
         '''
         match = resolve(self.test_url)
         self.assertEquals(self.view_function.__name__, match.func.__name__)
+
+
+# class TestTest(TestCase):
+#     def test_func(self):
+#         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
+#         for key, value in transfer.__dict__.items():
+#             print(key, ':', value)
+#         cats = Category.objects.all()
+#         for cat in cats:
+#             print(cat.name, cat.parent)

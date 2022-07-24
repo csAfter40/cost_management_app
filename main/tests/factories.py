@@ -1,3 +1,4 @@
+from unicodedata import category
 import factory
 import factory.fuzzy
 from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan
@@ -9,7 +10,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Faker('user_name')
+    # username = factory.Faker('user_name')
+    username = factory.Sequence(lambda n: f'user{n}')
     email = factory.Faker('email')
 
 
@@ -53,9 +55,9 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactoryNoSignal)
     name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_lowercase)
-    # parent = factory.fuzzy.FuzzyChoice((factory.SubFactory('main.tests.factories.CategoryFactory'), None))
     parent = factory.SubFactory('main.tests.factories.CategoryFactory')
     type = factory.fuzzy.FuzzyChoice(('I', 'E'))
+    is_transfer = factory.fuzzy.FuzzyChoice((True, False, False, False))
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):
@@ -75,6 +77,6 @@ class TransferFactory(factory.django.DjangoModelFactory):
         model = Transfer
 
     user = factory.SubFactory(UserFactoryNoSignal)
-    from_transaction = factory.SubFactory(TransactionFactory)
-    to_transaction = factory.SubFactory(TransactionFactory)
+    from_transaction = factory.SubFactory(TransactionFactory, category__is_transfer=True)
+    to_transaction = factory.SubFactory(TransactionFactory, category__is_transfer=True)
     date = factory.Faker('date')
