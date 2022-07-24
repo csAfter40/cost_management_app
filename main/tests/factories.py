@@ -1,6 +1,6 @@
 import factory
 import factory.fuzzy
-from main.models import Account, Category, Transaction, User, Currency, Loan
+from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan
 from django.db.models import signals
 import string
 
@@ -63,3 +63,13 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     date = factory.Faker('date')
     category = None
     type = None
+
+
+class TransferFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Transfer
+
+    user = factory.SubFactory(UserFactoryNoSignal)
+    from_transaction = factory.SubFactory(TransactionFactory)
+    to_transaction = factory.SubFactory(TransactionFactory)
+    date = factory.Faker('date')
