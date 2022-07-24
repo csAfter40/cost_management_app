@@ -5,13 +5,14 @@ from .cbv_test_mixins import (
     TestListViewMixin,
     TestUpdateViewMixin,
 )
+from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User
-from main.utils import create_categories
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
 from django.test import TestCase
 from main import views
+from django.db import models
 
 
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
@@ -279,7 +280,6 @@ class TestIndexView(TestCase):
         context_qs = response.context['accounts']
         self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
-
     def test_latest_transactions_list(self):
         TransactionFactory.create_batch(
             10, 
@@ -301,7 +301,6 @@ class TestIndexView(TestCase):
         context_qs = response.context['transactions']
         self.assertQuerysetEqual(transactions, context_qs, ordered=True)
         
-
     def test_latest_transfers_list(self):
         TransferFactory.create_batch(10)
         TransferFactory.create_batch(10, user=self.user)
@@ -313,7 +312,23 @@ class TestIndexView(TestCase):
             ordered=True
         )
         
+    def test_form_instances(self):
+        response = self.client.get(self.test_url)
+        self.assertIsInstance(response.context['expense_form'], ExpenseInputForm)
+        self.assertIsInstance(response.context['transfer_form'], TransferForm)
+        self.assertIsInstance(response.context['income_form'], IncomeInputForm)
 
+    def test_account_data(self):
+        AccountFactory.create_batch(5, user=self.user)
+        response = self.client.get(self.test_url)
+        account_data = response.context['account_data']
+        for key, value in account_data.items():
+            self.assertIsInstance(value, str)
+            self.assertTrue(len(value)<=3)
+
+    def test_show_account(self):
+        response = self.client.get(self.test_url)
+        self.assertIsInstance(response.context['show_account'], bool)
 
     # def subtest_post_success(self, data):
     #     response = self.client.post(self.test_url, data=data)

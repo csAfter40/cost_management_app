@@ -1,4 +1,3 @@
-from unicodedata import category
 import factory
 import factory.fuzzy
 from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan
