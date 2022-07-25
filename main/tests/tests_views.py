@@ -331,7 +331,7 @@ class TestIndexView(TestCase):
         response = self.client.get(self.test_url)
         self.assertIsInstance(response.context['show_account'], bool)
 
-    def test_post_transfer(self):
+    def test_post_transfer_valid_data(self):
         CategoryFactory(user=self.user, name='Transfer Out', parent=None)
         CategoryFactory(user=self.user, name='Transfer In', parent=None)
         from_account = AccountFactory(user=self.user)
@@ -387,8 +387,22 @@ class TestIndexView(TestCase):
             transfer_obj.user,
             msg="Object.user not matching with test user",
         )
+    
+    def test_post_transfer_invalid_data(self):
+        data = {
+            'submit-transfer': True,
+            'from_account': 'invalid_data',
+            'from_amount': 'invalid_data',
+            'to_account': 'invalid_data',
+            'to_amount': 14,
+            'date': date.today()
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
 
-    def test_post_expense(self):
+    def test_post_expense_valid_data(self):
         category = CategoryFactory(
             user=self.user, 
             parent=None, 
@@ -449,7 +463,22 @@ class TestIndexView(TestCase):
             msg="Type value not matching",
         )
 
-    def test_post_income(self):
+    def test_post_expense_invalid_data(self):
+        data = {
+            'submit-expense': True,
+            'name': 'test_transfer',
+            'account': 'invalid_data',
+            'amount': 'invalid_data',
+            'category': 'invalid_data',
+            'date': date.today(),
+            'type': 'E'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
+
+    def test_post_income_valid_data(self):
         category = CategoryFactory(
             user=self.user, 
             parent=None, 
@@ -509,6 +538,22 @@ class TestIndexView(TestCase):
             transaction_obj.type,
             msg="Type value not matching",
         )
+    
+    def test_post_income_invalid_data(self):
+        data = {
+            'submit-income': True,
+            'name': 'test_transfer',
+            'account': 'invalid_data',
+            'amount': 'invalid_data',
+            'category': 'invalid_data',
+            'date': date.today(),
+            'type': 'I'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
+    
     # def subtest_post_success(self, data):
     #     response = self.client.post(self.test_url, data=data)
     #     # test response code
