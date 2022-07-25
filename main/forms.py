@@ -84,10 +84,11 @@ class TransferForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["from_account"] == cleaned_data["to_account"]:
-            raise ValidationError(
-                "From account and To account can not have same value."
-            )
+        if cleaned_data.get('from_account') and cleaned_data.get('to_account'):
+            if cleaned_data["from_account"] == cleaned_data["to_account"]:
+                raise ValidationError(
+                    "From account and To account can not have same value."
+                )
         return cleaned_data
 
 
