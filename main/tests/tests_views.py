@@ -332,7 +332,6 @@ class TestIndexView(TestCase):
         self.assertIsInstance(response.context['show_account'], bool)
 
     def test_post_transfer(self):
-        # categories needed in the view
         CategoryFactory(user=self.user, name='Transfer Out', parent=None)
         CategoryFactory(user=self.user, name='Transfer In', parent=None)
         from_account = AccountFactory(user=self.user)
@@ -353,8 +352,163 @@ class TestIndexView(TestCase):
             target_status_code=200, 
             fetch_redirect_response=True
         )
-        self.assertTrue(Transfer.objects.all().exists())
+        self.assertTrue(
+            Transfer.objects.all().exists(), 
+            msg='Transfer object not created.'
+        )
+        transfer_obj = Transfer.objects.last()
+        self.assertEquals(
+            data['from_account'], 
+            transfer_obj.from_transaction.account.id,
+            msg="From account value not matching",
+        )
+        self.assertEquals(
+            data['from_amount'], 
+            transfer_obj.from_transaction.amount,
+            msg="From amount value not matching",
+        )
+        self.assertEquals(
+            data['to_account'], 
+            transfer_obj.to_transaction.account.id,
+            msg="To account value not matching",
+        )
+        self.assertEquals(
+            data['to_amount'], 
+            transfer_obj.to_transaction.amount,
+            msg="To amount value not matching",
+        )
+        self.assertEquals(
+            data['date'], 
+            transfer_obj.date,
+            msg="Date value not matching",
+        )
+        self.assertEquals(
+            self.user, 
+            transfer_obj.user,
+            msg="Object.user not matching with test user",
+        )
 
+    def test_post_expense(self):
+        category = CategoryFactory(
+            user=self.user, 
+            parent=None, 
+            type='E', 
+            is_transfer=False
+        )
+        account = AccountFactory(user=self.user)
+        data = {
+            'submit-expense': True,
+            'name': 'test_transfer',
+            'account': account.id,
+            'amount': 12,
+            'category': category.id,
+            'date': date.today(),
+            'type': 'E'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            reverse('main:index'), 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertTrue(
+            Transaction.objects.all().exists(), 
+            msg='Transfer object not created.'
+        )
+        transaction_obj = Transaction.objects.last()
+        self.assertEquals(
+            data['name'], 
+            transaction_obj.name,
+            msg="Name value not matching",
+        )
+        self.assertEquals(
+            data['account'], 
+            transaction_obj.account.id,
+            msg="Account id value not matching",
+        )
+        self.assertEquals(
+            data['amount'], 
+            transaction_obj.amount,
+            msg="Amount value not matching",
+        )
+        self.assertEquals(
+            data['category'], 
+            transaction_obj.category.id,
+            msg="Category id value not matching",
+        )
+        self.assertEquals(
+            data['date'], 
+            transaction_obj.date,
+            msg="Date value not matching",
+        )
+        self.assertEquals(
+            data['type'], 
+            transaction_obj.type,
+            msg="Type value not matching",
+        )
+
+    def test_post_income(self):
+        category = CategoryFactory(
+            user=self.user, 
+            parent=None, 
+            type='I', 
+            is_transfer=False
+        )
+        account = AccountFactory(user=self.user)
+        data = {
+            'submit-income': True,
+            'name': 'test_transfer',
+            'account': account.id,
+            'amount': 12,
+            'category': category.id,
+            'date': date.today(),
+            'type': 'I'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            reverse('main:index'), 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertTrue(
+            Transaction.objects.all().exists(), 
+            msg='Transfer object not created.'
+        )
+        transaction_obj = Transaction.objects.last()
+        self.assertEquals(
+            data['name'], 
+            transaction_obj.name,
+            msg="Name value not matching",
+        )
+        self.assertEquals(
+            data['account'], 
+            transaction_obj.account.id,
+            msg="Account id value not matching",
+        )
+        self.assertEquals(
+            data['amount'], 
+            transaction_obj.amount,
+            msg="Amount value not matching",
+        )
+        self.assertEquals(
+            data['category'], 
+            transaction_obj.category.id,
+            msg="Category id value not matching",
+        )
+        self.assertEquals(
+            data['date'], 
+            transaction_obj.date,
+            msg="Date value not matching",
+        )
+        self.assertEquals(
+            data['type'], 
+            transaction_obj.type,
+            msg="Type value not matching",
+        )
     # def subtest_post_success(self, data):
     #     response = self.client.post(self.test_url, data=data)
     #     # test response code
