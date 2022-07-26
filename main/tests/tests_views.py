@@ -1,5 +1,6 @@
 from decimal import Decimal
 import json
+import factory
 from requests import request
 from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
@@ -12,6 +13,7 @@ from main.models import Account, Category, Loan, Transaction, Transfer, User
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
+from django.db.models import signals
 from django.test import TestCase
 from django.http import JsonResponse
 from main import views
@@ -700,6 +702,95 @@ class TestLoginView(TestCase):
         )
         self.assertIsNotNone(response.cookies.get('messages', None))
 
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
+
+class TestRegisterView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = reverse('main:register')
+        cls.template = 'main/register.html'
+        cls.view_function = views.RegisterView.as_view()
+        cls.success_url = reverse('main:index')
+        cls.error_url = reverse('main:register')
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+
+    def get_user(self):
+        user = UserFactoryNoSignal(username='testuser')
+        return user
+
+    def test_get(self):    
+        '''
+            Tests get request response has status 200 and 
+            response context has expected keys.
+        ''' 
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        # test template
+        self.assertTemplateUsed(response, self.template)
+        
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def test_post(self):
+        data = {
+            'username': 'new_user', 
+            'email': 'new_user@example.com',
+            'password': 'password',
+            'confirmation': 'password',
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.success_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+
+    def test_post_password_not_matching(self):
+        data = {
+            'username': 'new_user', 
+            'email': 'new_user@example.com',
+            'password': 'password',
+            'confirmation': 'not_matching',
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.error_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertIsNotNone(response.cookies.get('messages', None))
+
+    def test_post_password_duplicate_user(self):
+        data = {
+            'username': self.user.username, 
+            'email': self.user.email,
+            'password': 'password',
+            'confirmation': 'password',
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.error_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertIsNotNone(response.cookies.get('messages', None))
+    
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
+
+        
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
