@@ -1,4 +1,6 @@
 from decimal import Decimal
+import json
+from requests import request
 from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
@@ -11,6 +13,7 @@ from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
 from django.test import TestCase
+from django.http import JsonResponse
 from main import views
 from django.db import models
 from datetime import date
@@ -331,7 +334,7 @@ class TestIndexView(TestCase):
         response = self.client.get(self.test_url)
         self.assertIsInstance(response.context['show_account'], bool)
 
-    def test_post_transfer_valid_data(self):
+    def test_post_transfer_success(self):
         CategoryFactory(user=self.user, name='Transfer Out', parent=None)
         CategoryFactory(user=self.user, name='Transfer In', parent=None)
         from_account = AccountFactory(user=self.user)
@@ -388,7 +391,7 @@ class TestIndexView(TestCase):
             msg="Object.user not matching with test user",
         )
     
-    def test_post_transfer_invalid_data(self):
+    def test_post_transfer_failure(self):
         data = {
             'submit-transfer': True,
             'from_account': 'invalid_data',
@@ -402,7 +405,7 @@ class TestIndexView(TestCase):
         content = response.content.decode('utf-8')
         self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
 
-    def test_post_expense_valid_data(self):
+    def test_post_expense_success(self):
         category = CategoryFactory(
             user=self.user, 
             parent=None, 
@@ -463,7 +466,7 @@ class TestIndexView(TestCase):
             msg="Type value not matching",
         )
 
-    def test_post_expense_invalid_data(self):
+    def test_post_expense_failure(self):
         data = {
             'submit-expense': True,
             'name': 'test_transfer',
@@ -478,7 +481,7 @@ class TestIndexView(TestCase):
         content = response.content.decode('utf-8')
         self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
 
-    def test_post_income_valid_data(self):
+    def test_post_income_success(self):
         category = CategoryFactory(
             user=self.user, 
             parent=None, 
@@ -539,7 +542,7 @@ class TestIndexView(TestCase):
             msg="Type value not matching",
         )
     
-    def test_post_income_invalid_data(self):
+    def test_post_income_failure(self):
         data = {
             'submit-income': True,
             'name': 'test_transfer',
@@ -553,50 +556,6 @@ class TestIndexView(TestCase):
         self.assertEquals(response.status_code, 200)
         content = response.content.decode('utf-8')
         self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
-    
-    # def subtest_post_success(self, data):
-    #     response = self.client.post(self.test_url, data=data)
-    #     # test response code
-    #     if not self.success_url:
-    #         raise ImproperlyConfigured('No URL to redirect to. Please provide a success_url.')
-    #     self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
-    #     # test created object
-    #     self.valid_object = self.get_object()
-    #     self.assertNotEquals(self.valid_object, None)
-    #     for key, value in data.items():
-    #         if isinstance(getattr(self.valid_object, key), models.Model):
-    #             self.assertEquals(getattr(self.valid_object, key).id, value)
-    #         else:
-    #             self.assertEquals(getattr(self.valid_object, key), value)
-
-    # def test_post_success(self):
-    #     '''
-    #         Test post request with valid data.
-    #     '''
-    #     if not self.valid_data:
-    #         raise ImproperlyConfigured('No data to test valid post requests. Please provide valid_data')
-    #     for data in self.valid_data:
-    #         with self.subTest(data=data):
-    #             self.subtest_post_success(data)
-
-    # def subtest_post_failure(self, data):
-    #     response = self.client.post(self.test_url, data=data)
-    #     # test response code
-    #     self.assertEquals(response.status_code, 200)
-    #     # test no objects are created
-    #     invalid_object = self.get_object()
-    #     self.assertEquals(invalid_object, None)
-
-    # def test_post_failure(self):
-    #     '''
-    #         Test post request with invalid data.
-    #     '''
-    #     if not self.invalid_data:
-    #         logging.warning('\nWarning: No invalid_data available. Invalid post test not implemented.')
-    #         return
-    #     for data in self.invalid_data:
-    #         with self.subTest(data=data):
-    #             self.subtest_post_failure
 
     def test_view_function(self):
         '''
@@ -605,6 +564,68 @@ class TestIndexView(TestCase):
         match = resolve(self.test_url)
         self.assertEquals(self.view_function.__name__, match.func.__name__)
 
+
+class TestTransactionNameAutocomplete(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = reverse('main:transaction_name_autocomplete')
+        cls.view_function = views.transaction_name_autocomplete
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+        self.client.force_login(self.user)
+
+    def get_user(self):
+        user = UserFactoryNoSignal(username='testuser')
+        return user
+
+    def test_unauthenticated_access(self):
+        '''
+            Tests unauthenticated access.
+        '''
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertRedirects(response, '/login?next=/autocomplete/transaction_name')
+
+    def test_get(self):
+        for i in range(6):
+            TransactionFactory(name=f'match_E{i}', type='E', account__user=self.user)
+        for i in range(5):
+            TransactionFactory(name=f'fail{i}', type='E', account__user=self.user)
+        for i in range(7):
+            TransactionFactory(name=f'match_I{i}', type='I', account__user=self.user)
+        for i in range(5):
+            TransactionFactory(name=f'fail{i}', type='I', account__user=self.user)
+        for i in range(5):
+            TransactionFactory(name=f'match{i}', type='E')
+        for i in range(5):
+            TransactionFactory(name=f'fail{i}', type='E')
+        for i in range(5):
+            TransactionFactory(name=f'match{i}', type='I')
+        for i in range(5):
+            TransactionFactory(name=f'fail{i}', type='I')
+        data_set = [
+            {'name': 'mat', 'type': 'I', 'count':7},
+            {'name': 'mat', 'type': 'E', 'count':6},
+            {'name': 'none', 'type': 'I', 'count':0}
+        ]
+        for data in data_set:
+            with self.subTest(data=data):
+                response = self.client.get(self.test_url, data)
+                self.assertEquals(response.status_code, 200)
+                self.assertIsInstance(response, JsonResponse)
+                content = json.loads(response.content)
+                self.assertEquals(len(content['data']), data['count'])
+                for match in content['data']:
+                    self.assertIn(data['name'], match)
+
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 # class TestTest(TestCase):
 #     def test_func(self):
