@@ -627,6 +627,79 @@ class TestTransactionNameAutocomplete(TestCase):
         match = resolve(self.test_url)
         self.assertEquals(self.view_function.__name__, match.func.__name__)
 
+
+class TestLoginView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = reverse('main:login')
+        cls.template = 'main/login.html'
+        cls.view_function = views.LoginView.as_view()
+        cls.success_url = reverse('main:index')
+        cls.next_url = reverse('main:accounts')
+
+    def setUp(self) -> None:
+        self.password = 'testpassword'
+        self.user = self.get_user()
+
+    def get_user(self):
+        user = UserFactoryNoSignal(username='testuser')
+        user.set_password(self.password)
+        user.save()
+        return user
+
+    def test_get(self):    
+        '''
+            Tests get request response has status 200 and 
+            response context has expected keys.
+        ''' 
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        # test template
+        self.assertTemplateUsed(response, self.template)
+        
+    def test_post(self):
+        data = {
+            'username': self.user.username, 
+            'password': self.password,
+            'next': ''
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.success_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+
+    def test_post_with_next(self):
+        data = {
+            'username': self.user.username, 
+            'password': self.password,
+            'next': self.next_url,
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.next_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+    
+    def test_post_invalid_data(self):
+        data = {
+            'username': self.user.username, 
+            'password': 'invalid_password',
+            'next': '',
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, 
+            self.test_url, 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertIsNotNone(response.cookies.get('messages', None))
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
