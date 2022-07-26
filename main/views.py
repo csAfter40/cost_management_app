@@ -128,7 +128,7 @@ def index(request):
     }
     return render(request, "main/index.html", context)
 
-
+@login_required
 def transaction_name_autocomplete(request):
     name_query = request.GET.get("name", None)
     type = request.GET.get("type", None)
