@@ -791,6 +791,40 @@ class TestRegisterView(TestCase):
         self.assertEquals(self.view_function.__name__, match.func.__name__)
 
         
+class TestCheckUsername(TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = reverse('main:check_username')
+        cls.view_function = views.check_username
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+
+    def get_user(self):
+        user = UserFactoryNoSignal(username='testuser')
+        return user
+
+    def test_get(self):
+        response = self.client.post(self.test_url, {'username': 'testuser'})
+        self.assertEquals(response.status_code, 200)
+        self.assertIn('This username exists', response.content.decode('utf-8'))
+        response = self.client.post(self.test_url, {'username': 'new_username'})
+        self.assertEquals(response.status_code, 200)
+        self.assertIn('This username is available', response.content.decode('utf-8'))
+        response = self.client.post(self.test_url, {'username': 'aa'}) # username length < 3 
+        self.assertEquals(response.status_code, 200)
+        self.assertNotIn('This username', response.content.decode('utf-8'))
+
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
+
+
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
