@@ -8,6 +8,7 @@ class BaseViewTestMixin(object):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = None # str
         cls.redirect_url = None # str 
         cls.context_list = None # List of strings
@@ -21,7 +22,7 @@ class BaseViewTestMixin(object):
 
     def setUp(self) -> None:
         self.user = self.get_user()
-        if not self.test_url:
+        if self.test_url==None:
             raise ImproperlyConfigured('No test url available. Please provide a test_url')
         if self.login_required:
             self.client.force_login(self.user)
@@ -81,3 +82,13 @@ class BaseViewTestMixin(object):
             raise ImproperlyConfigured('No view function available. Please provide a view_function.')
         match = resolve(self.test_url)
         self.assertEquals(self.view_function.__name__, match.func.__name__)
+
+
+class UserFailTestMixin(BaseViewTestMixin):
+    
+    def test_user_fail_test(self):
+        new_user = self.user_factory()
+        self.object.user = new_user
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 403)
