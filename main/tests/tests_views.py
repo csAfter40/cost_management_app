@@ -205,19 +205,16 @@ class TestUpdateAccountView(TestUpdateViewMixin, TestCase):
             },
         ]    
 
-    def get_user(self):
-        user = UserFactoryNoSignal()
-        return user
-
     def set_object(self):
         super().set_object()
         self.object.user = self.user
         self.object.save()
     
 
-class TestIndexView(TestCase):
+class TestIndexView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = reverse('main:index')
         cls.context_list = [
             "accounts",
@@ -232,36 +229,8 @@ class TestIndexView(TestCase):
         ]
         cls.template = 'main/index.html'
         cls.view_function = views.index
-
-    def setUp(self) -> None:
-        self.user = self.get_user()
-        self.client.force_login(self.user)
-
-    def get_user(self):
-        user = UserFactoryNoSignal(username='testuser')
-        return user
-
-    def test_unauthenticated_access(self):
-        '''
-            Tests unauthenticated access in case view has LoginRequired mixin.
-        '''
-        self.client.logout()
-        response = self.client.get(self.test_url)
-        self.assertRedirects(response, '/login?next=/')
-
-    def test_get(self):    
-        '''
-            Tests get request response has status 200 and 
-            response context has expected keys.
-        ''' 
-        response = self.client.get(self.test_url)
-        self.assertEquals(response.status_code, 200)
-        # test template
-        self.assertTemplateUsed(response, self.template)
-        # test context
-        if self.context_list:
-            for item in self.context_list:
-                self.assertIn(item, response.context.keys())
+        cls.user_factory = UserFactoryNoSignal
+        cls.login_required = True
 
     def test_loans_list(self):
         LoanFactory.create_batch(5)
@@ -554,36 +523,16 @@ class TestIndexView(TestCase):
         content = response.content.decode('utf-8')
         self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
 
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
-
-class TestTransactionNameAutocomplete(TestCase):
+class TestTransactionNameAutocomplete(BaseViewTestMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = reverse('main:transaction_name_autocomplete')
         cls.view_function = views.transaction_name_autocomplete
-
-    def setUp(self) -> None:
-        self.user = self.get_user()
-        self.client.force_login(self.user)
-
-    def get_user(self):
-        user = UserFactoryNoSignal(username='testuser')
-        return user
-
-    def test_unauthenticated_access(self):
-        '''
-            Tests unauthenticated access.
-        '''
-        self.client.logout()
-        response = self.client.get(self.test_url)
-        self.assertRedirects(response, '/login?next=/autocomplete/transaction_name')
+        cls.user_factory = UserFactoryNoSignal
+        cls.login_required = True
 
     def test_get(self):
         for i in range(6):
@@ -617,23 +566,18 @@ class TestTransactionNameAutocomplete(TestCase):
                 for match in content['data']:
                     self.assertIn(data['name'], match)
 
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
-
-class TestLoginView(TestCase):
+class TestLoginView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = reverse('main:login')
         cls.template = 'main/login.html'
         cls.view_function = views.LoginView.as_view()
         cls.success_url = reverse('main:index')
         cls.next_url = reverse('main:accounts')
-
+        cls.user_factory = UserFactoryNoSignal
+        
     def setUp(self) -> None:
         self.password = 'testpassword'
         self.user = self.get_user()
@@ -644,16 +588,6 @@ class TestLoginView(TestCase):
         user.save()
         return user
 
-    def test_get(self):    
-        '''
-            Tests get request response has status 200 and 
-            response context has expected keys.
-        ''' 
-        response = self.client.get(self.test_url)
-        self.assertEquals(response.status_code, 200)
-        # test template
-        self.assertTemplateUsed(response, self.template)
-        
     def test_post(self):
         from django.contrib.auth import get_user
         user = get_user(self.client)
@@ -702,40 +636,23 @@ class TestLoginView(TestCase):
         )
         self.assertIsNotNone(response.cookies.get('messages', None))
 
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
-
-class TestRegisterView(TestCase):
+class TestRegisterView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = reverse('main:register')
         cls.template = 'main/register.html'
         cls.view_function = views.RegisterView.as_view()
         cls.success_url = reverse('main:index')
         cls.error_url = reverse('main:register')
-
-    def setUp(self) -> None:
-        self.user = self.get_user()
+        cls.user_factory = UserFactoryNoSignal
+        cls.context_list = []
 
     def get_user(self):
         user = UserFactoryNoSignal(username='testuser')
         return user
 
-    def test_get(self):    
-        '''
-            Tests get request response has status 200 and 
-            response context has expected keys.
-        ''' 
-        response = self.client.get(self.test_url)
-        self.assertEquals(response.status_code, 200)
-        # test template
-        self.assertTemplateUsed(response, self.template)
-        
     @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_post(self):
         data = {
@@ -784,23 +701,15 @@ class TestRegisterView(TestCase):
         )
         self.assertIsNotNone(response.cookies.get('messages', None))
     
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
-
         
-class TestCheckUsername(TestCase):
+class TestCheckUsername(BaseViewTestMixin, TestCase):
     
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.test_url = reverse('main:check_username')
         cls.view_function = views.check_username
-
-    def setUp(self) -> None:
-        self.user = self.get_user()
+        cls.user_factory = UserFactoryNoSignal
 
     def get_user(self):
         user = UserFactoryNoSignal(username='testuser')
@@ -816,13 +725,6 @@ class TestCheckUsername(TestCase):
         response = self.client.post(self.test_url, {'username': 'aa'}) # username length < 3 
         self.assertEquals(response.status_code, 200)
         self.assertNotIn('This username', response.content.decode('utf-8'))
-
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 
 class TestLogoutView(BaseViewTestMixin, TestCase):

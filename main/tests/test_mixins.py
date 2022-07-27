@@ -55,7 +55,9 @@ class BaseViewTestMixin(object):
         else:
             logging.warning('\nWarning: No template available. Template test not implemented.')
         # test context
-        if self.context_list:
+        if self.context_list == []:
+            pass
+        elif self.context_list:
             for item in self.context_list:
                 self.assertIn(item, response.context.keys())
         else:
