@@ -660,6 +660,9 @@ class TestLoginView(TestCase):
         self.assertTemplateUsed(response, self.template)
         
     def test_post(self):
+        from django.contrib.auth import get_user
+        user = get_user(self.client)
+        self.assertFalse(user.is_authenticated)
         data = {
             'username': self.user.username, 
             'password': self.password,
@@ -672,6 +675,8 @@ class TestLoginView(TestCase):
             target_status_code=200, 
             fetch_redirect_response=True
         )
+        user = get_user(self.client)
+        self.assertTrue(user.is_authenticated)
 
     def test_post_with_next(self):
         data = {
