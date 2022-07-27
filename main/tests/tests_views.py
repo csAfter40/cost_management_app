@@ -33,6 +33,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
         cls.template = 'main/create_account.html'
         cls.view_function = views.CreateAccountView.as_view()
         cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         super().setUp()
@@ -57,9 +58,6 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
             }
         ]    
     
-    def get_user(self):
-        user = UserFactoryNoSignal()
-        return user
 
     def subtest_post_success(self, data):
         response = self.client.post(self.test_url, data=data)
@@ -93,6 +91,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
         cls.template = 'main/create_loan.html'
         cls.view_function = views.CreateLoanView.as_view()
         cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         super().setUp()
@@ -117,9 +116,6 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
             }
         ]    
     
-    def get_user(self):
-        user = UserFactoryNoSignal()
-        return user
 
     def subtest_post_success(self, data):
         response = self.client.post(self.test_url, data=data)
@@ -154,10 +150,7 @@ class TestAccountsView(TestListViewMixin, TestCase):
         cls.view_function = views.AccountsView.as_view()
         cls.login_required = True
         cls.model_factory = AccountFactory
-
-    def get_user(self):
-        user = UserFactoryNoSignal()
-        return user
+        cls.user_factory = UserFactoryNoSignal
 
     def test_queryset(self):
         if self.model_factory:
@@ -187,6 +180,7 @@ class TestUpdateAccountView(TestUpdateViewMixin, TestCase):
         cls.view_function = views.EditAccountView.as_view()
         cls.login_required = True
         cls.model_factory = AccountFactory
+        cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         super().setUp()
@@ -714,6 +708,7 @@ class TestLoginView(TestCase):
         '''
         match = resolve(self.test_url)
         self.assertEquals(self.view_function.__name__, match.func.__name__)
+
 
 class TestRegisterView(TestCase):
     @classmethod

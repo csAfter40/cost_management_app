@@ -10,7 +10,6 @@ class BaseViewTestMixin(object):
     def setUpTestData(cls):
         cls.test_url = None # str
         cls.redirect_url = None # str 
-        cls.model = None # model.Model
         cls.context_list = None # List of strings
         cls.template = None # str 'app_name/template_name.html'
         cls.post_method = False
