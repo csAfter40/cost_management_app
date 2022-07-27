@@ -1,7 +1,6 @@
 from decimal import Decimal
 import json
 import factory
-from requests import request
 from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
@@ -10,7 +9,7 @@ from .cbv_test_mixins import (
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User
-from main.tests.test_mixins import BaseViewTestMixin
+from main.tests.test_mixins import BaseViewTestMixin, UserFailTestMixin
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
@@ -577,6 +576,7 @@ class TestLoginView(BaseViewTestMixin, TestCase):
         cls.success_url = reverse('main:index')
         cls.next_url = reverse('main:accounts')
         cls.user_factory = UserFactoryNoSignal
+        cls.context_list = []
         
     def setUp(self) -> None:
         self.password = 'testpassword'
@@ -737,12 +737,110 @@ class TestLogoutView(BaseViewTestMixin, TestCase):
         cls.post_method = True
         cls.view_function = views.logout_view
         cls.user_factory = UserFactoryNoSignal
+        cls.context_list = []
 
     def test_post(self): 
         from django.contrib.auth import get_user   
-        response = super().test_post()
+        super().test_post()
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
+
+
+class TestAccountDetailAjaxView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.context_list = [
+            "transactions",
+            "stats",
+            "account",
+            "expense_stats",
+            "income_stats",
+            "comparison_stats",
+        ]
+        cls.template = 'main/account_detail_pack.html'
+        cls.view_function = views.AccountDetailAjaxView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Account
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = AccountFactory(user=self.user)
+        self.test_url = reverse('main:account_detail_ajax', kwargs={'pk':self.object.id})
+
+    def subtest_get(self, test_url):
+        response = self.client.get(test_url)
+        self.assertEquals(response.status_code, 200)
+        # test template
+        self.assertTemplateUsed(response, self.template)
+        # test context
+        for item in self.context_list:
+                self.assertIn(item, response.context.keys())
+        
+    def test_get(self):    
+        times = ('all', 'week', 'month', 'year')
+        object = AccountFactory(user=self.user)
+        for time in times:
+            with self.subTest(time):
+                test_url = self.test_url + f'?time={time}'
+                self.subtest_get(test_url)
+
+    def test_account_not_active(self):
+        self.object.is_active = False
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 404)
+     
+
+class TestAccountDetailSubcategoryAjaxView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.AccountDetailSubcategoryAjaxView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Account
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = AccountFactory(user=self.user)
+        self.category = CategoryFactory(parent=None, user=self.user)
+        self.test_url = reverse(
+                            'main:account_detail_subcategory_ajax', 
+                            kwargs = {
+                                        'pk':self.object.id, 
+                                        'cat_pk':self.category.id
+                                     }
+                        )
+
+    def subtest_get(self, test_url):
+        response = self.client.get(test_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response['content-type'], 'application/json')
+        
+    def test_get(self):    
+        TransactionFactory.create_batch(
+            20, 
+            category=self.category, 
+            account=self.object
+        )
+        times = ('all', 'week', 'month', 'year')
+        for time in times:
+            with self.subTest(time):
+                test_url = self.test_url + f'?time={time}'
+                self.subtest_get(test_url)
+
+    def test_account_not_active(self):
+        self.object.is_active = False
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 404)
+
 
 # class TestTest(TestCase):
 #     def test_func(self):
