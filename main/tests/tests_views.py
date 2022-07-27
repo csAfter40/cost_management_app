@@ -10,6 +10,7 @@ from .cbv_test_mixins import (
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User
+from main.tests.test_mixins import BaseViewTestMixin
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
@@ -829,39 +830,22 @@ class TestCheckUsername(TestCase):
         self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 
-class TestLogoutView(TestCase):
+class TestLogoutView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
+        cls.get_method = False
         cls.test_url = reverse('main:logout')
+        cls.redirect_url = reverse('main:index')
+        cls.post_method = True
         cls.view_function = views.logout_view
-        cls.success_url = reverse('main:index')
+        cls.user_factory = UserFactoryNoSignal
 
-    def setUp(self) -> None:
-        self.user = self.get_user()
-        self.client.force_login(self.user)
-
-    def get_user(self):
-        user = UserFactoryNoSignal(username='testuser')
-        return user
-
-    def test_post(self):
-        from django.contrib.auth import get_user
-        response = self.client.post(self.test_url)
-        self.assertRedirects(
-            response,
-            self.success_url,
-            302,
-            302
-        )
+    def test_post(self): 
+        from django.contrib.auth import get_user   
+        response = super().test_post()
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
-
-    def test_view_function(self):
-        '''
-            Tests url resolves to view function.
-        '''
-        match = resolve(self.test_url)
-        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 # class TestTest(TestCase):
 #     def test_func(self):
