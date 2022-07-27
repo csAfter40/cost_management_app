@@ -206,7 +206,7 @@ def check_username(request, *args, **kwargs):
 
 
 def logout_view(request):
-    if request.POST:
+    if request.method == 'POST':
         logout(request)
     return HttpResponseRedirect(reverse("main:index"))
 

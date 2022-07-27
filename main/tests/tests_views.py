@@ -15,7 +15,7 @@ from django.urls import reverse, resolve
 from django.db import models
 from django.db.models import signals
 from django.test import TestCase
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from main import views
 from django.db import models
 from datetime import date
@@ -824,6 +824,39 @@ class TestCheckUsername(TestCase):
         self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 
+class TestLogoutView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_url = reverse('main:logout')
+        cls.view_function = views.logout_view
+        cls.success_url = reverse('main:index')
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+        self.client.force_login(self.user)
+
+    def get_user(self):
+        user = UserFactoryNoSignal(username='testuser')
+        return user
+
+    def test_post(self):
+        from django.contrib.auth import get_user
+        response = self.client.post(self.test_url)
+        self.assertRedirects(
+            response,
+            self.success_url,
+            302,
+            302
+        )
+        user = get_user(self.client)
+        self.assertFalse(user.is_authenticated)
+
+    def test_view_function(self):
+        '''
+            Tests url resolves to view function.
+        '''
+        match = resolve(self.test_url)
+        self.assertEquals(self.view_function.__name__, match.func.__name__)
 
 # class TestTest(TestCase):
 #     def test_func(self):
