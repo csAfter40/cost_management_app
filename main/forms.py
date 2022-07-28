@@ -114,8 +114,13 @@ class PayLoanForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["account"].currency != cleaned_data["loan"].currency:
+        if cleaned_data.get('account', None) and cleaned_data.get('loan', None):
+            if cleaned_data["account"].currency != cleaned_data["loan"].currency:
+                raise ValidationError(
+                    "Account and loan currencies can not be different."
+                )
+        else:
             raise ValidationError(
-                "Account and loan currencies can not be different."
-            )
+                    "Invalid account or loan data."
+                )
         return cleaned_data
