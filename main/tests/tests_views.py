@@ -997,6 +997,76 @@ class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
             else:
                 self.assertEquals(getattr(self.object, key), value)
 
+
+class TestPayLoanView(BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:pay_loan')
+        cls.redirect_url = reverse('main:index')
+        cls.context_list = ['account_data', 'loan_data', 'form']
+        cls.template = 'main/loan_pay.html'
+        cls.post_method = False
+        cls.get_method = True
+        cls.view_function = views.PayLoanView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self):
+        super().setUp()
+        CategoryFactory(user=self.user, name='Pay Loan', parent=None)
+        currency = CurrencyFactory()
+        account = AccountFactory(user=self.user, currency=currency)
+        loan = LoanFactory(user=self.user, currency=currency)
+        self.valid_data = [
+            {
+                'amount': 1000,
+                'date': date.today(),
+                'account': account.id,
+                'loan': loan.id,
+            }
+        ]
+        self.invalid_data = [
+            {
+                'amount': 'abc',
+                'date': date.today(),
+                'account': account.id,
+                'loan': loan.id,
+            },
+            {
+                'amount': 1000,
+                'date': date.today(),
+                'account': 'abc',
+                'loan': loan.id,
+            },
+        ]
+
+    def subtest_valid_post(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            self.redirect_url, 
+            302, 
+            200, 
+            fetch_redirect_response=True
+        )
+
+    def test_post_valid(self):
+        for data in self.valid_data:
+            with self.subTest(data):
+                self.subtest_valid_post(data)
+
+    def subtest_invalid_post(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+
+    def test_post_invalid(self):
+        for data in self.invalid_data:
+            with self.subTest(data):
+                self.subtest_invalid_post(data)
+
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)

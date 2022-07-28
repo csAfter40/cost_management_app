@@ -435,7 +435,6 @@ class PayLoanView(LoginRequiredMixin, View):
         return render(self.request, 'main/loan_pay.html', context)
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
         form = PayLoanForm(request.POST, user=request.user)
         if form.is_valid():
             data = form.cleaned_data
