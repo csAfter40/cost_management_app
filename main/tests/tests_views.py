@@ -842,6 +842,43 @@ class TestAccountDetailSubcategoryAjaxView(UserFailTestMixin, BaseViewTestMixin,
         self.assertEquals(response.status_code, 404)
 
 
+class TestAccountDetailView(UserFailTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.context_list = [
+            'account',
+            'transactions',
+            'stats',
+            'expense_stats',
+            'income_stats',
+            'comparison_stats'
+        ]
+        cls.template = 'main/account_detail.html'
+        cls.view_function = views.AccountDetailView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = AccountFactory(user=self.user)
+        self.test_url = reverse(
+            'main:account_detail', 
+            kwargs={'pk':self.object.id}
+        )
+
+    def test_get(self):    
+        TransactionFactory.create_batch(20, account=self.object)
+        super().test_get()
+    
+    def test_get_account_not_active(self):
+        self.object.is_active = False
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 404)
+        
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
