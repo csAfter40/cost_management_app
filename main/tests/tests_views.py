@@ -167,7 +167,7 @@ class TestAccountsView(TestListViewMixin, TestCase):
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
 
-class TestEditAccountView(TestUpdateViewMixin, TestCase):
+class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -942,8 +942,7 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertEquals(response.status_code, 302)
 
 
-
-class TestEditLoanView(TestUpdateViewMixin, TestCase):
+class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
