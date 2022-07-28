@@ -85,8 +85,18 @@ class BaseViewTestMixin(object):
 
 
 class UserFailTestMixin(BaseViewTestMixin):
-    
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.object = None
+
     def test_user_fail_test(self):
+        '''
+            Tests if permission denied when user tries to access an object
+            that does not belong to user.
+        '''
+        if not self.object:
+            raise ImproperlyConfigured('No object available. Please provide a test object.')
         new_user = self.user_factory()
         self.object.user = new_user
         self.object.save()
