@@ -1067,6 +1067,19 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
                 self.subtest_invalid_post(data)
 
 
+class TestCategoriesView(BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:categories')
+        cls.context_list = ['expense_categories', 'income_categories']
+        cls.template = 'main/categories.html'
+        cls.view_function = views.CategoriesView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
