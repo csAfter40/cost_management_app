@@ -167,7 +167,7 @@ class TestAccountsView(TestListViewMixin, TestCase):
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
 
-class TestUpdateAccountView(TestUpdateViewMixin, TestCase):
+class TestEditAccountView(TestUpdateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -941,7 +941,63 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 302)
 
-        
+
+
+class TestEditLoanView(TestUpdateViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/loans/<pk>/edit'
+        cls.success_url = reverse('main:index')
+        cls.model = Loan
+        cls.context_list = ('form', )
+        cls.template = 'main/loan_update.html'
+        cls.view_function = views.EditLoanView.as_view()
+        cls.login_required = True
+        cls.model_factory = LoanFactory
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        self.valid_data = [
+            {
+                'name': 'new_loan_name',
+                'balance': Decimal(20.00),
+                'currency': currency.id,
+            },
+        ]
+        self.invalid_data = [
+            {
+                'name': 'new_loan_name',
+                'balance': Decimal(20.00),
+                'currency': 'XYZ',
+            },
+            {
+                'name': 'new_loan_name',
+                'balance': 'abc',
+                'currency': currency.id,
+            },
+        ]    
+
+    def set_object(self):
+        super().set_object()
+        self.object.user = self.user
+        self.object.save()
+
+    def subtest_post_success(self, data):
+        response = self.client.post(self.test_url, data=data)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        # get updated object values from db
+        self.object.refresh_from_db()
+        for key, value in data.items():
+            if isinstance(getattr(self.object, key), models.Model):
+                self.assertEquals(getattr(self.object, key).id, value)
+            elif key == 'balance':
+                self.assertEquals(getattr(self.object, key), -abs(value))
+            else:
+                self.assertEquals(getattr(self.object, key), value)
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
