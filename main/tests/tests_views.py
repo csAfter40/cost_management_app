@@ -911,6 +911,37 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertEquals(response.status_code, 302)
 
 
+class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:delete_loan')
+        cls.redirect_url = reverse('main:index')
+        cls.post_method = True
+        cls.get_method = False
+        cls.view_function = views.DeleteLoanView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+    
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = LoanFactory(user=self.user)
+        self.post_data = {'id': self.object.id}
+    
+    def test_user_fail_test(self):
+        new_user = UserFactoryNoSignal()
+        self.object.user = new_user
+        self.object.save()
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertEquals(response.status_code, 403)
+
+    def test_unauthenticated_access(self):
+        self.client.logout()
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertEquals(response.status_code, 302)
+
+        
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)

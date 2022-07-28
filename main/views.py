@@ -396,9 +396,7 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
 
 class DeleteLoanView(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
-        print(self.request.POST)
         self.loan_id = self.request.POST["id"]
-
         return is_owner(self.request.user, Loan, self.loan_id)
 
     def post(self, request):
