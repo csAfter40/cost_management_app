@@ -490,7 +490,14 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
         id = self.request.POST.get("category_id", None)
         if id:
-            return is_owner(self.request.user, Category, id)
+            try:
+                return is_owner(self.request.user, Category, id)
+            except ValueError:
+                messages.error(
+                    self.request,
+                    "Invalid parent category.",
+                )
+                return HttpResponseRedirect(reverse("main:categories"))
         else:
             return True
 
@@ -500,7 +507,14 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
         parent_id = request.POST.get("category_id", None)
         if parent_id:
-            parent = get_object_or_404(Category, id=parent_id)
+            try:
+                parent = get_object_or_404(Category, id=parent_id)
+            except ValueError:
+                messages.error(
+                    self.request,
+                    "Invalid parent category.",
+                )
+                return HttpResponseRedirect(reverse("main:categories"))
         else:
             if validate_main_category_uniqueness(name, user, type="E"):
                 parent = None
