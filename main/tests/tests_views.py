@@ -1079,6 +1079,92 @@ class TestCategoriesView(BaseViewTestMixin, TestCase):
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
+class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:create_expense_category')
+        cls.redirect_url = reverse('main:categories')
+        cls.get_method = False
+        cls.view_function = views.CreateExpenseCategory.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        parent_category = CategoryFactory(user=self.user, parent=None)
+        duplicate_category = CategoryFactory(
+            user=self.user, 
+            parent=parent_category, 
+            name='duplicate_category'
+        )
+        self.post_valid_data = [
+            {
+                'category_id':parent_category.id,
+                'category_name':'test_category',
+            },
+            {
+                'category_id': '',
+                'category_name':'test_category',
+            },
+        ]
+        self.post_invalid_data = [
+            {
+                'category_id': 'error',
+                'category_name':'test_category',
+            },
+            {
+                'category_id': parent_category.id,
+                'category_name': '',
+            },
+            {
+                'category_id': parent_category.id,
+                'category_name': 'duplicate_category',
+            },
+        ]
+
+    def subtest_post_valid(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response,
+            self.redirect_url,
+            302,
+            200,
+            fetch_redirect_response=True
+        )
+
+    def test_post_valid(self):
+        for data in self.post_valid_data:
+            with self.subTest(data):
+                self.subtest_post_valid(data)
+
+    def subtest_post_invalid(self, data):
+        # with self.assertRaises(Exception):
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response,
+            self.redirect_url,
+            302,
+            fetch_redirect_response=False # having TransactionManagementError if True
+        ) 
+
+    def test_post_invalid(self):
+        # from django.contrib.sessions.models import Session
+        # Session.objects.all().delete()
+        for data in self.post_invalid_data:
+            with self.subTest(data):
+                self.subtest_post_invalid(data)
+
+    def test_user_fail_test(self):
+        category = CategoryFactory(parent=None)
+        data = {
+            'category_id': category.id,
+            'category_name': 'test_category',
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 403)
+
 
 # class TestTest(TestCase):
 #     def test_func(self):
