@@ -498,6 +498,11 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         name = request.POST["category_name"]
+        if name == '':
+            messages.error(
+                request, f"Category name can not be blank."
+            )
+            return HttpResponseRedirect(reverse("main:categories"))
         parent_id = request.POST.get("category_id", None)
         if parent_id:
             parent = get_object_or_404(Category, id=parent_id)
@@ -533,6 +538,11 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         name = request.POST["category_name"]
+        if name == '':
+            messages.error(
+                request, f"Category name can not be blank."
+            )
+            return HttpResponseRedirect(reverse("main:categories"))
         parent_id = request.POST.get("category_id", None)
         if parent_id:
             parent = get_object_or_404(Category, id=parent_id)
@@ -563,6 +573,11 @@ class EditExpenseCategory(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request):
         id = request.POST["category_id"]
         name = request.POST["category_name"]
+        if name == '':
+            messages.error(
+                request, f"Category name can not be blank."
+            )
+            return HttpResponseRedirect(reverse("main:categories"))
         category_obj = get_object_or_404(Category, id=id)
         if category_obj.is_protected:
             raise Http404
@@ -589,7 +604,12 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         id = request.POST["category_id"]
         name = request.POST["category_name"]
-        category_obj = get_object_or_404(Category, id=42)
+        if name == '':
+            messages.error(
+                request, f"Category name can not be blank."
+            )
+            return HttpResponseRedirect(reverse("main:categories"))
+        category_obj = get_object_or_404(Category, id=id)
         if category_obj.is_protected:
             raise Http404
         category_obj.name = name
