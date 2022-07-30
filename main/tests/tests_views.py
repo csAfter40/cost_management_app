@@ -1099,7 +1099,14 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         duplicate_category = CategoryFactory(
             user=self.user, 
             parent=self.parent_category, 
-            name='duplicate_category'
+            name='duplicate_category',
+            type='E'
+        )
+        duplicate_category_parent_none = CategoryFactory(
+            user=self.user, 
+            parent=None, 
+            name='duplicate_category',
+            type='E'
         )
         self.post_valid_data = [
             {
@@ -1115,6 +1122,10 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             {
                 'category_id': self.parent_category.id,
                 'category_name': '',
+            },
+            {
+                'category_id': '',
+                'category_name': 'duplicate_category',
             },
         ]
 
@@ -1142,7 +1153,9 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
                 self.subtest_post_valid(data)
 
     def subtest_post_invalid(self, data):
+        category_qty_before = Category.objects.all().count()
         response = self.client.post(self.test_url, data)
+        category_qty_after = Category.objects.all().count()
         self.assertRedirects(
             response,
             self.redirect_url,
@@ -1150,15 +1163,7 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             200,
             fetch_redirect_response=True 
         ) 
-        
-        parent_id = data.get('category_id')
-        parent_id = None if parent_id == '' else parent_id
-        self.assertFalse(Category.objects.filter(
-                user=self.user,
-                parent=parent_id,
-                name=data['category_name']
-            ).exists()
-        ) 
+        self.assertEquals(category_qty_before, category_qty_after)
 
     def test_post_invalid(self):
         for data in self.post_invalid_data:
@@ -1193,7 +1198,14 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         duplicate_category = CategoryFactory(
             user=self.user, 
             parent=parent_category, 
-            name='duplicate_category'
+            name='duplicate_category',
+            type='I'
+        )
+        duplicate_category_parent_none = CategoryFactory(
+            user=self.user, 
+            parent=None, 
+            name='duplicate_category',
+            type='I'
         )
         self.post_valid_data = [
             {
@@ -1209,6 +1221,10 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             {
                 'category_id': parent_category.id,
                 'category_name': '',
+            },
+            {
+                'category_id': '',
+                'category_name': 'duplicate_category',
             },
         ]
 
@@ -1236,7 +1252,9 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
                 self.subtest_post_valid(data)
 
     def subtest_post_invalid(self, data):
+        category_qty_before = Category.objects.all().count()
         response = self.client.post(self.test_url, data)
+        category_qty_after = Category.objects.all().count()
         self.assertRedirects(
             response,
             self.redirect_url,
@@ -1244,14 +1262,16 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             200,
             fetch_redirect_response=True
         )
-        parent_id = data.get('category_id')
-        parent_id = None if parent_id == '' else parent_id
-        self.assertFalse(Category.objects.filter(
-                user=self.user,
-                parent=parent_id,
-                name=data['category_name']
-            ).exists()
-        ) 
+        self.assertEquals(category_qty_before, category_qty_after)
+
+        # parent_id = data.get('category_id')
+        # parent_id = None if parent_id == '' else parent_id
+        # self.assertFalse(Category.objects.filter(
+        #         user=self.user,
+        #         parent=parent_id,
+        #         name=data['category_name']
+        #     ).exists()
+        # ) 
 
     def test_post_invalid(self):
         for data in self.post_invalid_data:
@@ -1534,6 +1554,13 @@ class TestDeleteExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         )
         self.assertFalse(Category.objects.all().exists())
 
+    def test_protected_category(self):
+        object = CategoryFactory(user=self.user, parent=None, is_protected=True)
+        data = {'category_id': object.id}
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 404)
+        self.assertTrue(Category.objects.filter(id=object.id).exists())
+
 
 class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
     @classmethod
@@ -1562,6 +1589,13 @@ class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             fetch_redirect_response=True,
         )
         self.assertFalse(Category.objects.all().exists())
+
+    def test_protected_category(self):
+        object = CategoryFactory(user=self.user, parent=None, is_protected=True)
+        data = {'category_id': object.id}
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 404)
+        self.assertTrue(Category.objects.filter(id=object.id).exists())
 
 
 # class TestTest(TestCase):
