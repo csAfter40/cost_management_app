@@ -1094,15 +1094,15 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        parent_category = CategoryFactory(user=self.user, parent=None)
+        self.parent_category = CategoryFactory(user=self.user, parent=None)
         duplicate_category = CategoryFactory(
             user=self.user, 
-            parent=parent_category, 
+            parent=self.parent_category, 
             name='duplicate_category'
         )
         self.post_valid_data = [
             {
-                'category_id':parent_category.id,
+                'category_id':self.parent_category.id,
                 'category_name':'test_category',
             },
             {
@@ -1111,17 +1111,9 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             },
         ]
         self.post_invalid_data = [
-            # {
-            #     'category_id': 'error',
-            #     'category_name':'test_category',
-            # },
             {
-                'category_id': parent_category.id,
+                'category_id': self.parent_category.id,
                 'category_name': '',
-            },
-            {
-                'category_id': parent_category.id,
-                'category_name': 'duplicate_category',
             },
         ]
 
@@ -1149,14 +1141,15 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
                 self.subtest_post_valid(data)
 
     def subtest_post_invalid(self, data):
-        # with self.assertRaises(Exception):
         response = self.client.post(self.test_url, data)
         self.assertRedirects(
             response,
             self.redirect_url,
             302,
-            fetch_redirect_response=False # having TransactionManagementError if True
+            200,
+            fetch_redirect_response=True 
         ) 
+        
         parent_id = data.get('category_id')
         parent_id = None if parent_id == '' else parent_id
         self.assertFalse(Category.objects.filter(
@@ -1179,6 +1172,7 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         }
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 403)
+        
 
 class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
 
@@ -1215,10 +1209,6 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
                 'category_id': parent_category.id,
                 'category_name': '',
             },
-            {
-                'category_id': parent_category.id,
-                'category_name': 'duplicate_category',
-            },
         ]
 
     def subtest_post_valid(self, data):
@@ -1250,7 +1240,8 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             response,
             self.redirect_url,
             302,
-            fetch_redirect_response=False # having TransactionManagementError if True
+            200,
+            fetch_redirect_response=True
         )
         parent_id = data.get('category_id')
         parent_id = None if parent_id == '' else parent_id
@@ -1274,6 +1265,49 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         }
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 403)
+
+
+class TestDuplicateCategoryData(TransactionTestCase):
+    '''
+        Testing category create views do not create duplicate categories.    
+    '''
+    def setUp(self):
+        self.user = UserFactoryNoSignal()
+        self.client.force_login(self.user)
+        self.parent_category = CategoryFactory(user=self.user, parent=None, name='parent')
+        self.duplicate_category = CategoryFactory(user=self.user, parent=self.parent_category, name='duplicate')
+        self.data = {
+            'category_id': self.parent_category.id,
+            'category_name': 'duplicate',
+        }
+
+    def test_create_expense_category(self):
+        response = self.client.post(
+            reverse('main:create_expense_category'),
+            self.data
+        )
+        self.assertRedirects(
+            response,
+            reverse('main:categories'),
+            302,
+            200,
+            fetch_redirect_response=True
+        )
+        self.assertEquals(Category.objects.all().count(), 2)
+
+    def test_create_income_category(self):
+        response = self.client.post(
+            reverse('main:create_income_category'),
+            self.data
+        )
+        self.assertRedirects(
+            response,
+            reverse('main:categories'),
+            302,
+            200,
+            fetch_redirect_response=True
+        )
+        self.assertEquals(Category.objects.all().count(), 2)
 
 
 class TestEditExpenseCategory(UserFailTestMixin, TestCase):
