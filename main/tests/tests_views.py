@@ -1111,10 +1111,10 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             },
         ]
         self.post_invalid_data = [
-            {
-                'category_id': 'error',
-                'category_name':'test_category',
-            },
+            # {
+            #     'category_id': 'error',
+            #     'category_name':'test_category',
+            # },
             {
                 'category_id': parent_category.id,
                 'category_name': '',
@@ -1134,6 +1134,14 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             200,
             fetch_redirect_response=True
         )
+        parent_id = data.get('category_id')
+        parent_id = None if parent_id == '' else parent_id
+        self.assertTrue(Category.objects.filter(
+                user=self.user,
+                parent=parent_id,
+                name=data['category_name']
+            ).exists()
+        )
 
     def test_post_valid(self):
         for data in self.post_valid_data:
@@ -1148,6 +1156,14 @@ class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             self.redirect_url,
             302,
             fetch_redirect_response=False # having TransactionManagementError if True
+        ) 
+        parent_id = data.get('category_id')
+        parent_id = None if parent_id == '' else parent_id
+        self.assertFalse(Category.objects.filter(
+                user=self.user,
+                parent=parent_id,
+                name=data['category_name']
+            ).exists()
         ) 
 
     def test_post_invalid(self):
@@ -1196,10 +1212,6 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         ]
         self.post_invalid_data = [
             {
-                'category_id': 'error',
-                'category_name':'test_category',
-            },
-            {
                 'category_id': parent_category.id,
                 'category_name': '',
             },
@@ -1218,6 +1230,14 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             200,
             fetch_redirect_response=True
         )
+        parent_id = data.get('category_id')
+        parent_id = None if parent_id == '' else parent_id
+        self.assertTrue(Category.objects.filter(
+                user=self.user,
+                parent=parent_id,
+                name=data['category_name']
+            ).exists()
+        )
 
     def test_post_valid(self):
         for data in self.post_valid_data:
@@ -1225,13 +1245,20 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
                 self.subtest_post_valid(data)
 
     def subtest_post_invalid(self, data):
-        # with self.assertRaises(Exception):
         response = self.client.post(self.test_url, data)
         self.assertRedirects(
             response,
             self.redirect_url,
             302,
             fetch_redirect_response=False # having TransactionManagementError if True
+        )
+        parent_id = data.get('category_id')
+        parent_id = None if parent_id == '' else parent_id
+        self.assertFalse(Category.objects.filter(
+                user=self.user,
+                parent=parent_id,
+                name=data['category_name']
+            ).exists()
         ) 
 
     def test_post_invalid(self):
@@ -1280,10 +1307,6 @@ class TestEditExpenseCategory(UserFailTestMixin, TestCase):
             }
         ]
         self.post_invalid_data = [
-            {
-                'category_id': 'invalid id',
-                'category_name': 'new category name'
-            },
             {
                 'category_id': self.object_with_parent.id,
                 'category_name': ''
