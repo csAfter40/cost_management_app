@@ -144,6 +144,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 #  needed for testing views with LoginRequiredMixin
 LOGIN_URL = reverse_lazy('main:login')
 
+# used for testing atomic transaction failures
+TESTING_ATOMIC = False
+
 # django-debug-toolbar
 if DEBUG and DEBUG_TOOLBAR:
     INSTALLED_APPS.append("debug_toolbar")

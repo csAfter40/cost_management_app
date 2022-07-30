@@ -27,6 +27,7 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.contrib import messages
+from django.conf import settings
 
 
 @login_required(login_url=reverse_lazy("main:login"))
@@ -445,6 +446,8 @@ class PayLoanView(LoginRequiredMixin, View):
             category = Category.objects.get(user=request.user, name='Pay Loan')
             try:
                 with transaction.atomic():
+                    if settings.TESTING_ATOMIC:
+                        raise IntegrityError
                     transaction_loan = Transaction(account=account, name='Pay Loan', amount=amount, date=date, category=category, type='E')
                     transaction_loan.save()
                     loan.balance += amount

@@ -2,6 +2,8 @@ from decimal import Decimal
 import json
 from urllib import response
 import factory
+
+from wallet.settings import TESTING_ATOMIC
 from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
@@ -1066,6 +1068,16 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
         for data in self.invalid_data:
             with self.subTest(data):
                 self.subtest_invalid_post(data)
+    
+    def test_atomic_transaction(self):
+        data = self.valid_data[0]
+        before_transaction_qty = Transaction.objects.all().count()
+        with self.settings(TESTING_ATOMIC=True):
+            response = self.client.post(self.test_url, data)
+            after_transaction_qty = Transaction.objects.all().count()
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(before_transaction_qty, after_transaction_qty)
+
 
 
 class TestCategoriesView(BaseViewTestMixin, TestCase):
