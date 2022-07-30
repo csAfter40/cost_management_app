@@ -1404,6 +1404,36 @@ class TestEditExpenseCategory(UserFailTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 404)
 
+
+class TestDeleteExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:delete_expense_category')
+        cls.redirect_url = reverse('main:categories')
+        cls.view_function = views.DeleteExpenseCategory.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.get_method = False
+        
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CategoryFactory(user=self.user, parent=None)
+        self.post_data = {'category_id': self.object.id}
+
+    def test_post(self):
+        self.assertTrue(Category.objects.all().exists())
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertRedirects(
+            response,
+            self.redirect_url,
+            302,
+            200,
+            fetch_redirect_response=True,
+        )
+        self.assertFalse(Category.objects.all().exists())
+
+
 # class TestTest(TestCase):
 #     def test_func(self):
 #         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
