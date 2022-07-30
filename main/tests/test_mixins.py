@@ -38,7 +38,10 @@ class BaseViewTestMixin(object):
         if not self.login_required:
             return
         self.client.logout()
-        response = self.client.get(self.test_url)
+        if self.get_method:
+            response = self.client.get(self.test_url)
+        else:
+            response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 302)
 
     def test_get(self):    
@@ -100,5 +103,8 @@ class UserFailTestMixin(BaseViewTestMixin):
         new_user = self.user_factory()
         self.object.user = new_user
         self.object.save()
-        response = self.client.get(self.test_url)
+        if self.get_method:
+            response = self.client.get(self.test_url)
+        else:
+            response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 403)
