@@ -628,7 +628,7 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse("main:categories"))
 
 
-class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):        
     def test_func(self):
         return is_owner(self.request.user, Category, self.request.POST["category_id"])
 
