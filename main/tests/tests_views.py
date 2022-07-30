@@ -1080,6 +1080,7 @@ class TestCategoriesView(BaseViewTestMixin, TestCase):
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
+
 class TestCreateExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
 
     @classmethod
@@ -1328,6 +1329,106 @@ class TestEditExpenseCategory(UserFailTestMixin, TestCase):
         self.object_protected_category = CategoryFactory(is_protected=True, parent=None, user=self.user)
         self.object_duplicate_category = CategoryFactory(name='duplicate', parent=self.object, user=self.user)
         self.object_duplicate_category_parent_none = CategoryFactory(name='duplicate_parent_none', parent=None, user=self.user)
+        self.post_valid_data = [
+            {
+                'object': self.object,
+                'category_id': self.object.id,
+                'category_name': 'new category parent none'
+            },
+            {
+                'object': self.object_with_parent,
+                'category_id': self.object_with_parent.id,
+                'category_name': 'new category'
+            }
+        ]
+        self.post_invalid_data = [
+            {
+                'category_id': self.object_with_parent.id,
+                'category_name': ''
+            },
+            {
+                'category_id': self.object.id,
+                'category_name': self.object_duplicate_category_parent_none.name
+            },
+            {
+                'category_id': self.object_with_parent.id,
+                'category_name': self.object_duplicate_category.name
+            },
+        ]
+
+    def test_user_fail_test(self):
+        new_user = self.user_factory()
+        self.object.user = new_user
+        self.object.save()
+        response = self.client.post(self.test_url, self.post_valid_data[0])
+        self.assertEquals(response.status_code, 403)
+       
+    def subtest_post_valid(self, data):
+        object = data['object']
+        self.assertNotEquals(object.name, data['category_name'])
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response,
+            self.redirect_url,
+            302,
+            200,
+            fetch_redirect_response=True
+        )
+        object.refresh_from_db()
+        self.assertEquals(object.name, data['category_name'])
+
+    def test_post_valid(self):
+        for data in self.post_valid_data:
+            with self.subTest(data):
+                self.subtest_post_valid(data)
+
+    def subtest_post_invalid(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response,
+            self.redirect_url,
+            302,
+            200,
+            fetch_redirect_response=True
+        )
+
+    def test_post_invalid(self):
+        for data in self.post_invalid_data:
+            with self.subTest(data):
+                self.subtest_post_invalid(data)
+
+    def test_protected_category(self):
+        data = {
+            'category_id': self.object_protected_category.id,
+            'category_name': 'new category name'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 404)
+
+
+class TestEditIncomeCategory(UserFailTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:edit_income_category')
+        cls.redirect_url = reverse('main:categories')
+        cls.get_method = False
+        cls.view_function = views.EditIncomeCategory.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.get_method = False
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CategoryFactory(parent=None, user=self.user)
+        self.object_with_parent = CategoryFactory(parent=self.object, user=self.user)
+        self.object_protected_category = CategoryFactory(is_protected=True, parent=None, user=self.user)
+        self.object_duplicate_category = CategoryFactory(name='duplicate', parent=self.object, user=self.user)
+        self.object_duplicate_category_parent_none = CategoryFactory(name='duplicate_parent_none', parent=None, user=self.user)
+        self.post_data = {
+            'category_id': self.object.id,
+            'category_name': 'new category parent none'
+        }
         self.post_valid_data = [
             {
                 'object': self.object,
