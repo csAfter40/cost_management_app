@@ -15,19 +15,12 @@ class TestUser(TestCase):
 
     def test_factory(self):
         self.assertIsNotNone(self.user)
+        self.assertIsInstance(self.user, User)
         self.assertNotEquals(self.user.username, '')
         self.assertNotEquals(self.user.email, '')
 
     def test_str(self):
         self.assertEquals(str(self.user), self.user.username)
-
-    def test_has_username(self):
-        user = UserFactoryNoSignal(username='testuser')
-        self.assertEquals(user.username, 'testuser')
-
-    def test_has_email(self):
-        user = UserFactoryNoSignal(email='testuser@example.com')
-        self.assertEquals(user.email, 'testuser@example.com')
 
     def test_unique_username(self):
         with self.assertRaises(IntegrityError):
@@ -35,3 +28,17 @@ class TestUser(TestCase):
             user2 = UserFactoryNoSignal(username='testuser')
             self.assertIsNotNone(user1)
             self.assertIsNone(user2)
+
+class TestCurrency(TestCase):
+    def setUp(self):
+        self.currency = CurrencyFactory()
+
+    def test_factory(self):
+        self.assertIsNotNone(self.currency)
+        self.assertNotEquals(self.currency.code, '')
+        self.assertNotEquals(self.currency.name, '')
+        self.assertNotEquals(self.currency.symbol, '')
+    
+    def test_str(self):
+        currency = CurrencyFactory(code='TST')
+        self.assertEquals(str(currency), 'TST')
