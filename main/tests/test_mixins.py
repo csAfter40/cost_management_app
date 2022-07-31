@@ -108,3 +108,33 @@ class UserFailTestMixin(BaseViewTestMixin):
         else:
             response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 403)
+
+
+class BaseFactoryTestMixin():
+    model = None
+    factory_class = None
+
+    @classmethod
+    def setUpTestData(cls) -> None:
+        if cls.factory_class==None:
+            raise ImproperlyConfigured('No factory class available. Please provide a factory class')
+        if cls.model==None:
+            raise ImproperlyConfigured('No model class available. Please provide a model class')
+        cls.fields = cls.factory_class._meta.base_declarations.keys()
+
+    def setUp(self):
+        if self.factory_class==None:
+            raise ImproperlyConfigured('No factory class available. Please provide a factory class')
+        if self.model==None:
+            raise ImproperlyConfigured('No model class available. Please provide a model class')
+        self.object = self.factory_class()
+
+    def test_model_instance_created(self):
+        # user = UserFactoryNoSignal()
+        self.assertIsNotNone(self.object)
+        self.assertIsInstance(self.object, self.model)
+
+    def test_fields_not_blank(self):
+        # user = UserFactoryNoSignal()
+        for field in self.fields:
+            self.assertNotEquals(getattr(self.object, field), '')
