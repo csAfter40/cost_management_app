@@ -367,6 +367,17 @@ class EditAccountView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
     template_name = "main/account_update.html"
     success_url = reverse_lazy("main:index")
 
+    def form_valid(self, form):
+        try:
+            self.object = form.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already a {self.object.name} account in your accounts.",
+            )
+            return self.form_invalid(form)
+        return super().form_valid(form)
+
 
 class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
@@ -398,7 +409,6 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.balance = balance
-        # self.object.save()
         try:
             self.object.save()
         except IntegrityError:
@@ -441,6 +451,14 @@ class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         form.instance.balance = -abs(form.cleaned_data["balance"])
+        try:
+            self.object = form.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already {self.object.name} in your loans.",
+            )
+            return self.form_invalid(form)
         return super().form_valid(form)
 
 
