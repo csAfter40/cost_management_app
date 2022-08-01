@@ -43,6 +43,7 @@ class Assets(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = ('user', 'name')
 
 
 class Account(Assets):
