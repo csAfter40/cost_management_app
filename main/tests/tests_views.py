@@ -1,6 +1,5 @@
 from decimal import Decimal
 import json
-from urllib import response
 import factory
 
 from wallet.settings import TESTING_ATOMIC
@@ -40,7 +39,6 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        duplicate_account = AccountFactory(user=self.user, name='duplicate')
         self.valid_data = [
             {
                 'name': 'sample_account',
@@ -59,38 +57,11 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
                 'balance': 'abc', # balance must be a number.
                 'currency': currency.id,
             },
-            {
-                'name': 'duplicate',
-                'balance': Decimal(12.00),
-                'currency': currency.id,
-            }
-        ]    
-        # self.duplicate_data = {
-        #     'name': 'duplicate',
-        #     'balance': Decimal(12.00),
-        #     'currency': currency.id,
-        # }
-    
+        ]        
 
     def subtest_post_success(self, data):
-        response = self.client.post(self.test_url, data=data)
-        # test response code
-        self.assertRedirects(response, 
-            self.success_url, 
-            status_code=302, 
-            target_status_code=200, 
-            fetch_redirect_response=True
-        )
-        # test created object
-        self.valid_object = self.get_object()
-        self.assertNotEqual(self.valid_object, None)
-        # test object's user is self.user
+        super().subtest_post_success(data)
         self.assertEquals(self.user, self.valid_object.user)
-        for key, value in data.items():
-            if isinstance(getattr(self.valid_object, key), models.Model):
-                self.assertEquals(getattr(self.valid_object, key).id, value)
-            else:
-                self.assertEquals(getattr(self.valid_object, key), value)
     
 
 class TestCreateLoanView(TestCreateViewMixin, TestCase):
@@ -108,7 +79,6 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        duplicate_loan = LoanFactory(user=self.user, name='duplicate')
         currency = CurrencyFactory()
         self.valid_data = [
             {
@@ -128,11 +98,6 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
                 'balance': 'abc', # balance must be a number.
                 'currency': currency.id,
             },
-            {
-                'name': 'duplicate',
-                'balance': Decimal(12.00),
-                'currency': currency.id,
-            }
         ]    
     
 
@@ -155,6 +120,50 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
                 self.assertEquals(getattr(self.valid_object, key), -abs(value))
             else:
                 self.assertEquals(getattr(self.valid_object, key), value)
+
+
+class TestDuplicateAccountCreateData(TransactionTestCase):
+    
+    def setUp(self) -> None:
+        self.user = UserFactoryNoSignal()
+        self.client.force_login(self.user)
+        duplicate_account = AccountFactory(user=self.user, name='duplicate')
+        self.test_url = '/accounts/create'
+        currency = CurrencyFactory()
+        self.data={
+            'name': 'duplicate',
+            'balance': Decimal(20.00),
+            'currency': currency.id,
+        }
+
+    def test_duplicate_account(self):
+        pre_test_object_qty = Account.objects.count()
+        response = self.client.post(self.test_url, self.data)
+        self.assertEquals(response.status_code, 200)
+        post_test_object_qty = Account.objects.count()
+        self.assertEquals(pre_test_object_qty, post_test_object_qty)
+
+
+class TestDuplicateLoanCreateData(TransactionTestCase):
+    
+    def setUp(self) -> None:
+        self.user = UserFactoryNoSignal()
+        self.client.force_login(self.user)
+        duplicate_account = LoanFactory(user=self.user, name='duplicate')
+        self.test_url = '/loans/create'
+        currency = CurrencyFactory()
+        self.data={
+            'name': 'duplicate',
+            'balance': Decimal(20.00),
+            'currency': currency.id,
+        }
+
+    def test_duplicate_account(self):
+        pre_test_object_qty = Loan.objects.count()
+        response = self.client.post(self.test_url, self.data)
+        self.assertEquals(response.status_code, 200)
+        post_test_object_qty = Loan.objects.count()
+        self.assertEquals(pre_test_object_qty, post_test_object_qty)
 
 
 class TestAccountsView(TestListViewMixin, TestCase):
@@ -204,6 +213,7 @@ class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
+        duplicate_account = AccountFactory(user=self.user, name='duplicate')
         self.valid_data = [
             {
                 'name': 'new_account_name',
@@ -228,6 +238,54 @@ class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
         super().set_object()
         self.object.user = self.user
         self.object.save()
+    
+
+class TestDuplicateAccountUpdateData(TransactionTestCase):
+
+    def setUp(self) -> None:
+        self.user = UserFactoryNoSignal()
+        self.client.force_login(self.user)
+        self.object = AccountFactory(user=self.user)
+        duplicate_account = AccountFactory(user=self.user, name='duplicate')
+        self.test_url = f'/accounts/{self.object.id}/edit'
+        currency = CurrencyFactory()
+        self.data={
+            'name': 'duplicate',
+            'balance': Decimal(20.00),
+            'currency': currency.id,
+        }
+
+    def test_duplicate_account(self):
+        pre_update_values = self.object.__dict__
+        response = self.client.post(self.test_url, self.data)
+        self.assertEquals(response.status_code, 200)
+        self.object.refresh_from_db()
+        post_update_values = self.object.__dict__
+        self.assertEquals(pre_update_values, post_update_values)
+
+
+class TestDuplicateLoanUpdateData(TransactionTestCase):
+
+    def setUp(self) -> None:
+        self.user = UserFactoryNoSignal()
+        self.client.force_login(self.user)
+        self.object = LoanFactory(user=self.user)
+        duplicate_account = LoanFactory(user=self.user, name='duplicate')
+        self.test_url = f'/loans/{self.object.id}/edit'
+        currency = CurrencyFactory()
+        self.data={
+            'name': 'duplicate',
+            'balance': Decimal(20.00),
+            'currency': currency.id,
+        }
+
+    def test_duplicate_account(self):
+        pre_update_values = self.object.__dict__
+        response = self.client.post(self.test_url, self.data)
+        self.assertEquals(response.status_code, 200)
+        self.object.refresh_from_db()
+        post_update_values = self.object.__dict__
+        self.assertEquals(pre_update_values, post_update_values)
     
 
 class TestIndexView(BaseViewTestMixin, TestCase):
