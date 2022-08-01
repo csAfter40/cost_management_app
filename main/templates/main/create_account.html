@@ -6,6 +6,16 @@
 {% block body %}
 <div class="d-flex justify-content-center p-3">
     <div class="container text-center justify-content-center p-3 bg-light col-sm-4">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
         <h3>Create an account</h3>
         <div class="container text-start">
             <form action="{% url 'main:create_account' %}" method="POST">

@@ -345,7 +345,14 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
-        self.object.save()
+        try:
+            self.object.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already a {self.object.name} account in your accounts.",
+            )
+            return self.form_invalid(form)
         return super().form_valid(form)
 
 
@@ -391,7 +398,15 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.balance = balance
-        self.object.save()
+        # self.object.save()
+        try:
+            self.object.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already {self.object.name} in your loans.",
+            )
+            return self.form_invalid(form)
         return super().form_valid(form)
 
 
