@@ -40,6 +40,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
+        duplicate_account = AccountFactory(user=self.user, name='duplicate')
         self.valid_data = [
             {
                 'name': 'sample_account',
@@ -47,7 +48,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
                 'currency': currency.id,
             },
             {
-                'name': 'sample_account',
+                'name': 'sample_account2',
                 'balance': Decimal(-32.00),
                 'currency': currency.id,
             },
@@ -57,8 +58,18 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
                 'name': 'sample_account',
                 'balance': 'abc', # balance must be a number.
                 'currency': currency.id,
+            },
+            {
+                'name': 'duplicate',
+                'balance': Decimal(12.00),
+                'currency': currency.id,
             }
         ]    
+        # self.duplicate_data = {
+        #     'name': 'duplicate',
+        #     'balance': Decimal(12.00),
+        #     'currency': currency.id,
+        # }
     
 
     def subtest_post_success(self, data):
@@ -80,7 +91,7 @@ class TestCreateAccountView(TestCreateViewMixin, TestCase):
                 self.assertEquals(getattr(self.valid_object, key).id, value)
             else:
                 self.assertEquals(getattr(self.valid_object, key), value)
-
+    
 
 class TestCreateLoanView(TestCreateViewMixin, TestCase):
     @classmethod
@@ -97,6 +108,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
 
     def setUp(self) -> None:
         super().setUp()
+        duplicate_loan = LoanFactory(user=self.user, name='duplicate')
         currency = CurrencyFactory()
         self.valid_data = [
             {
@@ -105,7 +117,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
                 'currency': currency.id,
             },
             {
-                'name': 'sample_loan',
+                'name': 'sample_loan2',
                 'balance': Decimal(-32.00),
                 'currency': currency.id,
             },
@@ -114,6 +126,11 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
             {
                 'name': 'sample_loan',
                 'balance': 'abc', # balance must be a number.
+                'currency': currency.id,
+            },
+            {
+                'name': 'duplicate',
+                'balance': Decimal(12.00),
                 'currency': currency.id,
             }
         ]    
@@ -1077,7 +1094,6 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
             after_transaction_qty = Transaction.objects.all().count()
             self.assertEquals(response.status_code, 200)
             self.assertEquals(before_transaction_qty, after_transaction_qty)
-
 
 
 class TestCategoriesView(BaseViewTestMixin, TestCase):
