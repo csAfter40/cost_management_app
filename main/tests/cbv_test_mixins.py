@@ -46,12 +46,13 @@ class TestCreateViewMixin(BaseViewTestMixin):
                 self.subtest_post_success(data)
 
     def subtest_post_failure(self, data):
+        pre_test_object_qty = self.model.objects.count()
         response = self.client.post(self.test_url, data=data)
         # test response code
         self.assertEquals(response.status_code, 200)
         # test no objects are created
-        invalid_object = self.get_object()
-        self.assertEquals(invalid_object, None)
+        post_test_object_qty = self.model.objects.count()
+        self.assertEquals(pre_test_object_qty, post_test_object_qty)
 
     def test_post_failure(self):
         '''
@@ -61,8 +62,8 @@ class TestCreateViewMixin(BaseViewTestMixin):
             logging.warning('\nWarning: No invalid_data available. Invalid post test not implemented.')
             return
         for data in self.invalid_data:
-            with self.subTest(data=data):
-                self.subtest_post_failure
+            with self.subTest(data):
+                self.subtest_post_failure(data)
 
 
 class TestListViewMixin(BaseViewTestMixin):
@@ -174,5 +175,5 @@ class TestUpdateViewMixin(BaseViewTestMixin):
             logging.warning('\nWarning: No invalid_data available. Invalid post test not implemented.')
             return
         for data in self.invalid_data:
-            with self.subTest(data=data):
-                self.subtest_post_failure
+            with self.subTest(data):
+                self.subtest_post_failure(data)
