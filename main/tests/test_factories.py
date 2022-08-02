@@ -6,8 +6,9 @@ from main.tests.factories import (
     UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
     LoanFactory, CategoryFactory, TransactionFactory, TransferFactory
 )
-from main.tests.test_mixins import BaseFactoryTestMixin
+from main.tests.mixins import BaseFactoryTestMixin
 from django.test import TestCase
+
 
 class TestUserFactoryNoSignal(BaseFactoryTestMixin, TestCase):
     model = User

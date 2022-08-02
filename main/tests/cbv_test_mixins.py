@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ImproperlyConfigured
-from main.tests.test_mixins import BaseViewTestMixin
+from main.tests.mixins import BaseViewTestMixin
 import logging
 
 

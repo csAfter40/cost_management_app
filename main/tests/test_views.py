@@ -1,7 +1,6 @@
 from decimal import Decimal
 import json
 import factory
-
 from wallet.settings import TESTING_ATOMIC
 from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
@@ -11,7 +10,7 @@ from .cbv_test_mixins import (
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User
-from main.tests.test_mixins import BaseViewTestMixin, UserFailTestMixin
+from main.tests.mixins import BaseViewTestMixin, UserFailTestMixin
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
 from django.db import models
@@ -1348,16 +1347,7 @@ class TestCreateIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
             200,
             fetch_redirect_response=True
         )
-        self.assertEquals(category_qty_before, category_qty_after)
-
-        # parent_id = data.get('category_id')
-        # parent_id = None if parent_id == '' else parent_id
-        # self.assertFalse(Category.objects.filter(
-        #         user=self.user,
-        #         parent=parent_id,
-        #         name=data['category_name']
-        #     ).exists()
-        # ) 
+        self.assertEquals(category_qty_before, category_qty_after) 
 
     def test_post_invalid(self):
         for data in self.post_invalid_data:
@@ -1682,13 +1672,3 @@ class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 404)
         self.assertTrue(Category.objects.filter(id=object.id).exists())
-
-
-# class TestTest(TestCase):
-#     def test_func(self):
-#         transfer = TransferFactory(from_transaction__category__parent__parent=None, to_transaction__category__parent__parent=None)
-#         for key, value in transfer.__dict__.items():
-#             print(key, ':', value)
-#         cats = Category.objects.all()
-#         for cat in cats:
-#             print(cat.name, cat.parent)
