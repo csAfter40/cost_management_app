@@ -1,10 +1,10 @@
 from main.models import (
     User, Currency, Account, Loan, Category, Transaction,
-    Transfer,
+    Transfer, UserPreferences,
 )
 from main.tests.factories import (
     UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory
+    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
 from django.test import TestCase
@@ -45,3 +45,8 @@ class TestTransactionFactoryNoSignal(BaseFactoryTestMixin, TestCase):
 class TestTransferFactoryNoSignal(BaseFactoryTestMixin, TestCase):
     model = Transfer
     factory_class = TransferFactory
+
+
+class TestUserPreferecesFactory(BaseFactoryTestMixin, TestCase):
+    model = UserPreferences
+    factory_class = UserPreferencesFactory
