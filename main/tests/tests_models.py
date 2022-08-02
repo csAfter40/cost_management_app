@@ -9,6 +9,7 @@ from main.tests.factories import (
 from django.test import TestCase
 from django.db.utils import IntegrityError
 
+
 class TestUser(TestCase):
     def test_str(self):
         user = UserFactoryNoSignal()
@@ -21,10 +22,12 @@ class TestUser(TestCase):
             self.assertIsNotNone(user1)
             self.assertIsNone(user2)
 
+
 class TestCurrency(TestCase):
     def test_str(self):
         currency = CurrencyFactory()
         self.assertEquals(str(currency), currency.code)
+
 
 class TestAccount(TestCase):
     def test_str(self):
@@ -36,6 +39,7 @@ class TestAccount(TestCase):
         with self.assertRaises(IntegrityError):
             first_account = AccountFactory(user=user, name='duplicate')
             second_account = AccountFactory(user=user, name='duplicate')
+
 
 class TestLoan(TestCase):
     def test_str(self):
@@ -65,3 +69,24 @@ class TestCategory(TestCase):
                 parent=parent_category, 
                 name='duplicate'
             ) 
+
+        
+class TestTransaction(TestCase):
+    def test_str(self):
+        transaction = TransactionFactory()
+        self.assertEquals(
+            str(transaction),
+            (f'{transaction.name} - {transaction.amount} from '
+                f'{transaction.account}')
+        )
+
+
+class TestTransfer(TestCase):
+    def test_str(self):
+        transfer = TransferFactory()
+        self.assertEquals(
+            str(transfer),
+            (f'On {transfer.date} from {transfer.from_transaction.account} to '
+                f'{transfer.to_transaction.account} '
+                f'{transfer.from_transaction.amount}')
+        )
