@@ -19,8 +19,6 @@ class TestUser(TestCase):
         with self.assertRaises(IntegrityError):
             user1 = UserFactoryNoSignal(username='testuser')
             user2 = UserFactoryNoSignal(username='testuser')
-            self.assertIsNotNone(user1)
-            self.assertIsNone(user2)
 
 
 class TestCurrency(TestCase):
