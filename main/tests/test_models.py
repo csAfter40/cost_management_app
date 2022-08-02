@@ -4,7 +4,7 @@ from main.models import (
 )
 from main.tests.factories import (
     UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory
+    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -89,4 +89,13 @@ class TestTransfer(TestCase):
             (f'On {transfer.date} from {transfer.from_transaction.account} to '
                 f'{transfer.to_transaction.account} '
                 f'{transfer.from_transaction.amount}')
+        )
+
+
+class TestUserPreferences(TestCase):
+    def test_str(self):
+        user_preferences = UserPreferencesFactory()
+        self.assertEquals(
+            str(user_preferences), 
+            f'{user_preferences.user} preferences'
         )
