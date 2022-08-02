@@ -31,4 +31,37 @@ class TestAccount(TestCase):
         account = AccountFactory()
         self.assertEquals(str(account), account.name)
 
-        
+    def test_unique_together(self):
+        user = UserFactoryNoSignal()
+        with self.assertRaises(IntegrityError):
+            first_account = AccountFactory(user=user, name='duplicate')
+            second_account = AccountFactory(user=user, name='duplicate')
+
+class TestLoan(TestCase):
+    def test_str(self):
+        loan = LoanFactory()
+        self.assertEquals(str(loan), loan.name)
+
+    def test_unique_together(self):
+        user = UserFactoryNoSignal()
+        with self.assertRaises(IntegrityError):
+            first_account = LoanFactory(user=user, name='duplicate')
+            second_account = LoanFactory(user=user, name='duplicate')
+
+
+class TestCategory(TestCase):
+    def test_str(self):
+        category = CategoryFactory(parent=None)
+        self.assertEquals(category.name, str(category))
+
+    def test_unique_together(self):
+        parent_category = CategoryFactory(parent=None)
+        with self.assertRaises(IntegrityError):
+            first_category = CategoryFactory(
+                parent=parent_category, 
+                name='duplicate'
+            )
+            second_category = CategoryFactory(
+                parent=parent_category, 
+                name='duplicate'
+            ) 
