@@ -98,6 +98,7 @@ transferForm.addEventListener('submit', validateAccounts, true);
 const deleteAccountButtons = document.querySelectorAll('.delete-account-button');
 const deleteAccountMessageDiv = document.querySelector('#modal-account-delete-message');
 const deleteAccountIdInput = document.querySelector('#modal-account-id');
+const deleteAccountModalForm = document.querySelector('#deleteAccountModalForm');
 
 deleteAccountButtons.forEach(function (deleteAccountButton) {
     deleteAccountButton.addEventListener('click', function () {
@@ -111,6 +112,8 @@ deleteAccountButtons.forEach(function (deleteAccountButton) {
         } else {
             deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this account?';
         };
+        let url = deleteAccountButton.dataset.url;
+        deleteAccountModalForm.setAttribute('action', url);
     });
 });
 
@@ -118,16 +121,13 @@ deleteAccountButtons.forEach(function (deleteAccountButton) {
 const deleteLoanButtons = document.querySelectorAll('.delete-loan-button');
 const deleteLoanMessageDiv = document.querySelector('#modal-loan-delete-message');
 const deleteLoanIdInput = document.querySelector('#modal-loan-id');
-console.log(deleteLoanIdInput);
+const deleteLoanModalForm = document.querySelector('#deleteLoanModalForm');
 
 deleteLoanButtons.forEach(function (deleteLoanButton) {
     deleteLoanButton.addEventListener('click', function () {
         let loanId = deleteLoanButton.dataset.id;
         deleteLoanIdInput.setAttribute('value', loanId);
-        console.log(deleteLoanIdInput);
-
         let balance = parseFloat(deleteLoanButton.dataset.balance).toFixed(2);
-
         let currency = deleteLoanButton.dataset.currency;
         if (balance < 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} loan to pay. Do you really want to delete this loan anyway?`;
@@ -136,5 +136,7 @@ deleteLoanButtons.forEach(function (deleteLoanButton) {
         } else {
             deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this loan?';
         };
+        let url = deleteLoanButton.dataset.url;
+        deleteLoanModalForm.setAttribute('action', url);
     });
 });

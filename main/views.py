@@ -1,6 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.views.generic import CreateView, UpdateView, ListView, DetailView
+from django.views.generic import (
+    CreateView, 
+    UpdateView, 
+    ListView, 
+    DetailView, 
+    DeleteView,
+)
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
@@ -220,15 +226,22 @@ class AccountsView(LoginRequiredMixin, ListView):
         return super().get_queryset().filter(user=self.request.user, is_active=True).select_related('currency')
 
 
-class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Account, self.kwargs.get("pk"))
+class AccountDetailAjaxView(LoginRequiredMixin, DetailView):
 
-    def get(self, request, *args, **kwargs):
-        account_id = kwargs.get("pk")
-        account = Account.objects.select_related("currency").get(id=account_id)
-        if not account.is_active:
+    model = Account
+    template_name = "main/account_detail_pack.html"
+        
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
             raise Http404
+        return obj
+
+    def get_context_data(self, **kwargs):
+        account = self.get_object()
         time = self.request.GET.get("time", "all")
         dates = get_dates()
         context = {}
@@ -248,8 +261,8 @@ class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
             qs = Transaction.objects.filter(
                 account=account, date__range=(dates["year_start"], dates["today"])
             ).order_by("-date", "-created")
-        expense_category_stats = get_category_stats(qs, "E", None, request.user)
-        income_category_stats = get_category_stats(qs, "I", None, request.user)
+        expense_category_stats = get_category_stats(qs, "E", None, self.request.user)
+        income_category_stats = get_category_stats(qs, "I", None, self.request.user)
         comparison_stats = get_comparison_stats(
             expense_category_stats, income_category_stats
         )
@@ -261,23 +274,24 @@ class AccountDetailAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
             "income_stats": income_category_stats,
             "comparison_stats": comparison_stats,
         }
-        return render(self.request, "main/account_detail_pack.html", context)
+        return super().get_context_data(**context)
 
 
-class AccountDetailSubcategoryAjaxView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Account, self.kwargs.get("pk"))
+class AccountDetailSubcategoryAjaxView(LoginRequiredMixin, DetailView):
+    
+    model = Account
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user).select_related('currency')
 
     def get(self, request, *args, **kwargs):
-        account_id = kwargs.get("pk")
-        account = Account.objects.select_related("currency").get(id=account_id)
+        account = self.get_object()
         if not account.is_active:
             raise Http404
         category_id = kwargs.get("cat_pk")
         category = get_object_or_404(Category, id=category_id)
         time = self.request.GET.get("time")
         dates = get_dates()
-        context = {}
         if time == "all":
             qs = Transaction.objects.filter(account=account).order_by(
                 "-date", "-created"
@@ -362,16 +376,15 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditAccountView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
-
-    def test_func(self):
-        self.account_id = self.kwargs.get('pk')
-        return is_owner(self.request.user, Account, self.account_id)
+class EditAccountView(LoginRequiredMixin, UpdateView):
 
     model = Account
     fields = ["name", "balance", "currency"]
     template_name = "main/account_update.html"
     success_url = reverse_lazy("main:index")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
     def form_valid(self, form):
         try:
@@ -385,16 +398,25 @@ class EditAccountView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class DeleteAccountView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        self.account_id = self.request.POST["id"]
-        return is_owner(self.request.user, Account, self.account_id)
+class DeleteAccountView(LoginRequiredMixin, DeleteView):
 
-    def post(self, request):
-        account = get_object_or_404(Account, id=self.account_id)
-        account.is_active = False
-        account.save()
-        return HttpResponseRedirect(reverse("main:index"))
+    model = Account
+    success_url = reverse_lazy('main:index')
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404
+        return obj
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        self.object.is_active = False
+        self.object.save()
+        return HttpResponseRedirect(success_url)
 
 
 class LoansView(LoginRequiredMixin, ListView):
@@ -426,16 +448,24 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class DeleteLoanView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        self.loan_id = self.request.POST["id"]
-        return is_owner(self.request.user, Loan, self.loan_id)
+class DeleteLoanView(LoginRequiredMixin, DeleteView):
+    model = Loan
+    success_url = reverse_lazy('main:index')
 
-    def post(self, request):
-        loan = get_object_or_404(Loan, id=self.loan_id)
-        loan.is_active = False
-        loan.save()
-        return HttpResponseRedirect(reverse("main:index"))
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404
+        return obj
+
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        self.object.is_active = False
+        self.object.save()
+        return HttpResponseRedirect(success_url)
 
 
 class LoanDetailView(UserPassesTestMixin, LoginRequiredMixin, View):

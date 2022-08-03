@@ -28,8 +28,9 @@
                 </td>
                 <td style="text-align: center;" class="align-middle">
                     <button type="button" class="btn px-0 delete-loan-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteLoanModal" data-id="{{loan.id}}" data-balance="{{ loan.balance }}"
-                        data-currency="{{ loan.currency }}">
+                        data-bs-target="#deleteLoanModal" data-id="{{loan.id}}" 
+                        data-balance="{{ loan.balance }}" data-currency="{{ loan.currency }}"
+                        data-url="{% url 'main:delete_loan' pk=loan.id %}">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>

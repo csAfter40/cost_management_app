@@ -10,7 +10,7 @@
                 <!-- will be filled by JS -->
             </div>
             <div class="modal-footer">
-                <form action="{% url 'main:delete_account' %}" method="post">
+                <form action="" method="post" id="deleteAccountModalForm">
                     {% csrf_token %}
                     <input id="modal-account-id" type="hidden" name="id" value="">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -33,7 +33,7 @@
                 <!-- will be filled by JS -->
             </div>
             <div class="modal-footer">
-                <form action="{% url 'main:delete_loan' %}" method="post">
+                <form action="" method="post" id="deleteLoanModalForm">
                     {% csrf_token %}
                     <input id="modal-loan-id" type="hidden" name="id" value="">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
