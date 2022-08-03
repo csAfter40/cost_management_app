@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.views.generic import CreateView, UpdateView, ListView
+from django.views.generic import CreateView, UpdateView, ListView, DetailView
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
@@ -299,29 +299,36 @@ class AccountDetailSubcategoryAjaxView(UserPassesTestMixin, LoginRequiredMixin, 
         return JsonResponse(data)
 
 
-class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Account, self.kwargs.get("pk"))
+class AccountDetailView(LoginRequiredMixin, DetailView):
+
+    model = Account
 
     def get(self, request, *args, **kwargs):
-        account_id = kwargs.get("pk")
-        account = get_object_or_404(Account.objects.select_related("currency"), id=account_id)
+        account = self.get_object()
         if not account.is_active:
             raise Http404
+        return super().get(request, *args, **kwargs)
+        
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        account = self.get_object()
         transactions = Transaction.objects.filter(account=account).order_by(
             "-date", "-created"
         ).select_related('account__currency')
         stats = get_stats(transactions, account.balance)
         expense_category_stats = get_category_stats(
-            transactions, "E", None, request.user
+            transactions, "E", None, self.request.user
         )
         income_category_stats = get_category_stats(
-            transactions, "I", None, request.user
+            transactions, "I", None, self.request.user
         )
         comparison_stats = get_comparison_stats(
             expense_category_stats, income_category_stats
         )
-        page_obj = get_paginated_qs(transactions, request, 10)
+        page_obj = get_paginated_qs(transactions, self.request, 10)
 
         context = {
             "account": account,
@@ -331,8 +338,7 @@ class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
             "income_stats": income_category_stats,
             "comparison_stats": comparison_stats,
         }
-
-        return render(request, "main/account_detail.html", context)
+        return super().get_context_data(**context)
 
 
 class CreateAccountView(LoginRequiredMixin, CreateView):

@@ -107,7 +107,7 @@ class UserFailTestMixin(BaseViewTestMixin):
             response = self.client.get(self.test_url)
         else:
             response = self.client.post(self.test_url, self.post_data)
-        self.assertEquals(response.status_code, 403)
+        self.assertIn(response.status_code, (403, 404))
 
 
 class BaseFactoryTestMixin():
