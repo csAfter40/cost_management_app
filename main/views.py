@@ -552,52 +552,6 @@ class PayLoanView(LoginRequiredMixin, FormView):
         return context
 
 
-# class PayLoanView(LoginRequiredMixin, View):
-#     def get(self, request, *args, **kwargs):
-#         form = PayLoanForm(user=self.request.user)
-#         context = self.get_context_data(form)
-#         return render(self.request, 'main/loan_pay.html', context)
-
-#     def post(self, request, *args, **kwargs):
-#         form = PayLoanForm(request.POST, user=request.user)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             account = data.get('account')
-#             loan = data.get('loan')
-#             amount = abs(data.get('amount'))
-#             date = data.get('date')
-#             category = Category.objects.get(user=request.user, name='Pay Loan')
-#             try:
-#                 with transaction.atomic():
-#                     if settings.TESTING_ATOMIC:
-#                         raise IntegrityError
-#                     transaction_loan = Transaction(account=account, name='Pay Loan', amount=amount, date=date, category=category, type='E')
-#                     transaction_loan.save()
-#                     loan.balance += amount
-#                     if loan.balance > 0:
-#                         loan.balance = 0
-#                     loan.save()
-#                     account.balance -= amount
-#                     account.save()
-#             except IntegrityError:
-#                 messages.error(request, 'Error during loan payment')
-#                 context = self.get_context_data(form)
-#                 return render(request, 'main/loan_pay.html', context)
-#             return HttpResponseRedirect(reverse('main:index'))
-#         context = self.get_context_data(form)
-#         return render(request, 'main/loan_pay.html', context)
-    
-#     def get_context_data(self, form):
-#         account_data = get_account_data(self.request.user)
-#         loan_data = get_loan_data(self.request.user)
-#         context = {
-#             'account_data': account_data,
-#             'loan_data': loan_data,
-#             'form': form,
-#         }
-#         return context
-
-
 class CategoriesView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
@@ -613,6 +567,7 @@ class CategoriesView(LoginRequiredMixin, View):
 
 
 class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+    
     def test_func(self):
         '''Tests if parent category belongs to user.'''
         id = self.request.POST.get("category_id", None)
@@ -692,9 +647,10 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse("main:categories"))
 
 
-class EditExpenseCategory(LoginRequiredMixin, UserPassesTestMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Category, self.request.POST["category_id"])
+class EditExpenseCategory(LoginRequiredMixin, View):
+        
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
 
     def post(self, request):
         id = request.POST["category_id"]
@@ -704,7 +660,7 @@ class EditExpenseCategory(LoginRequiredMixin, UserPassesTestMixin, View):
                 request, f"Category name can not be blank."
             )
             return HttpResponseRedirect(reverse("main:categories"))
-        category_obj = get_object_or_404(Category, id=id)
+        category_obj = get_object_or_404(self.get_queryset(), id=id)
         if category_obj.is_protected:
             raise Http404
         category_obj.name = name
