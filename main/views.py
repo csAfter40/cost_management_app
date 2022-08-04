@@ -6,6 +6,7 @@ from django.views.generic import (
     ListView, 
     DetailView, 
     DeleteView,
+    FormView,
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -494,74 +495,107 @@ class EditLoanView(LoginRequiredMixin, UpdateView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
-# class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
 
-#     model = Loan
-#     fields = ["name", "balance", "currency"]
-#     template_name = "main/loan_update.html"
-#     success_url = reverse_lazy("main:index")
+class PayLoanView(LoginRequiredMixin, FormView):
 
-#     def test_func(self):
-#         self.loan_id = self.kwargs.get('pk')
-#         return is_owner(self.request.user, Loan, self.loan_id)
+    form_class = PayLoanForm
+    success_url = reverse_lazy('main:index')
+    template_name = 'main/loan_pay.html'
 
-#     def form_valid(self, form):
-#         form.instance.balance = -abs(form.cleaned_data["balance"])
-#         try:
-#             self.object = form.save()
-#         except IntegrityError:
-#             messages.error(
-#                 self.request,
-#                 f"There is already {self.object.name} in your loans.",
-#             )
-#             return self.form_invalid(form)
-#         return super().form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs    
 
+    def form_valid(self, form):
+        data = form.cleaned_data
+        account = data.get('account')
+        loan = data.get('loan')
+        amount = abs(data.get('amount'))
+        date = data.get('date')
+        category = Category.objects.get(user=self.request.user, name='Pay Loan')
+        try:
+            with transaction.atomic():
+                if settings.TESTING_ATOMIC:
+                    raise IntegrityError
+                transaction_loan = Transaction(
+                    account=account, 
+                    name='Pay Loan', 
+                    amount=amount, 
+                    date=date, 
+                    category=category, 
+                    type='E'
+                )
+                transaction_loan.save()
+                loan.balance += amount
+                if loan.balance > 0:
+                    loan.balance = 0
+                loan.save()
+                account.balance -= amount
+                account.save()
+        except IntegrityError:
+            messages.error(self.request, 'Error during loan payment')
+            context = self.get_context_data(form=form)
+            return render(self.request, 'main/loan_pay.html', context)
+        return super().form_valid(form)
 
-class PayLoanView(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        form = PayLoanForm(user=self.request.user)
-        context = self.get_context_data(form)
-        return render(self.request, 'main/loan_pay.html', context)
-
-    def post(self, request, *args, **kwargs):
-        form = PayLoanForm(request.POST, user=request.user)
-        if form.is_valid():
-            data = form.cleaned_data
-            account = data.get('account')
-            loan = data.get('loan')
-            amount = abs(data.get('amount'))
-            date = data.get('date')
-            category = Category.objects.get(user=request.user, name='Pay Loan')
-            try:
-                with transaction.atomic():
-                    if settings.TESTING_ATOMIC:
-                        raise IntegrityError
-                    transaction_loan = Transaction(account=account, name='Pay Loan', amount=amount, date=date, category=category, type='E')
-                    transaction_loan.save()
-                    loan.balance += amount
-                    if loan.balance > 0:
-                        loan.balance = 0
-                    loan.save()
-                    account.balance -= amount
-                    account.save()
-            except IntegrityError:
-                messages.error(request, 'Error during loan payment')
-                context = self.get_context_data(form)
-                return render(request, 'main/loan_pay.html', context)
-            return HttpResponseRedirect(reverse('main:index'))
-        context = self.get_context_data(form)
-        return render(request, 'main/loan_pay.html', context)
-    
-    def get_context_data(self, form):
+    def get_context_data(self, **kwargs):
+        if 'form' not in kwargs:
+            kwargs['form'] = self.form_class(user=self.request.user)
         account_data = get_account_data(self.request.user)
         loan_data = get_loan_data(self.request.user)
         context = {
             'account_data': account_data,
             'loan_data': loan_data,
-            'form': form,
         }
+        context.update(kwargs)
         return context
+
+
+# class PayLoanView(LoginRequiredMixin, View):
+#     def get(self, request, *args, **kwargs):
+#         form = PayLoanForm(user=self.request.user)
+#         context = self.get_context_data(form)
+#         return render(self.request, 'main/loan_pay.html', context)
+
+#     def post(self, request, *args, **kwargs):
+#         form = PayLoanForm(request.POST, user=request.user)
+#         if form.is_valid():
+#             data = form.cleaned_data
+#             account = data.get('account')
+#             loan = data.get('loan')
+#             amount = abs(data.get('amount'))
+#             date = data.get('date')
+#             category = Category.objects.get(user=request.user, name='Pay Loan')
+#             try:
+#                 with transaction.atomic():
+#                     if settings.TESTING_ATOMIC:
+#                         raise IntegrityError
+#                     transaction_loan = Transaction(account=account, name='Pay Loan', amount=amount, date=date, category=category, type='E')
+#                     transaction_loan.save()
+#                     loan.balance += amount
+#                     if loan.balance > 0:
+#                         loan.balance = 0
+#                     loan.save()
+#                     account.balance -= amount
+#                     account.save()
+#             except IntegrityError:
+#                 messages.error(request, 'Error during loan payment')
+#                 context = self.get_context_data(form)
+#                 return render(request, 'main/loan_pay.html', context)
+#             return HttpResponseRedirect(reverse('main:index'))
+#         context = self.get_context_data(form)
+#         return render(request, 'main/loan_pay.html', context)
+    
+#     def get_context_data(self, form):
+#         account_data = get_account_data(self.request.user)
+#         loan_data = get_loan_data(self.request.user)
+#         context = {
+#             'account_data': account_data,
+#             'loan_data': loan_data,
+#             'form': form,
+#         }
+#         return context
 
 
 class CategoriesView(LoginRequiredMixin, View):
