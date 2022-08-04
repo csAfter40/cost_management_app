@@ -468,22 +468,19 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
         return HttpResponseRedirect(success_url)
 
 
-class LoanDetailView(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        self.loan_id = self.request.POST["id"]
-        return is_owner(self.request.user, Loan, self.loan_id)
+class LoanDetailView(LoginRequiredMixin, DetailView):
+    pass
 
 
-class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
+class EditLoanView(LoginRequiredMixin, UpdateView):
 
     model = Loan
     fields = ["name", "balance", "currency"]
     template_name = "main/loan_update.html"
     success_url = reverse_lazy("main:index")
 
-    def test_func(self):
-        self.loan_id = self.kwargs.get('pk')
-        return is_owner(self.request.user, Loan, self.loan_id)
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
     def form_valid(self, form):
         form.instance.balance = -abs(form.cleaned_data["balance"])
@@ -496,6 +493,29 @@ class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
             )
             return self.form_invalid(form)
         return super().form_valid(form)
+
+# class EditLoanView(UserPassesTestMixin, LoginRequiredMixin, UpdateView):
+
+#     model = Loan
+#     fields = ["name", "balance", "currency"]
+#     template_name = "main/loan_update.html"
+#     success_url = reverse_lazy("main:index")
+
+#     def test_func(self):
+#         self.loan_id = self.kwargs.get('pk')
+#         return is_owner(self.request.user, Loan, self.loan_id)
+
+#     def form_valid(self, form):
+#         form.instance.balance = -abs(form.cleaned_data["balance"])
+#         try:
+#             self.object = form.save()
+#         except IntegrityError:
+#             messages.error(
+#                 self.request,
+#                 f"There is already {self.object.name} in your loans.",
+#             )
+#             return self.form_invalid(form)
+#         return super().form_valid(form)
 
 
 class PayLoanView(LoginRequiredMixin, View):
