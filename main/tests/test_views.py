@@ -1543,7 +1543,7 @@ class TestEditIncomeCategory(UserFailTestMixin, TestCase):
         self.object.user = new_user
         self.object.save()
         response = self.client.post(self.test_url, self.post_valid_data[0])
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 404)
        
     def subtest_post_valid(self, data):
         object = data['object']

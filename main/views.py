@@ -679,9 +679,9 @@ class EditExpenseCategory(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse("main:categories"))
 
 
-class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Category, self.request.POST["category_id"])
+class EditIncomeCategory(LoginRequiredMixin, View):
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
 
     def post(self, request):
         id = request.POST["category_id"]
@@ -691,7 +691,7 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
                 request, f"Category name can not be blank."
             )
             return HttpResponseRedirect(reverse("main:categories"))
-        category_obj = get_object_or_404(Category, id=id)
+        category_obj = get_object_or_404(self.get_queryset(), id=id)
         if category_obj.is_protected:
             raise Http404
         category_obj.name = name
@@ -708,6 +708,36 @@ class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         else:
             category_obj.save()
         return HttpResponseRedirect(reverse("main:categories"))
+
+# class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
+#     def test_func(self):
+#         return is_owner(self.request.user, Category, self.request.POST["category_id"])
+
+#     def post(self, request):
+#         id = request.POST["category_id"]
+#         name = request.POST["category_name"]
+#         if name == '':
+#             messages.error(
+#                 request, f"Category name can not be blank."
+#             )
+#             return HttpResponseRedirect(reverse("main:categories"))
+#         category_obj = get_object_or_404(Category, id=id)
+#         if category_obj.is_protected:
+#             raise Http404
+#         category_obj.name = name
+#         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
+#             if category_obj.parent:
+#                 messages.error(
+#                     request,
+#                     f"There is already a {name} category under {category_obj.parent.name} category.",
+#                 )
+#             else:
+#                 messages.error(
+#                     request, f"There is already a {name} category in main categories."
+#                 )
+#         else:
+#             category_obj.save()
+#         return HttpResponseRedirect(reverse("main:categories"))
 
 
 class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):        
