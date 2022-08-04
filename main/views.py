@@ -709,58 +709,29 @@ class EditIncomeCategory(LoginRequiredMixin, View):
             category_obj.save()
         return HttpResponseRedirect(reverse("main:categories"))
 
-# class EditIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
-#     def test_func(self):
-#         return is_owner(self.request.user, Category, self.request.POST["category_id"])
 
-#     def post(self, request):
-#         id = request.POST["category_id"]
-#         name = request.POST["category_name"]
-#         if name == '':
-#             messages.error(
-#                 request, f"Category name can not be blank."
-#             )
-#             return HttpResponseRedirect(reverse("main:categories"))
-#         category_obj = get_object_or_404(Category, id=id)
-#         if category_obj.is_protected:
-#             raise Http404
-#         category_obj.name = name
-#         if Category.objects.filter(parent=category_obj.parent, name=name).exists():
-#             if category_obj.parent:
-#                 messages.error(
-#                     request,
-#                     f"There is already a {name} category under {category_obj.parent.name} category.",
-#                 )
-#             else:
-#                 messages.error(
-#                     request, f"There is already a {name} category in main categories."
-#                 )
-#         else:
-#             category_obj.save()
-#         return HttpResponseRedirect(reverse("main:categories"))
+class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):        
+    
+    model = Category
+    success_url = reverse_lazy('main:categories')
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
-
-class DeleteExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):        
-    def test_func(self):
-        return is_owner(self.request.user, Category, self.request.POST["category_id"])
-
-    def post(self, request):
-        id = request.POST["category_id"]
-        category = get_object_or_404(Category, id=id)
-        if category.is_protected:
+    def form_valid(self, form=None):
+        if self.object.is_protected:
             raise Http404
-        category.delete()
-        return HttpResponseRedirect(reverse("main:categories"))
+        return super().form_valid(form)
 
 
-class DeleteIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
-    def test_func(self):
-        return is_owner(self.request.user, Category, self.request.POST["category_id"])
+class DeleteIncomeCategory(LoginRequiredMixin, DeleteView):
+    model = Category
+    success_url = reverse_lazy('main:categories')
 
-    def post(self, request):
-        id = request.POST["category_id"]
-        category = get_object_or_404(Category, id=id)
-        if category.is_protected:
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def form_valid(self, form=None):
+        if self.object.is_protected:
             raise Http404
-        category.delete()
-        return HttpResponseRedirect(reverse("main:categories"))
+        return super().form_valid(form)

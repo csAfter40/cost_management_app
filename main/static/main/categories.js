@@ -14,20 +14,26 @@ const expenseParentInput = document.querySelector("#expense-parent-category-id")
 const expenseParentNameSpan = document.querySelector("#modal-expense-category-name");
 const incomeParentInput = document.querySelector("#income-parent-category-id");
 const incomeParentNameSpan = document.querySelector("#modal-income-category-name");
+const deleteExpenseCategoryModalForm = document.querySelector('#deleteExpenseCategoryModalForm');
+const deleteIncomeCategoryModalForm = document.querySelector('#deleteIncomeCategoryModalForm');
+
+
 // set events for delete expense category buttons
-for (let i = 0; i < deleteExpenseButtons.length; i++) {
-    deleteExpenseButtons[i].addEventListener('click', function () {
-        var categoryId = deleteExpenseButtons[i].getAttribute('data-node-id');
-        expenseInput.setAttribute('value', categoryId);
+deleteExpenseButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        deleteExpenseCategoryModalForm.setAttribute('action', button.dataset.url);
     });
-};
+});
+
 // set events for delete income category buttons
-for (let i = 0; i < deleteIncomeButtons.length; i++) {
-    deleteIncomeButtons[i].addEventListener('click', function () {
-        var categoryId = deleteIncomeButtons[i].getAttribute('data-node-id');
-        incomeInput.setAttribute('value', categoryId);
+deleteIncomeButtons.forEach(button => {
+    console.log(button.dataset.url);
+    button.addEventListener('click', function() {
+        deleteIncomeCategoryModalForm.setAttribute('action', button.dataset.url);
     });
-};
+});
+
+
 // set events for create expense subcategory buttons
 for (let i = 0; i < createExpenseSubcategoryButtons.length; i++) {
     createExpenseSubcategoryButtons[i].addEventListener('click', function () {

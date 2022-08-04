@@ -41,7 +41,8 @@
                         <i class="bi bi-pencil-square"></i>
                     </button>
                     <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}">
+                        data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}" 
+                        data-url="{% url 'main:delete_expense_category' pk=node.id %}">
                         <i class="bi bi-trash"></i>
                     </button>
                     <button type="button" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal"
@@ -82,7 +83,8 @@
                         <i class="bi bi-pencil-square"></i>
                     </button>
                     <button type="button" class="btn px-0 delete-income-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}">
+                        data-bs-target="#deleteIncomeCategoryModal" data-node-id="{{node.id}}" 
+                        data-url="{% url 'main:delete_income_category' pk=node.id %}">
                         <i class="bi bi-trash"></i>
                     </button>
                     <button type="button" class="btn px-0 create-income-subcategory-button" data-bs-toggle="modal"

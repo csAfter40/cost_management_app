@@ -1592,7 +1592,7 @@ class TestDeleteExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url = reverse('main:delete_expense_category')
+        cls.test_url = ''
         cls.redirect_url = reverse('main:categories')
         cls.view_function = views.DeleteExpenseCategory.as_view()
         cls.login_required = True
@@ -1602,7 +1602,8 @@ class TestDeleteExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.object = CategoryFactory(user=self.user, parent=None)
-        self.post_data = {'category_id': self.object.id}
+        self.test_url = reverse("main:delete_expense_category", kwargs={'pk':self.object.id})
+        self.post_data = {}
 
     def test_post(self):
         self.assertTrue(Category.objects.all().exists())
@@ -1617,18 +1618,19 @@ class TestDeleteExpenseCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertFalse(Category.objects.all().exists())
 
     def test_protected_category(self):
-        object = CategoryFactory(user=self.user, parent=None, is_protected=True)
-        data = {'category_id': object.id}
+        self.object.is_protected = True
+        self.object.save()
+        data = {}
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 404)
-        self.assertTrue(Category.objects.filter(id=object.id).exists())
+        self.assertTrue(Category.objects.filter(id=self.object.id).exists())
 
 
 class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url = reverse('main:delete_income_category')
+        cls.test_url = ''
         cls.redirect_url = reverse('main:categories')
         cls.view_function = views.DeleteIncomeCategory.as_view()
         cls.login_required = True
@@ -1638,7 +1640,8 @@ class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.object = CategoryFactory(user=self.user, parent=None)
-        self.post_data = {'category_id': self.object.id}
+        self.test_url = reverse('main:delete_income_category', kwargs={'pk': self.object.id})
+        self.post_data = {}
 
     def test_post(self):
         self.assertTrue(Category.objects.all().exists())
@@ -1653,8 +1656,8 @@ class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertFalse(Category.objects.all().exists())
 
     def test_protected_category(self):
-        object = CategoryFactory(user=self.user, parent=None, is_protected=True)
-        data = {'category_id': object.id}
-        response = self.client.post(self.test_url, data)
+        self.object.is_protected = True
+        self.object.save()
+        response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 404)
-        self.assertTrue(Category.objects.filter(id=object.id).exists())
+        self.assertTrue(Category.objects.filter(id=self.object.id).exists())

@@ -50,7 +50,7 @@ urlpatterns = [
         name="edit_expense_category",
     ),
     path(
-        "categories/expense/del",
+        "categories/expense/del/<int:pk>",
         views.DeleteExpenseCategory.as_view(),
         name="delete_expense_category",
     ),
@@ -60,7 +60,7 @@ urlpatterns = [
         name="edit_income_category",
     ),
     path(
-        "categories/income/del",
+        "categories/income/del/<int:pk>",
         views.DeleteIncomeCategory.as_view(),
         name="delete_income_category",
     ),
