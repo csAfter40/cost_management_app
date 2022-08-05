@@ -975,6 +975,12 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.object = AccountFactory(user=self.user)
         self.test_url = reverse('main:delete_account', kwargs={'pk':self.object.id})
 
+    def test_inactive_account(self):
+        inactive_account = AccountFactory(is_active=False)
+        test_url = reverse('main:delete_account', kwargs={'pk':inactive_account.id})
+        response = self.client.post(test_url, {})
+        self.assertEquals(response.status_code, 404)
+
     def test_unauthenticated_access(self):
         self.client.logout()
         response = self.client.post(self.test_url, self.post_data)
@@ -998,6 +1004,12 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         super().setUp()
         self.object = LoanFactory(user=self.user)
         self.test_url = reverse('main:delete_loan', kwargs={'pk':self.object.id})
+
+    def test_inactive_loan(self):
+        inactive_loan = LoanFactory(is_active=False)
+        test_url = reverse('main:delete_account', kwargs={'pk':inactive_loan.id})
+        response = self.client.post(test_url, {})
+        self.assertEquals(response.status_code, 404)
 
     def test_unauthenticated_access(self):
         self.client.logout()
