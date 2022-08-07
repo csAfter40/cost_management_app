@@ -1,8 +1,10 @@
 from django.test.testcases import TestCase
 from main.utils import(
     get_latest_transactions,
+    get_latest_transfers,
 )
 from main.tests.factories import (
+    TransferFactory,
     UserFactoryNoSignal,
     AccountFactory,
     TransactionFactory
@@ -26,5 +28,17 @@ class TestUtilityFunctions(TestCase):
         for i, object in enumerate(queryset):
             self.assertEquals(object.account.user, self.user)
             self.assertFalse(object.category.is_transfer)
+            if i < len(queryset)-1:
+                self.assertGreater(object.date, queryset[i+1].date)
+
+    def test_get_latest_transfers(self):
+        today = datetime.date.today()
+        TransferFactory.create_batch(10)
+        for i in range(10):
+            TransferFactory.create(user=self.user, date=(today-timedelta(days=i)))
+        queryset = get_latest_transfers(self.user, 5)
+        self.assertEquals(len(queryset), 5)
+        for i, object in enumerate(queryset):
+            self.assertEquals(object.user, self.user)
             if i < len(queryset)-1:
                 self.assertGreater(object.date, queryset[i+1].date)
