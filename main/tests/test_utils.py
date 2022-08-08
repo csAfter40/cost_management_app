@@ -1,3 +1,4 @@
+import decimal
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -6,6 +7,8 @@ from main.utils import (
     get_loan_data,
     get_latest_transactions,
     get_latest_transfers,
+    get_stats,
+    is_owner,
     validate_main_category_uniqueness,
 )
 from main.tests.factories import (
@@ -19,7 +22,7 @@ from main.tests.factories import (
 import datetime
 from datetime import timedelta
 from main.categories import categories
-from main.models import Category
+from main.models import Category, Transaction, Account
 
 
 class TestUtilityFunctions(TestCase):
@@ -104,3 +107,21 @@ class TestUtilityFunctions(TestCase):
         for date in context_list:
             self.assertIn(date, dates)
         self.assertEquals(dates["today"], datetime.date.today())
+
+    def test_get_stats(self):
+        TransactionFactory(type='E', amount=1.00)
+        TransactionFactory(type='E', amount=2.00)
+        TransactionFactory(type='I', amount=3.00)
+        TransactionFactory(type='I', amount=4.00)
+        balance = decimal.Decimal(14.00)
+        diff = 4.00
+        rate = '40.00%'
+        stats = get_stats(Transaction.objects.all(), balance)
+        self.assertIn('rate', stats)
+        self.assertIn('diff', stats)
+        self.assertEquals(stats['rate'], rate)
+        self.assertEquals(stats['diff'], diff)
+
+    def test_is_owner(self):
+        account = AccountFactory(user=self.user)
+        self.assertTrue(is_owner(self.user, Account, account.id))
