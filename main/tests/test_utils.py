@@ -1,8 +1,11 @@
+from abc import get_cache_token
 import decimal
+from unicodedata import category
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
     get_account_data,
+    get_category_stats,
     get_dates,
     get_loan_data,
     get_latest_transactions,
@@ -125,3 +128,20 @@ class TestUtilityFunctions(TestCase):
     def test_is_owner(self):
         account = AccountFactory(user=self.user)
         self.assertTrue(is_owner(self.user, Account, account.id))
+
+    def test_get_category_stats(self):
+        parent_category = CategoryFactory(user=self.user, parent=None)
+        categories = CategoryFactory.create_batch(5, user=self.user, parent=parent_category, type='E')
+        subcategory = CategoryFactory(user=self.user, parent=categories[0], type='E')
+        account = AccountFactory(user=self.user)
+        for category in categories:
+            TransactionFactory(account=account, amount=1, category=category)
+        TransactionFactory(account=account, amount=1, category=subcategory)
+        qs = Transaction.objects.all()
+        category_stats = get_category_stats(qs, 'E', parent_category, self.user)
+        self.assertEquals(len(category_stats), 5)
+        amount_sum = 0
+        for key, value in category_stats.items():
+            amount_sum += value['sum']
+        self.assertEquals(amount_sum, 6)
+        
