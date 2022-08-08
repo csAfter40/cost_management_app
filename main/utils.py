@@ -87,8 +87,8 @@ def get_dates():
 
 
 def get_stats(qs, balance):
-    expences = qs.filter(Q(type="E") | Q(type="TO")).aggregate(Sum("amount"))
-    incomes = qs.filter(Q(type="I") | Q(type="TI")).aggregate(Sum("amount"))
+    expences = qs.filter(type='E').aggregate(Sum("amount"))
+    incomes = qs.filter(type='I').aggregate(Sum("amount"))
     incomes_sum = incomes["amount__sum"] if incomes["amount__sum"] else 0
     expences_sum = expences["amount__sum"] if expences["amount__sum"] else 0
     diff = incomes_sum - expences_sum
