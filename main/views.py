@@ -404,14 +404,8 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
     model = Account
     success_url = reverse_lazy('main:index')
 
-    def get_object(self, queryset=None):
-        obj = super().get_object(queryset)
-        if not obj.is_active:
-            raise Http404
-        return obj
-
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
 
     def form_valid(self, form):
         success_url = self.get_success_url()
@@ -454,13 +448,7 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('main:index')
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
-
-    def get_object(self, queryset=None):
-        obj = super().get_object(queryset)
-        if not obj.is_active:
-            raise Http404
-        return obj
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
 
     def form_valid(self, form):
         success_url = self.get_success_url()
