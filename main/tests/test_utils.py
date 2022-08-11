@@ -134,14 +134,14 @@ class TestUtilityFunctions(TestCase):
         categories = CategoryFactory.create_batch(5, user=self.user, parent=parent_category, type='E')
         subcategory = CategoryFactory(user=self.user, parent=categories[0], type='E')
         account = AccountFactory(user=self.user)
-        for category in categories:
+        for category in categories[:-1]:
             TransactionFactory(account=account, amount=1, category=category)
         TransactionFactory(account=account, amount=1, category=subcategory)
         qs = Transaction.objects.all()
         category_stats = get_category_stats(qs, 'E', parent_category, self.user)
-        self.assertEquals(len(category_stats), 5)
+        self.assertEquals(len(category_stats), 4)
         amount_sum = 0
         for key, value in category_stats.items():
             amount_sum += value['sum']
-        self.assertEquals(amount_sum, 6)
+        self.assertEquals(amount_sum, 5)
         
