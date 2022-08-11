@@ -976,7 +976,7 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.test_url = reverse('main:delete_account', kwargs={'pk':self.object.id})
 
     def test_inactive_account(self):
-        inactive_account = AccountFactory(is_active=False)
+        inactive_account = AccountFactory(user=self.user, is_active=False)
         test_url = reverse('main:delete_account', kwargs={'pk':inactive_account.id})
         response = self.client.post(test_url, {})
         self.assertEquals(response.status_code, 404)
