@@ -1,6 +1,8 @@
 from abc import get_cache_token
 import decimal
 from unicodedata import category
+from unittest import mock
+from unittest.mock import patch
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -13,10 +15,14 @@ from main.utils import (
     get_stats,
     is_owner,
     validate_main_category_uniqueness,
+    create_user_categories,
+    create_user_preferences
 )
 from main.tests.factories import (
     CategoryFactory,
+    CurrencyFactory,
     TransferFactory,
+    UserFactory,
     UserFactoryNoSignal,
     AccountFactory,
     TransactionFactory,
@@ -25,7 +31,7 @@ from main.tests.factories import (
 import datetime
 from datetime import timedelta
 from main.categories import categories
-from main.models import Category, Transaction, Account
+from main.models import Category, Transaction, Account, User, UserPreferences
 
 
 class TestUtilityFunctions(TestCase):
@@ -144,4 +150,13 @@ class TestUtilityFunctions(TestCase):
         for key, value in category_stats.items():
             amount_sum += value['sum']
         self.assertEquals(amount_sum, 5)
-        
+
+    def test_create_user_categories(self):
+        CurrencyFactory(id=5)
+        UserFactory()
+        self.assertTrue(Category.objects.exists())
+
+    def test_create_user_preferences(self):
+        CurrencyFactory(id=5)
+        UserFactory()
+        self.assertTrue(UserPreferences.objects.exists())
