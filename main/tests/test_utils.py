@@ -2,7 +2,7 @@ from abc import get_cache_token
 import decimal
 from unicodedata import category
 from unittest import mock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -150,6 +150,15 @@ class TestUtilityFunctions(TestCase):
         for key, value in category_stats.items():
             amount_sum += value['sum']
         self.assertEquals(amount_sum, 5)
+
+    @patch('main.utils.create_categories')    
+    def test_create_user_categories_unittest(self, func_mock):
+        instance_mock = MagicMock()
+        sender_mock = MagicMock()
+        create_user_categories(sender_mock, instance_mock, created=False)
+        self.assertFalse(func_mock.called)
+        create_user_categories(sender_mock, instance_mock, created=True)
+        self.assertTrue(func_mock.called)
 
     def test_create_user_categories(self):
         CurrencyFactory(id=5)
