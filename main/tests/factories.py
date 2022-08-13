@@ -32,6 +32,7 @@ class AccountFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Account
 
+    id = factory.Sequence(lambda x: x+1)
     user = factory.SubFactory(UserFactoryNoSignal)
     name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
     balance = factory.fuzzy.FuzzyDecimal(low=0)

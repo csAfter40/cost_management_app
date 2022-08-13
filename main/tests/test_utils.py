@@ -85,11 +85,11 @@ class TestUtilityFunctions(TestCase):
                     Category.objects.filter(user=self.user, parent__name=key).exists()
                 )
 
-    def test_get_account_data(self):
-        accounts = AccountFactory.create_batch(5)
-        user_accounts = AccountFactory.create_batch(5, user=self.user)
-        data = get_account_data(self.user)
-        self.assertEquals(len(data), 5)
+    # def test_get_account_data(self):
+    #     accounts = AccountFactory.create_batch(5)
+    #     user_accounts = AccountFactory.create_batch(5, user=self.user)
+    #     data = get_account_data(self.user)
+    #     self.assertEquals(len(data), 5)
 
     def test_get_loan_data(self):
         loans = AccountFactory.create_batch(5)
@@ -169,3 +169,13 @@ class TestUtilityFunctions(TestCase):
         CurrencyFactory(id=5)
         UserFactory()
         self.assertTrue(UserPreferences.objects.exists())
+
+    @patch('main.utils.Account')
+    def test_get_account_data(self, mock):
+        qs = AccountFactory.build_batch(5)
+        mock.objects.filter.return_value.select_related.return_value = qs
+        user = UserFactory.build()
+        data = get_account_data(user)
+        self.assertTrue(mock.objects.filter.called)
+        for obj in qs:
+            self.assertEquals(data[obj.id], obj.currency.code)
