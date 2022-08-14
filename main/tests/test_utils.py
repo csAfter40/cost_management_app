@@ -112,11 +112,11 @@ class TestUtilityFunctions(TestCase):
     #     data = get_account_data(self.user)
     #     self.assertEquals(len(data), 5)
 
-    def test_get_loan_data(self):
-        loans = AccountFactory.create_batch(5)
-        user_loans = LoanFactory.create_batch(5, user=self.user)
-        data = get_loan_data(self.user)
-        self.assertEquals(len(data), 5)
+    # def test_get_loan_data(self):
+    #     loans = AccountFactory.create_batch(5)
+    #     user_loans = LoanFactory.create_batch(5, user=self.user)
+    #     data = get_loan_data(self.user)
+    #     self.assertEquals(len(data), 5)
 
     def test_validate_main_category_uniqueness(self):
         CategoryFactory(name="duplicate_name", user=self.user, type="E", parent=None)
@@ -198,5 +198,15 @@ class TestUtilityFunctions(TestCase):
         user = UserFactory.build()
         data = get_account_data(user)
         self.assertTrue(mock.objects.filter.called)
+        for obj in qs:
+            self.assertEquals(data[obj.id], obj.currency.code)
+
+    @patch('main.utils.Loan')
+    def test_get_loan_data(self, mock):
+        qs = LoanFactory.build_batch(5)
+        mock.objects.filter.return_value.select_related.return_value = qs
+        user = UserFactory.build()
+        data = get_loan_data(user)
+        self.assertTrue(mock.called_once)
         for obj in qs:
             self.assertEquals(data[obj.id], obj.currency.code)
