@@ -38,40 +38,61 @@ class TestUtilityFunctions(TestCase):
     def setUp(self):
         self.user = UserFactoryNoSignal()
 
-    def test_get_latest_transactions(self):
-        today = datetime.date.today()
-        user_account = AccountFactory(user=self.user)
-        TransactionFactory.create_batch(10)
-        for i in range(10):
-            TransactionFactory.create(
-                account=user_account,
-                category__is_transfer=False,
-                date=(today - timedelta(days=i)),
-            )
-            TransactionFactory.create(
-                account=user_account,
-                category__is_transfer=True,
-                date=(today - timedelta(days=i)),
-            )
-        queryset = get_latest_transactions(self.user, 5)
-        self.assertEquals(len(queryset), 5)
-        for i, object in enumerate(queryset):
-            self.assertEquals(object.account.user, self.user)
-            self.assertFalse(object.category.is_transfer)
-            if i < len(queryset) - 1:
-                self.assertGreater(object.date, queryset[i + 1].date)
+    # def test_get_latest_transactions(self):
+    #     today = datetime.date.today()
+    #     user_account = AccountFactory(user=self.user)
+    #     TransactionFactory.create_batch(10)
+    #     for i in range(10):
+    #         TransactionFactory.create(
+    #             account=user_account,
+    #             category__is_transfer=False,
+    #             date=(today - timedelta(days=i)),
+    #         )
+    #         TransactionFactory.create(
+    #             account=user_account,
+    #             category__is_transfer=True,
+    #             date=(today - timedelta(days=i)),
+    #         )
+    #     queryset = get_latest_transactions(self.user, 5)
+    #     self.assertEquals(len(queryset), 5)
+    #     for i, object in enumerate(queryset):
+    #         self.assertEquals(object.account.user, self.user)
+    #         self.assertFalse(object.category.is_transfer)
+    #         if i < len(queryset) - 1:
+    #             self.assertGreater(object.date, queryset[i + 1].date)
+    
+    @patch('main.utils.Account')
+    @patch('main.utils.Transaction')
+    def test_get_latest_transactions_no_db(self, mock_transaction, mock_account):
+        user = 'user'
+        mock_account.objects.filter.return_value = AccountFactory.build()
+        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = TransactionFactory.build_batch(5)
+        transactions = get_latest_transactions(user, 5)
+        self.assertTrue(mock_account.called_once)
+        self.assertTrue(mock_transaction.called_once)
+        self.assertEquals(len(transactions), 5)
 
-    def test_get_latest_transfers(self):
-        today = datetime.date.today()
-        TransferFactory.create_batch(10)
-        for i in range(10):
-            TransferFactory.create(user=self.user, date=(today - timedelta(days=i)))
-        queryset = get_latest_transfers(self.user, 5)
-        self.assertEquals(len(queryset), 5)
-        for i, object in enumerate(queryset):
-            self.assertEquals(object.user, self.user)
-            if i < len(queryset) - 1:
-                self.assertGreater(object.date, queryset[i + 1].date)
+    @patch('main.utils.Transfer')
+    def test_get_latest_transfers(self, mock):
+        user = 'user'
+        qty = 5
+        mock.objects.filter.return_value.select_related.return_value.order_by.return_value = range(qty)
+        transfers = get_latest_transfers(user, qty)
+        self.assertTrue(mock.called_once)
+        self.assertEquals(len(transfers), qty)
+
+
+    # def test_get_latest_transfers(self):
+    #     today = datetime.date.today()
+    #     TransferFactory.create_batch(10)
+    #     for i in range(10):
+    #         TransferFactory.create(user=self.user, date=(today - timedelta(days=i)))
+    #     queryset = get_latest_transfers(self.user, 5)
+    #     self.assertEquals(len(queryset), 5)
+    #     for i, object in enumerate(queryset):
+    #         self.assertEquals(object.user, self.user)
+    #         if i < len(queryset) - 1:
+    #             self.assertGreater(object.date, queryset[i + 1].date)
 
     def test_create_categories(self):
         create_categories(categories, self.user)
