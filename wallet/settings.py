@@ -141,6 +141,8 @@ DEFAULT_CURRENCY_PK = 5  # Primary key value of default currency. It is 5 for "U
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
+TEST_RUNNER = "main.tests.runner.CustomRunner"
+
 #  needed for testing views with LoginRequiredMixin
 LOGIN_URL = reverse_lazy('main:login')
 
