@@ -33,9 +33,9 @@ from datetime import timedelta
 from main.categories import categories
 from main.models import Category, Transaction, Account, User, UserPreferences
 
-
 class TestUtilityFunctions(TestCase):
     def setUp(self):
+        super().setUp()
         self.user = UserFactoryNoSignal()
 
     # def test_get_latest_transactions(self):
