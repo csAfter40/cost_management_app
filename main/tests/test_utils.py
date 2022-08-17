@@ -130,6 +130,13 @@ class TestUtilityFunctions(TestCase):
                 name="duplicate_name", user=self.user, type="E"
             )
         )
+    
+    @patch('main.utils.Category')
+    def test_validate_main_category_uniqueness_unit_test(self, mock):
+        mock.objects.filter.return_value.exists.return_value = False
+        self.assertTrue(validate_main_category_uniqueness('fake_name', 'fake_user', 'fake_type'))
+        mock.objects.filter.return_value.exists.assert_called_once()
+
 
     def test_get_dates(self):
         context_list = ("today", "week_start", "month_start", "year_start")
