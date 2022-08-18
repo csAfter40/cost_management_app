@@ -1,7 +1,5 @@
-from abc import get_cache_token
 import decimal
-from unicodedata import category
-from unittest import mock
+import datetime
 from unittest.mock import MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
@@ -137,13 +135,18 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(validate_main_category_uniqueness('fake_name', 'fake_user', 'fake_type'))
         mock.objects.filter.return_value.exists.assert_called_once()
 
-
-    def test_get_dates(self):
+    @patch('main.utils.date')
+    def test_get_dates(self, mock):
+        mock.today.return_value = datetime.date(2005, 5, 5)
+        mock.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
         context_list = ("today", "week_start", "month_start", "year_start")
         dates = get_dates()
         for date in context_list:
             self.assertIn(date, dates)
-        self.assertEquals(dates["today"], datetime.date.today())
+        self.assertEquals(dates["today"], datetime.date(2005, 5, 5))
+        self.assertEquals(dates["week_start"], datetime.date(2005, 5, 3))
+        self.assertEquals(dates["month_start"], datetime.date(2005, 5, 1))
+        self.assertEquals(dates["year_start"], datetime.date(2005, 1, 1))
 
     def test_get_stats(self):
         TransactionFactory(type='E', amount=1.00)
