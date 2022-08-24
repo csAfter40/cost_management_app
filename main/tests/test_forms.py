@@ -76,3 +76,40 @@ class TestForms(TestCase):
         form = IncomeInputForm(user=self.user, data=data)
         for key, value in data.items():
             self.assertIn(key, form.errors)
+
+    def test_transfer_form_with_valid_data(self):
+        to_account = AccountFactory(user=self.user)
+        data = {
+            'from_account': self.valid_account.id,
+            'to_account': to_account.id,
+            'from_amount': 10,
+            'to_amount': 10,
+            'date': datetime.date(2022,2,2),
+        }
+        form = TransferForm(user=self.user, data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+    def test_transfer_form_with_invalid_data(self):
+        invalid_to_account = AccountFactory()
+        data = {
+            'from_account': self.invalid_account.id,
+            'to_account': invalid_to_account.id,
+            'from_amount': 'invalid amount',
+            'to_amount': 'invalid amount',
+            'date': 'invalid date',
+        }
+        form = TransferForm(user=self.user, data=data)
+        for key, value in data.items():
+            self.assertIn(key, form.errors)
+
+    def test_transfer_form_from_account_equals_to_account(self):
+        data = {
+            'from_account': self.valid_account.id,
+            'to_account': self.valid_account.id,
+            'from_amount': 10,
+            'to_amount': 10,
+            'date': datetime.date(2022,2,2),
+        }
+        form = TransferForm(user=self.user, data=data)
+        self.assertIn('From account and To account can not have same value.', form.errors['__all__'])
