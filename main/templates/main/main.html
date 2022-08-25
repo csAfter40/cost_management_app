@@ -1,0 +1,108 @@
+{% extends 'main/user_layout.html' %}
+{% block title %}
+    <title>Wallet Home</title>
+{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'main/main.css' %}">
+{% endblock %}
+{% block body %}
+<div class="container-lg bg-light py-3 my-2">
+    <div class="row">
+        <div class="col-lg-6 text-center border-end border-muted">
+            <div class="mb-3 pb-2">
+                <h4>Accounts</h4>
+                {% include 'main/table_accounts.html' %}
+                <div class="d-flex px-3">
+                    <a href="{% url 'main:create_account' %}" class="btn btn-outline-primary me-2">Add New Account</a>
+                    <a href="{% url 'main:accounts' %}" class="btn btn-outline-primary me-2">View Accounts</a>
+                </div>
+            </div>
+            <div class="my-3 border-top py-2">
+                <h4>Loans</h4>
+                {% include 'main/table_loans.html'%}
+                <div class="d-flex px-3">
+                    <a href="{% url 'main:create_loan' %}" class="btn btn-outline-primary me-2">Add New Loan</a>
+                    {% if loans %}
+                        <a href="{% url 'main:pay_loan' %}" class="btn btn-outline-primary me-2">Pay Loan</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="my-3 border-top py-2">
+                <h4>Latest Transactions</h4>
+                {% include 'main/table_transactions.html' %}
+            </div>
+            <div class="my-3 border-top py-2">
+                <h4>Latest Transfers</h4>
+                {% include 'main/table_transfers.html' %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <h4>Transactions</h4>
+            <div class="row">
+                <div class="col-6 text-start">
+                    <h5 class="text-danger">Input Expense</h5>
+                    <form action="{% url 'main:main' %}" method="POST">
+                        {% csrf_token %}
+                        <div id="autocomplete_expense" class="autocomplete" data-type="E">
+                            {{ expense_form.name|as_crispy_field }}
+                            <ul class="autocomplete-result-list"></ul>
+                        </div>
+                        {{ expense_form.account|as_crispy_field }}
+                        {{ expense_form.amount|as_crispy_field }}
+                        {{ expense_form.category|as_crispy_field }}
+                        {{ expense_form.date|as_crispy_field }}
+                        {{ expense_form.type|as_crispy_field }}
+                        <div class="d-grid gap-2 my-4">
+                            <input type="submit" name="submit-expense" value="Submit" class="btn btn-outline-primary">
+                        </div>
+                    </form>
+                </div>
+                <div class="col-6 text-start">
+                    <h5 class="text-success">Input Income</h5>
+                    <form action="{% url 'main:main' %}" method="POST">
+                        {% csrf_token %}
+                        <div id="autocomplete_income" class="autocomplete" data-type="I">
+                            {{ income_form.name|as_crispy_field }}
+                            <ul class="autocomplete-result-list"></ul>
+                        </div>
+                        {{ income_form.account|as_crispy_field }}
+                        {{ income_form.amount|as_crispy_field }}
+                        {{ income_form.category|as_crispy_field }}
+                        {{ income_form.date|as_crispy_field }}
+                        {{ income_form.type|as_crispy_field }}
+                        <div class="d-grid gap-2 my-4">
+                            <input type="submit" name="submit-income" value="Submit" class="btn btn-outline-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row border-top py-2 my-2">
+                <div class="col-12">
+                    <h4 class="text-dark">Transfer</h4>
+                    <form action="{% url 'main:main' %}" method="POST" id="form-transfer">
+                        {% csrf_token %}
+                        {{ transfer_form.from_account|as_crispy_field }}
+                        {{ transfer_form.to_account|as_crispy_field }}
+                        <!-- Added prepend feature to from_amount and to_amount fields -->
+                        {% crispy_addon transfer_form.from_amount prepend='-' %}
+                        {% crispy_addon transfer_form.to_amount prepend='-' %}
+                        {{ transfer_form.date|as_crispy_field }}
+                        <div class="d-grid gap-2 my-4">
+                            <input type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'main/main_modals.html' %}
+{% endblock %}
+{% block script %}
+{{ account_data|json_script:'account-data' }}
+<script src="{% static 'main/main.js' %}"></script>
+{% endblock %}

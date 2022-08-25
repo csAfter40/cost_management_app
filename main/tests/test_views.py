@@ -22,12 +22,20 @@ from django.db import models
 from datetime import date
 
 
+class TestIndex(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:index')
+        cls.template = 'main/index.html'  # str 'app_name/template_name.html'
+        cls.view_function = views.index  # Add .as_view()
+
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:create_account')
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.model = Account
         cls.context_list = ('form', )
         cls.template = 'main/create_account.html'
@@ -68,7 +76,7 @@ class TestCreateLoanView(TestCreateViewMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:create_loan')
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.model = Loan
         cls.context_list = ('form', )
         cls.template = 'main/create_loan.html'
@@ -200,7 +208,7 @@ class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/accounts/<pk>/edit'
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.model = Account
         cls.context_list = ('form', )
         cls.template = 'main/account_update.html'
@@ -287,11 +295,11 @@ class TestDuplicateLoanUpdateData(TransactionTestCase):
         self.assertEquals(pre_update_values, post_update_values)
     
 
-class TestIndexView(BaseViewTestMixin, TestCase):
+class TestMainView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url = reverse('main:index')
+        cls.test_url = reverse('main:main')
         cls.context_list = [
             "accounts",
             "loans",
@@ -303,8 +311,8 @@ class TestIndexView(BaseViewTestMixin, TestCase):
             "account_data",
             "show_account",
         ]
-        cls.template = 'main/index.html'
-        cls.view_function = views.index
+        cls.template = 'main/main.html'
+        cls.view_function = views.main
         cls.user_factory = UserFactoryNoSignal
         cls.login_required = True
 
@@ -392,7 +400,7 @@ class TestIndexView(BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertRedirects(
             response, 
-            reverse('main:index'), 
+            reverse('main:main'), 
             status_code=302, 
             target_status_code=200, 
             fetch_redirect_response=True
@@ -467,7 +475,7 @@ class TestIndexView(BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertRedirects(
             response, 
-            reverse('main:index'), 
+            reverse('main:main'), 
             status_code=302, 
             target_status_code=200, 
             fetch_redirect_response=True
@@ -543,7 +551,7 @@ class TestIndexView(BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertRedirects(
             response, 
-            reverse('main:index'), 
+            reverse('main:main'), 
             status_code=302, 
             target_status_code=200, 
             fetch_redirect_response=True
@@ -650,7 +658,7 @@ class TestLoginView(BaseViewTestMixin, TestCase):
         cls.test_url = reverse('main:login')
         cls.template = 'main/login.html'
         cls.view_function = views.LoginView.as_view()
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.next_url = reverse('main:accounts')
         cls.user_factory = UserFactoryNoSignal
         cls.context_list = []
@@ -721,7 +729,7 @@ class TestRegisterView(BaseViewTestMixin, TestCase):
         cls.test_url = reverse('main:register')
         cls.template = 'main/register.html'
         cls.view_function = views.RegisterView.as_view()
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.error_url = reverse('main:register')
         cls.user_factory = UserFactoryNoSignal
         cls.context_list = []
@@ -962,7 +970,7 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.redirect_url = reverse('main:index')
+        cls.redirect_url = reverse('main:main')
         cls.post_method = True
         cls.get_method = False
         cls.view_function = views.DeleteAccountView.as_view()
@@ -993,7 +1001,7 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = ''
-        cls.redirect_url = reverse('main:index')
+        cls.redirect_url = reverse('main:main')
         cls.post_method = True
         cls.get_method = False
         cls.view_function = views.DeleteLoanView.as_view()
@@ -1022,7 +1030,7 @@ class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/loans/<pk>/edit'
-        cls.success_url = reverse('main:index')
+        cls.success_url = reverse('main:main')
         cls.model = Loan
         cls.context_list = ('form', )
         cls.template = 'main/loan_update.html'
@@ -1079,7 +1087,7 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:pay_loan')
-        cls.redirect_url = reverse('main:index')
+        cls.redirect_url = reverse('main:main')
         cls.context_list = ['account_data', 'loan_data', 'form']
         cls.template = 'main/loan_pay.html'
         cls.post_method = False

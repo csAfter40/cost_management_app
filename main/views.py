@@ -37,8 +37,11 @@ from django.contrib import messages
 from django.conf import settings
 
 
-@login_required(login_url=reverse_lazy("main:login"))
 def index(request):
+    return render(request, 'main/index.html')
+
+@login_required(login_url=reverse_lazy("main:login"))
+def main(request):
     transfer_form = TransferForm(user=request.user)
     expense_form = ExpenseInputForm(request.user)
     income_form = IncomeInputForm(request.user)
@@ -93,7 +96,7 @@ def index(request):
                         date=date,
                     )
                     transfer.save()
-                return HttpResponseRedirect(reverse("main:index"))
+                return HttpResponseRedirect(reverse("main:main"))
 
             else:
                 transfer_form = form
@@ -107,7 +110,7 @@ def index(request):
                 form.save()
                 account.balance -= amount
                 account.save()
-                return HttpResponseRedirect(reverse("main:index"))
+                return HttpResponseRedirect(reverse("main:main"))
             else:
                 expense_form = form
         #  income form operations
@@ -119,7 +122,7 @@ def index(request):
                 form.save()
                 account.balance += amount
                 account.save()
-                return HttpResponseRedirect(reverse("main:index"))
+                return HttpResponseRedirect(reverse("main:main"))
             else:
                 income_form = form
 
@@ -134,7 +137,7 @@ def index(request):
         "account_data": get_account_data(request.user),
         "show_account": True,
     }
-    return render(request, "main/index.html", context)
+    return render(request, "main/main.html", context)
 
 @login_required
 def transaction_name_autocomplete(request):
@@ -165,7 +168,7 @@ class LoginView(View):
             next = request.POST.get("next", None)
             if next:
                 return HttpResponseRedirect(next)
-            return HttpResponseRedirect(reverse("main:index"))
+            return HttpResponseRedirect(reverse("main:main"))
         messages.error(request, "Invalid username or password.")
         return HttpResponseRedirect(reverse("main:login"))
 
@@ -195,7 +198,7 @@ class RegisterView(View):
             messages.error(request, "Username already taken!")
             return HttpResponseRedirect(reverse("main:register"))
         login(request, user)
-        return HttpResponseRedirect(reverse("main:index"))
+        return HttpResponseRedirect(reverse("main:main"))
 
 
 def check_username(request, *args, **kwargs):
@@ -360,7 +363,7 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
 
     model = Account
     fields = ["name", "balance", "currency"]
-    success_url = reverse_lazy("main:index")
+    success_url = reverse_lazy("main:main")
     template_name = "main/create_account.html"
 
     def form_valid(self, form):
@@ -382,7 +385,7 @@ class EditAccountView(LoginRequiredMixin, UpdateView):
     model = Account
     fields = ["name", "balance", "currency"]
     template_name = "main/account_update.html"
-    success_url = reverse_lazy("main:index")
+    success_url = reverse_lazy("main:main")
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -402,7 +405,7 @@ class EditAccountView(LoginRequiredMixin, UpdateView):
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
 
     model = Account
-    success_url = reverse_lazy('main:index')
+    success_url = reverse_lazy('main:main')
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user, is_active=True)
@@ -423,7 +426,7 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy("main:login")
     model = Loan
     fields = ["name", "balance", "currency"]
-    success_url = reverse_lazy("main:index")
+    success_url = reverse_lazy("main:main")
     template_name = "main/create_loan.html"
 
     def form_valid(self, form):
@@ -445,7 +448,7 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
 
 class DeleteLoanView(LoginRequiredMixin, DeleteView):
     model = Loan
-    success_url = reverse_lazy('main:index')
+    success_url = reverse_lazy('main:main')
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user, is_active=True)
@@ -466,7 +469,7 @@ class EditLoanView(LoginRequiredMixin, UpdateView):
     model = Loan
     fields = ["name", "balance", "currency"]
     template_name = "main/loan_update.html"
-    success_url = reverse_lazy("main:index")
+    success_url = reverse_lazy("main:main")
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -487,7 +490,7 @@ class EditLoanView(LoginRequiredMixin, UpdateView):
 class PayLoanView(LoginRequiredMixin, FormView):
 
     form_class = PayLoanForm
-    success_url = reverse_lazy('main:index')
+    success_url = reverse_lazy('main:main')
     template_name = 'main/loan_pay.html'
 
     def get_form_kwargs(self):
