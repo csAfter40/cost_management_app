@@ -38,6 +38,8 @@ from django.conf import settings
 
 
 def index(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('main:main'))
     return render(request, 'main/index.html')
 
 @login_required(login_url=reverse_lazy("main:login"))
