@@ -36,6 +36,7 @@ class TestIndex(BaseViewTestMixin, TestCase):
         response = self.client.get(self.test_url)
         self.assertRedirects(response, reverse('main:main'), 302, 200)
 
+
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -727,6 +728,9 @@ class TestLoginView(BaseViewTestMixin, TestCase):
         )
         self.assertIsNotNone(response.cookies.get('messages', None))
 
+    def test_redirect_if_user_is_logged_in(self):
+        response = self.client.get(self.test_url)
+        self.assertRedirects(response, reverse('main:main'), 302, 200)
 
 class TestRegisterView(BaseViewTestMixin, TestCase):
     @classmethod
