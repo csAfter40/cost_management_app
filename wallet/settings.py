@@ -46,7 +46,7 @@ ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com", 'testserver']
 INSTALLED_APPS = [
     "dal",
     "dal_select2",
-    "django_extensions",
+    # "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
