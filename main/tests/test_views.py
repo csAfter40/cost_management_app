@@ -729,6 +729,7 @@ class TestLoginView(BaseViewTestMixin, TestCase):
         self.assertIsNotNone(response.cookies.get('messages', None))
 
     def test_redirect_if_user_is_logged_in(self):
+        self.client.force_login(self.user)
         response = self.client.get(self.test_url)
         self.assertRedirects(response, reverse('main:main'), 302, 200)
 

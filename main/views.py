@@ -159,6 +159,8 @@ def transaction_name_autocomplete(request):
 
 class LoginView(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('main:main'))
         return render(request, "main/login.html")
 
     def post(self, request):
