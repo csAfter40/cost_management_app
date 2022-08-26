@@ -29,6 +29,12 @@ class TestIndex(BaseViewTestMixin, TestCase):
         cls.test_url = reverse('main:index')
         cls.template = 'main/index.html'  # str 'app_name/template_name.html'
         cls.view_function = views.index  # Add .as_view()
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_page_redirects_if_user_is_logged_in(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.test_url)
+        self.assertRedirects(response, reverse('main:main'), 302, 200)
 
 class TestCreateAccountView(TestCreateViewMixin, TestCase):
     @classmethod
