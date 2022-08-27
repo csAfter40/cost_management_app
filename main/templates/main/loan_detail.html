@@ -1,0 +1,80 @@
+{% extends 'main/user_layout.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'main/account.css' %}">
+
+{% endblock %}
+{% block title %}
+    <title>Loan Details</title>
+{% endblock %}
+{% block body %}
+{% csrf_token %}
+<div class="container">
+    <div class="row justify-content-center py-3">
+        <div class="col-lg-12">
+            <div class="card l-bg-cherry">
+                <div class="card-statistic-3 p-4">
+                    <div class="card-currency card-icon-large"><span class="fas">{{object.currency.symbol}}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="card-title mb-0">{{object.name}}</h3>
+                    </div>
+                    <div class="row align-items-center mb-2 d-flex">
+                        <div class="col-6">
+                            <h4 class="d-flex align-items-center mb-0">
+                                Balance: {{object.balance}} {{object.currency.symbol}}
+                            </h4>
+                        </div>
+                        <div class="col-auto" id="account-stats-div">
+                            {% include 'main/loan_detail_stats.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div id="transactions-table" data-time="all">
+                {% include 'main/table_transactions.html' %}
+            </div>
+            <div id="paginator-div" class="d-flex justify-content-center my-3">
+                {% include 'main/paginator.html' %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center bg-light p-3">
+            <h3> Stats & Graphs</h3>
+
+            <!-- <div class="row my-4">
+                <div class="col-6">
+                    <h4>Expenses</h4>
+                    <div>
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4>Incomes</h4>
+                    <div>
+                        <canvas id="incomesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row my-4">
+                <div class="col-12">
+                    <h4>Comparison</h4>
+                    <div>
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div> -->
+
+        </div>
+    </div>
+</div>
+<!-- {% include 'main/chart_modal.html' %} -->
+
+{% endblock %}
+{% block script %}
+<!-- <script src="{% static 'main/account_detail.js' %}"></script> -->
+<!-- {% include 'main/account_detail_chart_script.html' %} -->
+{% endblock %}
