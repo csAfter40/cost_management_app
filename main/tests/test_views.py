@@ -7,6 +7,7 @@ from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
     TestUpdateViewMixin,
+    TestDetailViewMixin
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User
@@ -733,6 +734,7 @@ class TestLoginView(BaseViewTestMixin, TestCase):
         response = self.client.get(self.test_url)
         self.assertRedirects(response, reverse('main:main'), 302, 200)
 
+
 class TestRegisterView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -1034,6 +1036,22 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.client.logout()
         response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 302)
+
+
+class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/loans/<pk>'
+        cls.context_list = []  # List of strings
+        cls.template = 'main/loan_detail.html'  # str 'app_name/template_name.html'
+        cls.get_method = True
+        cls.view_function = views.LoanDetailView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Loan
+        cls.model_factory = LoanFactory
+        cls.object_context_name = 'object'
 
 
 class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
