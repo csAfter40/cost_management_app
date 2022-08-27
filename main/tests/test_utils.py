@@ -1,6 +1,6 @@
 import decimal
 import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch
 from unittest import SkipTest
 from django.test.testcases import TestCase
 from main.utils import (
@@ -224,8 +224,8 @@ class TestUtilityFunctions(TestCase):
             self.assertEquals(data[obj.id], obj.currency.code)
 
     def test_get_loan_progress(self):
-        mock = MagicMock()
-        mock.initial.return_value = 10
-        mock.balance.return_value = 6
+        mock = Mock()
+        mock.initial = 10
+        mock.balance = 6
         progress = get_loan_progress(mock)
         self.assertEquals(progress, 60)
