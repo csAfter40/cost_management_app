@@ -168,7 +168,10 @@ def get_loan_progress(loan_object):
     """
     Given a loan object, returns percentage of .
     """
-    return ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
+    if loan_object.initial == 0:
+        return 0
+    else:
+        return ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
 
 
 @receiver(post_save, sender=User)
