@@ -29,6 +29,7 @@ from .utils import (
     get_paginated_qs,
     get_comparison_stats,
     get_subcategory_stats,
+    get_loan_progress,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -439,6 +440,7 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.balance = balance
+        self.object.initial = balance
         try:
             self.object.save()
         except IntegrityError:
@@ -471,6 +473,11 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        extra_context = {
+            'progress': get_loan_progress(self.object)
+        }
+        return super().get_context_data(**extra_context)
 
 class EditLoanView(LoginRequiredMixin, UpdateView):
 
