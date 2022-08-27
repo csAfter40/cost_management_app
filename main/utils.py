@@ -169,10 +169,10 @@ def get_loan_progress(loan_object):
     Given a loan object, returns percentage of .
     """
     if loan_object.initial == 0:
-        return 0
+        return '0.00'
     else:
-        return ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
-
+        progress = ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
+        return round(progress, 2)
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
