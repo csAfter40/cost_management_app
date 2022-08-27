@@ -185,6 +185,36 @@ class TestDetailViewMixin(BaseViewTestMixin):
         cls.model = None
         cls.model_factory = None
         cls.object_context_name = 'object'
+        cls.test_url_pattern = None # str 
+        # object identification property(<pk>, <slug> or <id>) must be included.
+        # ex: '/object_name/update/<pk>', '/some_obj/<slug>/update' 
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+        if not self.test_url_pattern:
+            raise ImproperlyConfigured('No test url pattern available. Please provide a test_url_pattern')
+        if self.login_required:
+            self.client.force_login(self.user)
+        self.set_object()
+        self.set_test_url()
+        self.context_list.append(self.object_context_name)
+
+    def get_object_identifier(self):
+        for item in ('<pk>', '<id>', '<slug>'):
+            if item in self.test_url_pattern:
+                return item
+        raise ImproperlyConfigured('Object identifier not found. There must be an identifier("<pk>", "<slug>" or "<id>") in test_url_pattern.')
+
+    def set_object(self):
+        if not self.model_factory:
+            raise ImproperlyConfigured('No model factory available. Please provide a model_factory.')
+        self.object = self.model_factory.create()
+
+    def set_test_url(self):
+        identifier = self.get_object_identifier()
+        property = identifier[1:-1]
+        identifier_value = getattr(self.object, property)
+        self.test_url = self.test_url_pattern.replace(identifier, str(identifier_value))        
 
     def test_object(self):
         '''
