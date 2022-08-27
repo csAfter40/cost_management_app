@@ -1043,8 +1043,8 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/loans/<pk>'
-        cls.context_list = []  # List of strings
-        cls.template = 'main/loan_detail.html'  # str 'app_name/template_name.html'
+        cls.context_list = []
+        cls.template = 'main/loan_detail.html'
         cls.get_method = True
         cls.view_function = views.LoanDetailView.as_view()
         cls.login_required = True
@@ -1052,6 +1052,11 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
         cls.model = Loan
         cls.model_factory = LoanFactory
         cls.object_context_name = 'object'
+
+    def setUp(self):
+        super().setUp()
+        self.object.user = self.user
+        self.object.save()  
 
 
 class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
