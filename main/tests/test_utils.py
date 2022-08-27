@@ -1,6 +1,7 @@
 import decimal
 import datetime
 from unittest.mock import MagicMock, patch
+from unittest import SkipTest
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -10,6 +11,7 @@ from main.utils import (
     get_loan_data,
     get_latest_transactions,
     get_latest_transfers,
+    get_loan_progress,
     get_stats,
     is_owner,
     validate_main_category_uniqueness,
@@ -220,3 +222,10 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(mock.called_once)
         for obj in qs:
             self.assertEquals(data[obj.id], obj.currency.code)
+
+    def test_get_loan_progress(self):
+        mock = MagicMock()
+        mock.initial.return_value = 10
+        mock.balance.return_value = 6
+        progress = get_loan_progress(mock)
+        self.assertEquals(progress, 60)
