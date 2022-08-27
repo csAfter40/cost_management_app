@@ -177,3 +177,26 @@ class TestUpdateViewMixin(BaseViewTestMixin):
         for data in self.invalid_data:
             with self.subTest(data):
                 self.subtest_post_failure(data)
+
+class TestDetailViewMixin(BaseViewTestMixin):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.model = None
+        cls.model_factory = None
+        cls.object_context_name = 'object'
+
+    def test_object(self):
+        '''
+            Tests if response context has the expected object.
+        '''
+        if not self.model_factory:
+            raise ImproperlyConfigured('No model factory available. Please provide a model_factory.')
+        object = self.model_factory()
+        if not self.model:
+            raise ImproperlyConfigured('No model available. Please provide a model.')
+        db_object = self.model.objects.get(id=object.id)
+        response = self.client.get(self.test_url)
+        context_object = response.context.get(self.object_context_name, None)
+        self.assertIsNotNone(context_object, msg=f'No {self.object_context_name} found in response context')
+        self.assertEquals(db_object, context_object)
