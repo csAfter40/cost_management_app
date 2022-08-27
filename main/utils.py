@@ -4,7 +4,15 @@ from django.db.models import Q, Sum, DecimalField
 from django.db.models.functions import Coalesce
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
-from .models import User, UserPreferences, Account, Transfer, Category, Transaction, Loan
+from .models import (
+    User,
+    UserPreferences,
+    Account,
+    Transfer,
+    Category,
+    Transaction,
+    Loan,
+)
 from .categories import categories
 from datetime import date, timedelta
 
@@ -50,7 +58,9 @@ def get_account_data(user):
     """
     Returns all accounts of a user and currencies of those accounts.
     """
-    accounts = Account.objects.filter(user=user, is_active=True).select_related("currency")
+    accounts = Account.objects.filter(user=user, is_active=True).select_related(
+        "currency"
+    )
     data = {}
     for account in accounts:
         data[account.id] = account.currency.code
@@ -66,6 +76,7 @@ def get_loan_data(user):
     for loan in loans:
         data[loan.id] = loan.currency.code
     return data
+
 
 def validate_main_category_uniqueness(name, user, type):
     return not Category.objects.filter(
@@ -87,8 +98,8 @@ def get_dates():
 
 
 def get_stats(qs, balance):
-    expences = qs.filter(type='E').aggregate(Sum("amount"))
-    incomes = qs.filter(type='I').aggregate(Sum("amount"))
+    expences = qs.filter(type="E").aggregate(Sum("amount"))
+    incomes = qs.filter(type="I").aggregate(Sum("amount"))
     incomes_sum = incomes["amount__sum"] if incomes["amount__sum"] else 0
     expences_sum = expences["amount__sum"] if expences["amount__sum"] else 0
     diff = incomes_sum - expences_sum
@@ -104,7 +115,7 @@ def get_stats(qs, balance):
 
 
 def is_owner(user, model, id):
-    object = get_object_or_404(model.objects.select_related('user'), id=id)
+    object = get_object_or_404(model.objects.select_related("user"), id=id)
     return object.user == user
 
 
@@ -151,6 +162,13 @@ def get_paginated_qs(qs, request, item_qty):
     paginator = Paginator(qs, item_qty)
     page_num = request.GET.get("page", 1)
     return paginator.get_page(page_num)
+
+
+def get_loan_progress(loan_object):
+    """
+    Given a loan object, returns percentage of .
+    """
+    return ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
 
 
 @receiver(post_save, sender=User)

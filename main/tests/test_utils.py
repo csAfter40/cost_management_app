@@ -228,4 +228,4 @@ class TestUtilityFunctions(TestCase):
         mock.initial = 10
         mock.balance = 6
         progress = get_loan_progress(mock)
-        self.assertEquals(progress, 60)
+        self.assertEquals(progress, 40)
