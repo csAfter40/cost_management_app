@@ -465,7 +465,11 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
 
 
 class LoanDetailView(LoginRequiredMixin, DetailView):
-    pass
+    model = Loan
+    template_name: str = 'main/loan_detail.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class EditLoanView(LoginRequiredMixin, UpdateView):
