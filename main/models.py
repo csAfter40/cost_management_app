@@ -51,7 +51,7 @@ class Account(Assets):
 
 
 class Loan(Assets):
-    pass
+    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
 
 class Category(MPTTModel):
