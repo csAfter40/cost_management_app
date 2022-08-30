@@ -11,4 +11,5 @@ In this project I have experienced:
     * Implementing a category system in which users can add, delete or edit categories.
     * Using Bootstrap's modal dialog boxes for user experience improvement.
     * Working with branches on git.
-    * Writing tests.
+    * Writing unit tests and integration tests. Using mocks and patch.
+    * Using Django contenttype framework.
