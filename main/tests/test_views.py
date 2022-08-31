@@ -2,7 +2,7 @@ from decimal import Decimal
 import json
 import factory
 from wallet.settings import TESTING_ATOMIC
-from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
+from .factories import CategoryFactory, AccountTransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
@@ -343,19 +343,20 @@ class TestMainView(BaseViewTestMixin, TestCase):
         self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
     def test_latest_transactions_list(self):
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             10, 
-            account__user=self.user, 
+            content_object__user=self.user, 
             category__is_transfer=False
         )
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             10, 
-            account__user=self.user, 
+            content_object__user=self.user, 
             category__is_transfer=True
         )
-        TransactionFactory.create_batch(10)
+        AccountTransactionFactory.create_batch(10)
+        accounts_list = Account.objects.filter(user=self.user).values_list('id', flat=True)
         transactions = (
-            Transaction.objects.filter(account__user=self.user)
+            Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list)
             .exclude(category__is_transfer=True)
             .order_by('-date')[:5]
         ) 
@@ -420,7 +421,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         transfer_obj = Transfer.objects.last()
         self.assertEquals(
             data['from_account'], 
-            transfer_obj.from_transaction.account.id,
+            transfer_obj.from_transaction.object_id,
             msg="From account value not matching",
         )
         self.assertEquals(
@@ -430,7 +431,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['to_account'], 
-            transfer_obj.to_transaction.account.id,
+            transfer_obj.to_transaction.object_id,
             msg="To account value not matching",
         )
         self.assertEquals(
@@ -500,7 +501,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['account'], 
-            transaction_obj.account.id,
+            transaction_obj.object_id,
             msg="Account id value not matching",
         )
         self.assertEquals(
@@ -576,7 +577,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['account'], 
-            transaction_obj.account.id,
+            transaction_obj.object_id,
             msg="Account id value not matching",
         )
         self.assertEquals(
