@@ -90,8 +90,6 @@ class Transaction(models.Model):
         ("I", "Income"),
     )
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
-
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=ContentType.objects.get(app_label='main', model='account').id)
     object_id = models.PositiveIntegerField(default=7)
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -105,7 +103,7 @@ class Transaction(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} - {self.amount} from {self.account}"
+        return f"{self.name} - {self.amount} on {self.content_object}"
 
 
 class Transfer(models.Model):
@@ -121,4 +119,4 @@ class Transfer(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"On {self.date} from {self.from_transaction.account} to {self.to_transaction.account} {self.from_transaction.amount}"
+        return f"On {self.date} from {self.from_transaction.content_object} to {self.to_transaction.content_object} {self.from_transaction.amount}"
