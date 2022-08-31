@@ -40,6 +40,13 @@ class ExpenseInputForm(ModelForm):
             user=self.user, is_active=True
         )
 
+    def save(self, commit=True):
+        transaction = super().save(commit=False)
+        transaction.content_object = self.cleaned_data['account']
+        if commit:
+            transaction.save()
+        return transaction
+
 
 class IncomeInputForm(ModelForm):
 
