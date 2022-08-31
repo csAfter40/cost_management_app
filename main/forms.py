@@ -72,6 +72,13 @@ class IncomeInputForm(ModelForm):
         self.fields["account"].queryset = Account.objects.filter(
             user=self.user, is_active=True
         )
+        
+    def save(self, commit=True):
+        transaction = super().save(commit=False)
+        transaction.content_object = self.cleaned_data['account']
+        if commit:
+            transaction.save()
+        return transaction
 
 
 class TransferForm(forms.Form):
