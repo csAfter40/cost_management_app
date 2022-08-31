@@ -63,7 +63,6 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):
-    account = factory.SubFactory(AccountFactory)
     object_id = factory.SelfAttribute('content_object.id')
     content_type = factory.LazyAttribute(
         lambda o: ContentType.objects.get_for_model(o.content_object)
