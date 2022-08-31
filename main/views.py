@@ -71,7 +71,7 @@ def main(request):
 
                 with transaction.atomic():
                     from_transaction = Transaction(
-                        account=from_account,
+                        content_object=from_account,
                         name="Transfer Out",
                         amount=from_amount,
                         date=date,
@@ -82,7 +82,7 @@ def main(request):
                     from_account.save()
                     from_transaction.save()
                     to_transaction = Transaction(
-                        account=to_account,
+                        content_object=to_account,
                         name="Transfer In",
                         amount=to_amount,
                         date=date,
