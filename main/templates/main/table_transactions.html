@@ -30,12 +30,12 @@
                 {% endif %}
                 <td>{{ transaction.name }}</td>
                 {% if transaction.type == 'E' or transaction.type == 'TO' %}
-                <td class="text-danger">-{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                <td class="text-danger">-{{ transaction.amount }}{{ transaction.content_object.currency.symbol }}</td>
                 {% else %}
-                <td class="text-success">+{{ transaction.amount }}{{ transaction.account.currency.symbol }}</td>
+                <td class="text-success">+{{ transaction.amount }}{{ transaction.content_object.currency.symbol }}</td>
                 {% endif %}
                 {% if show_account %}
-                <td>{{ transaction.account }}</td>
+                <td>{{ transaction.content_object }}</td>
                 {% endif %}
             </tr>
             {% endfor %}
