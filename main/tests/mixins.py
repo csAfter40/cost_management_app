@@ -132,17 +132,9 @@ class BaseFactoryTestMixin:
             raise ImproperlyConfigured(
                 "No factory class available. Please provide a factory class"
             )
-        # if cls.model == None:
-        #     raise ImproperlyConfigured(
-        #         "No model class available. Please provide a model class"
-        #     )
         cls.fields = cls.factory_class._meta.base_declarations.keys()
 
     def setUp(self):
-        # if self.factory_class == None:
-        #     raise ImproperlyConfigured(
-        #         "No factory class available. Please provide a factory class"
-        #     )
         if self.model == None:
             raise ImproperlyConfigured(
                 "No model class available. Please provide a model class"
