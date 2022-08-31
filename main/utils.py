@@ -30,10 +30,10 @@ def get_latest_transactions(user, qty):
 def get_latest_transfers(user, qty):
     transfers = (
         Transfer.objects.filter(user=user)
-        .select_related(
-            "from_transaction__content_object__currency", "to_transaction__content_object__currency"
-        )
-        .order_by("-date")[:qty]
+            .prefetch_related(
+                "from_transaction__content_object__currency", "to_transaction__content_object__currency"
+            )
+            .order_by("-date")[:qty]
     )
     return transfers
 

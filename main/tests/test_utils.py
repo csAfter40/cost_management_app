@@ -77,7 +77,7 @@ class TestUtilityFunctions(TestCase):
     def test_get_latest_transfers(self, mock):
         user = 'user'
         qty = 5
-        mock.objects.filter.return_value.select_related.return_value.order_by.return_value = range(qty)
+        mock.objects.filter.return_value.prefetch_related.return_value.order_by.return_value = range(qty)
         transfers = get_latest_transfers(user, qty)
         self.assertTrue(mock.called_once)
         self.assertEquals(len(transfers), qty)
