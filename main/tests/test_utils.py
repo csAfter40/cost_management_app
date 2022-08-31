@@ -25,7 +25,8 @@ from main.tests.factories import (
     UserFactory,
     UserFactoryNoSignal,
     AccountFactory,
-    TransactionFactory,
+    AccountTransactionFactory,
+    LoanTransactionFactory,
     LoanFactory,
 )
 import datetime
@@ -65,8 +66,8 @@ class TestUtilityFunctions(TestCase):
     @patch('main.utils.Transaction')
     def test_get_latest_transactions_no_db(self, mock_transaction, mock_account):
         user = 'user'
-        mock_account.objects.filter.return_value = AccountFactory.build()
-        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = TransactionFactory.build_batch(5)
+        mock_account.objects.filter.return_value.values_list.return_value = [AccountFactory.build().id]
+        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
         transactions = get_latest_transactions(user, 5)
         self.assertTrue(mock_account.called_once)
         self.assertTrue(mock_transaction.called_once)
@@ -151,10 +152,10 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(dates["year_start"], datetime.date(2005, 1, 1))
 
     def test_get_stats(self):
-        TransactionFactory(type='E', amount=1.00)
-        TransactionFactory(type='E', amount=2.00)
-        TransactionFactory(type='I', amount=3.00)
-        TransactionFactory(type='I', amount=4.00)
+        AccountTransactionFactory(type='E', amount=1.00)
+        AccountTransactionFactory(type='I', amount=3.00)
+        AccountTransactionFactory(type='E', amount=2.00)
+        AccountTransactionFactory(type='I', amount=4.00)
         balance = decimal.Decimal(14.00)
         diff = 4.00
         rate = '40.00%'
@@ -174,8 +175,8 @@ class TestUtilityFunctions(TestCase):
         subcategory = CategoryFactory(user=self.user, parent=categories[0], type='E')
         account = AccountFactory(user=self.user)
         for category in categories[:-1]:
-            TransactionFactory(account=account, amount=1, category=category)
-        TransactionFactory(account=account, amount=1, category=subcategory)
+            AccountTransactionFactory(content_object=account, amount=1, category=category)
+        AccountTransactionFactory(content_object=account, amount=1, category=subcategory)
         qs = Transaction.objects.all()
         category_stats = get_category_stats(qs, 'E', parent_category, self.user)
         self.assertEquals(len(category_stats), 4)
