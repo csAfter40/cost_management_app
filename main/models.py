@@ -31,31 +31,6 @@ class UserPreferences(models.Model):
         return f"{self.user} preferences"
 
 
-class Assets(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=64)
-    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    currency = models.ForeignKey(
-        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
-    )
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        abstract = True
-        unique_together = ('user', 'name')
-
-
-class Account(Assets):
-    pass
-
-
-class Loan(Assets):
-    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-
-
 class Category(MPTTModel):
 
     CATEGORY_TYPES = (
@@ -104,6 +79,32 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.amount} on {self.content_object}"
+
+
+class Assets(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=64)
+    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
+    )
+    is_active = models.BooleanField(default=True)
+    transactions = GenericRelation(Transaction)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        abstract = True
+        unique_together = ('user', 'name')
+
+
+class Account(Assets):
+    pass
+
+
+class Loan(Assets):
+    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
 
 class Transfer(models.Model):
