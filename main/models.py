@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
 from wallet.settings import DEFAULT_CURRENCY_PK
@@ -89,6 +91,11 @@ class Transaction(models.Model):
     )
 
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=ContentType.objects.get(app_label='main', model='account').id)
+    object_id = models.PositiveIntegerField(default=7)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     name = models.CharField(max_length=128)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     date = models.DateField(blank=True, default=date.today)
