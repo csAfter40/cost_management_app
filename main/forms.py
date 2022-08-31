@@ -6,6 +6,7 @@ from django.forms import (
     TextInput,
     Select,
     ValidationError,
+    ModelChoiceField,
 )
 from .models import Account, Transaction, Transfer, Category, Loan
 from mptt.forms import TreeNodeChoiceField
@@ -16,10 +17,13 @@ class ExpenseInputForm(ModelForm):
 
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
+    account = ModelChoiceField(
+        queryset=None
+    )
 
     class Meta:
         model = Transaction
-        fields = ["name", "account", "amount", "category", "date", "type"]
+        fields = ["name", "amount", "category", "date", "type"]
         widgets = {
             "name": TextInput(attrs={"class": "form-control autocomplete-input"}),
             "date": TextInput(attrs={"id": "expense-datepicker"}),
@@ -41,10 +45,11 @@ class IncomeInputForm(ModelForm):
 
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
+    account = ModelChoiceField(queryset=None)
 
     class Meta:
         model = Transaction
-        fields = ["name", "account", "amount", "category", "date", "type"]
+        fields = ["name", "amount", "category", "date", "type"]
         widgets = {
             "name": TextInput(attrs={"class": "form-control autocomplete-input"}),
             "date": TextInput(attrs={"id": "income-datepicker"}),
