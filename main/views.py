@@ -525,7 +525,7 @@ class PayLoanView(LoginRequiredMixin, FormView):
             with transaction.atomic():
                 if settings.TESTING_ATOMIC:
                     raise IntegrityError
-                transaction_loan = Transaction(
+                transaction_account = Transaction(
                     content_object=account,
                     name='Pay Loan', 
                     amount=amount, 
@@ -533,6 +533,15 @@ class PayLoanView(LoginRequiredMixin, FormView):
                     category=category, 
                     type='E'
                 )
+                transaction_loan = Transaction(
+                    content_object=loan,
+                    name='Pay Loan', 
+                    amount=amount, 
+                    date=date, 
+                    category=category, 
+                    type='I'
+                )
+                transaction_account.save()
                 transaction_loan.save()
                 loan.balance += amount
                 if loan.balance > 0:
