@@ -1,7 +1,6 @@
 import decimal
 import datetime
 from unittest.mock import Mock, MagicMock, patch
-from unittest import SkipTest
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -39,29 +38,6 @@ class TestUtilityFunctions(TestCase):
         super().setUp()
         self.user = UserFactoryNoSignal()
 
-    # def test_get_latest_transactions(self):
-    #     today = datetime.date.today()
-    #     user_account = AccountFactory(user=self.user)
-    #     TransactionFactory.create_batch(10)
-    #     for i in range(10):
-    #         TransactionFactory.create(
-    #             account=user_account,
-    #             category__is_transfer=False,
-    #             date=(today - timedelta(days=i)),
-    #         )
-    #         TransactionFactory.create(
-    #             account=user_account,
-    #             category__is_transfer=True,
-    #             date=(today - timedelta(days=i)),
-    #         )
-    #     queryset = get_latest_transactions(self.user, 5)
-    #     self.assertEquals(len(queryset), 5)
-    #     for i, object in enumerate(queryset):
-    #         self.assertEquals(object.account.user, self.user)
-    #         self.assertFalse(object.category.is_transfer)
-    #         if i < len(queryset) - 1:
-    #             self.assertGreater(object.date, queryset[i + 1].date)
-    
     @patch('main.utils.Account')
     @patch('main.utils.Transaction')
     def test_get_latest_transactions_no_db(self, mock_transaction, mock_account):
@@ -82,19 +58,6 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(mock.called_once)
         self.assertEquals(len(transfers), qty)
 
-
-    # def test_get_latest_transfers(self):
-    #     today = datetime.date.today()
-    #     TransferFactory.create_batch(10)
-    #     for i in range(10):
-    #         TransferFactory.create(user=self.user, date=(today - timedelta(days=i)))
-    #     queryset = get_latest_transfers(self.user, 5)
-    #     self.assertEquals(len(queryset), 5)
-    #     for i, object in enumerate(queryset):
-    #         self.assertEquals(object.user, self.user)
-    #         if i < len(queryset) - 1:
-    #             self.assertGreater(object.date, queryset[i + 1].date)
-
     def test_create_categories(self):
         create_categories(categories, self.user)
         qs = Category.objects.all()
@@ -106,18 +69,6 @@ class TestUtilityFunctions(TestCase):
                 self.assertTrue(
                     Category.objects.filter(user=self.user, parent__name=key).exists()
                 )
-
-    # def test_get_account_data(self):
-    #     accounts = AccountFactory.create_batch(5)
-    #     user_accounts = AccountFactory.create_batch(5, user=self.user)
-    #     data = get_account_data(self.user)
-    #     self.assertEquals(len(data), 5)
-
-    # def test_get_loan_data(self):
-    #     loans = AccountFactory.create_batch(5)
-    #     user_loans = LoanFactory.create_batch(5, user=self.user)
-    #     data = get_loan_data(self.user)
-    #     self.assertEquals(len(data), 5)
 
     def test_validate_main_category_uniqueness(self):
         CategoryFactory(name="duplicate_name", user=self.user, type="E", parent=None)
