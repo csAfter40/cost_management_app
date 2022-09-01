@@ -1169,6 +1169,7 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
             200, 
             fetch_redirect_response=True
         )
+        self.assertEquals(Transaction.objects.count(), 2)
 
     def test_post_valid(self):
         for data in self.valid_data:
