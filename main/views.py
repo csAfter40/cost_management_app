@@ -487,6 +487,31 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         return super().get_context_data(**extra_context)
 
 
+class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
+
+    model = Loan
+    template_name = "main/loan_detail_pack.html"
+        
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404
+        return obj
+
+    def get_context_data(self, **kwargs):
+        loan = self.get_object()
+        qs = Transaction.objects.filter(content_type__model='loan', object_id=loan.id).order_by(
+                "-date", "-created"
+            )
+        context = {
+            "transactions": get_paginated_qs(qs, self.request, 10),
+        }
+        return super().get_context_data(**context)
+
+
 class EditLoanView(LoginRequiredMixin, UpdateView):
 
     model = Loan
