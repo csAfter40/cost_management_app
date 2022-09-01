@@ -629,21 +629,21 @@ class TestTransactionNameAutocomplete(BaseViewTestMixin, TestCase):
 
     def test_get(self):
         for i in range(6):
-            TransactionFactory(name=f'match_E{i}', type='E', account__user=self.user)
+            AccountTransactionFactory(name=f'match_E{i}', type='E', content_object__user=self.user)
         for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='E', account__user=self.user)
+            AccountTransactionFactory(name=f'fail{i}', type='E', content_object__user=self.user)
         for i in range(7):
-            TransactionFactory(name=f'match_I{i}', type='I', account__user=self.user)
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='I', account__user=self.user)
-        for i in range(5):
-            TransactionFactory(name=f'match{i}', type='E')
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='E')
-        for i in range(5):
-            TransactionFactory(name=f'match{i}', type='I')
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='I')
+            AccountTransactionFactory(name=f'match_I{i}', type='I', content_object__user=self.user)
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='I', content_object__user=self.user)
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'match{i}', type='E')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='E')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'match{i}', type='I')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='I')
         data_set = [
             {'name': 'mat', 'type': 'I', 'count':7},
             {'name': 'mat', 'type': 'E', 'count':6},
@@ -923,10 +923,10 @@ class TestAccountDetailSubcategoryAjaxView(UserFailTestMixin, BaseViewTestMixin,
         self.assertEquals(response['content-type'], 'application/json')
         
     def test_get(self):    
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             20, 
             category=self.category, 
-            account=self.object
+            content_object=self.object
         )
         times = ('all', 'week', 'month', 'year')
         for time in times:
@@ -969,7 +969,7 @@ class TestAccountDetailView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         )
 
     def test_get(self):    
-        TransactionFactory.create_batch(20, account=self.object)
+        AccountTransactionFactory.create_batch(20, content_object=self.object)
         super().test_get()
     
     def test_get_account_not_active(self):

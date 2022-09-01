@@ -149,9 +149,9 @@ def transaction_name_autocomplete(request):
     name_list = []
     if name_query:
         user = request.user
-        accounts = Account.objects.filter(user=user, is_active=True)
+        accounts_list = Account.objects.filter(user=user, is_active=True).values_list('id', flat=True)
         incomes = Transaction.objects.filter(
-            account__in=accounts, name__icontains=name_query, type=type
+            object_id__in=accounts_list, name__icontains=name_query, type=type
         )
         for income in incomes:
             name_list.append(income.name)
@@ -255,20 +255,20 @@ class AccountDetailAjaxView(LoginRequiredMixin, DetailView):
         dates = get_dates()
         context = {}
         if time == "all":
-            qs = Transaction.objects.filter(account=account).order_by(
+            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
                 "-date", "-created"
             )
         elif time == "week":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["week_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "month":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["month_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "year":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["year_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
             ).order_by("-date", "-created")
         expense_category_stats = get_category_stats(qs, "E", None, self.request.user)
         income_category_stats = get_category_stats(qs, "I", None, self.request.user)
@@ -302,20 +302,20 @@ class AccountDetailSubcategoryAjaxView(LoginRequiredMixin, DetailView):
         time = self.request.GET.get("time")
         dates = get_dates()
         if time == "all":
-            qs = Transaction.objects.filter(account=account).order_by(
+            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
                 "-date", "-created"
             )
         elif time == "week":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["week_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "month":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["month_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "year":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["year_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
             ).order_by("-date", "-created")
         data = get_subcategory_stats(qs, category)
 
@@ -338,9 +338,9 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         account = self.get_object()
-        transactions = Transaction.objects.filter(account=account).order_by(
+        transactions = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
             "-date", "-created"
-        ).select_related('account__currency')
+        ).prefetch_related('content_object__currency')
         stats = get_stats(transactions, account.balance)
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
@@ -479,6 +479,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         }
         return super().get_context_data(**extra_context)
 
+
 class EditLoanView(LoginRequiredMixin, UpdateView):
 
     model = Loan
@@ -525,7 +526,7 @@ class PayLoanView(LoginRequiredMixin, FormView):
                 if settings.TESTING_ATOMIC:
                     raise IntegrityError
                 transaction_loan = Transaction(
-                    account=account, 
+                    content_object=account,
                     name='Pay Loan', 
                     amount=amount, 
                     date=date, 
