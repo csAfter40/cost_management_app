@@ -474,8 +474,15 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         return super().get_queryset().filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
+        loan = self.get_object()
+        transactions = Transaction.objects.filter(
+            content_type__model='loan',
+            object_id=loan.id,
+        ).order_by('-date', '-created').prefetch_related('content_object__currency')
+        page_obj = get_paginated_qs(transactions, self.request, 10)
         extra_context = {
-            'progress': get_loan_progress(self.object)
+            'progress': get_loan_progress(self.object),
+            'transactions': page_obj,
         }
         return super().get_context_data(**extra_context)
 
