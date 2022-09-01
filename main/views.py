@@ -71,7 +71,7 @@ def main(request):
 
                 with transaction.atomic():
                     from_transaction = Transaction(
-                        account=from_account,
+                        content_object=from_account,
                         name="Transfer Out",
                         amount=from_amount,
                         date=date,
@@ -82,7 +82,7 @@ def main(request):
                     from_account.save()
                     from_transaction.save()
                     to_transaction = Transaction(
-                        account=to_account,
+                        content_object=to_account,
                         name="Transfer In",
                         amount=to_amount,
                         date=date,
@@ -149,9 +149,9 @@ def transaction_name_autocomplete(request):
     name_list = []
     if name_query:
         user = request.user
-        accounts = Account.objects.filter(user=user, is_active=True)
+        accounts_list = Account.objects.filter(user=user, is_active=True).values_list('id', flat=True)
         incomes = Transaction.objects.filter(
-            account__in=accounts, name__icontains=name_query, type=type
+            object_id__in=accounts_list, name__icontains=name_query, type=type
         )
         for income in incomes:
             name_list.append(income.name)
@@ -255,20 +255,20 @@ class AccountDetailAjaxView(LoginRequiredMixin, DetailView):
         dates = get_dates()
         context = {}
         if time == "all":
-            qs = Transaction.objects.filter(account=account).order_by(
+            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
                 "-date", "-created"
             )
         elif time == "week":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["week_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "month":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["month_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "year":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["year_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
             ).order_by("-date", "-created")
         expense_category_stats = get_category_stats(qs, "E", None, self.request.user)
         income_category_stats = get_category_stats(qs, "I", None, self.request.user)
@@ -302,20 +302,20 @@ class AccountDetailSubcategoryAjaxView(LoginRequiredMixin, DetailView):
         time = self.request.GET.get("time")
         dates = get_dates()
         if time == "all":
-            qs = Transaction.objects.filter(account=account).order_by(
+            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
                 "-date", "-created"
             )
         elif time == "week":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["week_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "month":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["month_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
             ).order_by("-date", "-created")
         elif time == "year":
             qs = Transaction.objects.filter(
-                account=account, date__range=(dates["year_start"], dates["today"])
+                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
             ).order_by("-date", "-created")
         data = get_subcategory_stats(qs, category)
 
@@ -338,9 +338,9 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         account = self.get_object()
-        transactions = Transaction.objects.filter(account=account).order_by(
+        transactions = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
             "-date", "-created"
-        ).select_related('account__currency')
+        ).prefetch_related('content_object__currency')
         stats = get_stats(transactions, account.balance)
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
@@ -474,10 +474,43 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         return super().get_queryset().filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
+        loan = self.get_object()
+        transactions = Transaction.objects.filter(
+            content_type__model='loan',
+            object_id=loan.id,
+        ).order_by('-date', '-created').prefetch_related('content_object__currency')
+        page_obj = get_paginated_qs(transactions, self.request, 10)
         extra_context = {
-            'progress': get_loan_progress(self.object)
+            'progress': get_loan_progress(self.object),
+            'transactions': page_obj,
         }
         return super().get_context_data(**extra_context)
+
+
+class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
+
+    model = Loan
+    template_name = "main/loan_detail_pack.html"
+        
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404
+        return obj
+
+    def get_context_data(self, **kwargs):
+        loan = self.get_object()
+        qs = Transaction.objects.filter(content_type__model='loan', object_id=loan.id).order_by(
+                "-date", "-created"
+            )
+        context = {
+            "transactions": get_paginated_qs(qs, self.request, 10),
+        }
+        return super().get_context_data(**context)
+
 
 class EditLoanView(LoginRequiredMixin, UpdateView):
 
@@ -524,14 +557,23 @@ class PayLoanView(LoginRequiredMixin, FormView):
             with transaction.atomic():
                 if settings.TESTING_ATOMIC:
                     raise IntegrityError
-                transaction_loan = Transaction(
-                    account=account, 
+                transaction_account = Transaction(
+                    content_object=account,
                     name='Pay Loan', 
                     amount=amount, 
                     date=date, 
                     category=category, 
                     type='E'
                 )
+                transaction_loan = Transaction(
+                    content_object=loan,
+                    name='Pay Loan', 
+                    amount=amount, 
+                    date=date, 
+                    category=category, 
+                    type='I'
+                )
+                transaction_account.save()
                 transaction_loan.save()
                 loan.balance += amount
                 if loan.balance > 0:

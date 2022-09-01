@@ -3,7 +3,7 @@ from main.models import (
     Transfer, UserPreferences,
 )
 from main.tests.factories import (
-    UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
+    AccountTransactionFactory, LoanTransactionFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
     LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
@@ -37,9 +37,15 @@ class TestCategoryFactoryNoSignal(BaseFactoryTestMixin, TestCase):
     def setUp(self):
         self.object = CategoryFactory(parent=None)
 
-class TestTransactionFactoryNoSignal(BaseFactoryTestMixin, TestCase):
+
+class TestAccountTransactionFactory(BaseFactoryTestMixin, TestCase):
     model = Transaction
-    factory_class = TransactionFactory
+    factory_class = AccountTransactionFactory
+
+
+class TestLoanTransactionFactory(BaseFactoryTestMixin, TestCase):
+    model = Transaction
+    factory_class = LoanTransactionFactory
 
 
 class TestTransferFactoryNoSignal(BaseFactoryTestMixin, TestCase):

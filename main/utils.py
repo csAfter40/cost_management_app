@@ -18,9 +18,9 @@ from datetime import date, timedelta
 
 
 def get_latest_transactions(user, qty):
-    accounts = Account.objects.filter(user=user)
+    account_ids = Account.objects.filter(user=user).values_list('id', flat=True)
     transactions = (
-        Transaction.objects.filter(account__in=accounts)
+        Transaction.objects.filter(content_type__model='account', object_id__in=account_ids)
         .exclude(category__is_transfer=True)
         .order_by("-date")[:qty]
     )
@@ -30,10 +30,10 @@ def get_latest_transactions(user, qty):
 def get_latest_transfers(user, qty):
     transfers = (
         Transfer.objects.filter(user=user)
-        .select_related(
-            "from_transaction__account__currency", "to_transaction__account__currency"
-        )
-        .order_by("-date")[:qty]
+            .prefetch_related(
+                "from_transaction__content_object__currency", "to_transaction__content_object__currency"
+            )
+            .order_by("-date")[:qty]
     )
     return transfers
 

@@ -29,6 +29,11 @@ urlpatterns = [
     path("loans", views.LoansView.as_view(), name="loans"),
     path("loans/create", views.CreateLoanView.as_view(), name="create_loan"),
     path("loans/del/<int:pk>", views.DeleteLoanView.as_view(), name="delete_loan"),
+    path(
+        "loans/<int:pk>/ajax",
+        views.LoanDetailAjaxView.as_view(),
+        name="loan_detail_ajax",
+    ),
     path("loans/pay", views.PayLoanView.as_view(), name="pay_loan"),
     path("loans/<int:pk>", views.LoanDetailView.as_view(), name="loan_detail"),
     path("loans/<int:pk>/edit", views.EditLoanView.as_view(), name="edit_loan"),

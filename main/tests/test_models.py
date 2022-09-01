@@ -1,10 +1,23 @@
 from main.models import (
-    User, Currency, UserPreferences, Account, Loan, Category, Transaction,
+    User,
+    Currency,
+    UserPreferences,
+    Account,
+    Loan,
+    Category,
+    Transaction,
     Transfer,
 )
 from main.tests.factories import (
-    UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
+    UserFactoryNoSignal,
+    CurrencyFactory,
+    AccountFactory,
+    LoanFactory,
+    CategoryFactory,
+    AccountTransactionFactory,
+    LoanTransactionFactory,
+    TransferFactory,
+    UserPreferencesFactory,
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -17,8 +30,8 @@ class TestUser(TestCase):
 
     def test_unique_username(self):
         with self.assertRaises(IntegrityError):
-            user1 = UserFactoryNoSignal(username='testuser')
-            user2 = UserFactoryNoSignal(username='testuser')
+            user1 = UserFactoryNoSignal(username="testuser")
+            user2 = UserFactoryNoSignal(username="testuser")
 
 
 class TestCurrency(TestCase):
@@ -35,8 +48,8 @@ class TestAccount(TestCase):
     def test_unique_together(self):
         user = UserFactoryNoSignal()
         with self.assertRaises(IntegrityError):
-            first_account = AccountFactory(user=user, name='duplicate')
-            second_account = AccountFactory(user=user, name='duplicate')
+            first_account = AccountFactory(user=user, name="duplicate")
+            second_account = AccountFactory(user=user, name="duplicate")
 
 
 class TestLoan(TestCase):
@@ -47,8 +60,8 @@ class TestLoan(TestCase):
     def test_unique_together(self):
         user = UserFactoryNoSignal()
         with self.assertRaises(IntegrityError):
-            first_account = LoanFactory(user=user, name='duplicate')
-            second_account = LoanFactory(user=user, name='duplicate')
+            first_account = LoanFactory(user=user, name="duplicate")
+            second_account = LoanFactory(user=user, name="duplicate")
 
 
 class TestCategory(TestCase):
@@ -59,23 +72,31 @@ class TestCategory(TestCase):
     def test_unique_together(self):
         parent_category = CategoryFactory(parent=None)
         with self.assertRaises(IntegrityError):
-            first_category = CategoryFactory(
-                parent=parent_category, 
-                name='duplicate'
-            )
-            second_category = CategoryFactory(
-                parent=parent_category, 
-                name='duplicate'
-            ) 
+            first_category = CategoryFactory(parent=parent_category, name="duplicate")
+            second_category = CategoryFactory(parent=parent_category, name="duplicate")
 
-        
-class TestTransaction(TestCase):
+
+class TestAccountTransaction(TestCase):
     def test_str(self):
-        transaction = TransactionFactory()
+        transaction = AccountTransactionFactory()
         self.assertEquals(
             str(transaction),
-            (f'{transaction.name} - {transaction.amount} from '
-                f'{transaction.account}')
+            (
+                f"{transaction.name} - {transaction.amount} on "
+                f"{transaction.content_object}"
+            ),
+        )
+
+
+class TestLoanTransaction(TestCase):
+    def test_str(self):
+        transaction = LoanTransactionFactory()
+        self.assertEquals(
+            str(transaction),
+            (
+                f"{transaction.name} - {transaction.amount} on "
+                f"{transaction.content_object}"
+            ),
         )
 
 
@@ -84,16 +105,15 @@ class TestTransfer(TestCase):
         transfer = TransferFactory()
         self.assertEquals(
             str(transfer),
-            (f'On {transfer.date} from {transfer.from_transaction.account} to '
-                f'{transfer.to_transaction.account} '
-                f'{transfer.from_transaction.amount}')
+            (
+                f"On {transfer.date} from {transfer.from_transaction.content_object} to "
+                f"{transfer.to_transaction.content_object} "
+                f"{transfer.from_transaction.amount}"
+            ),
         )
 
 
 class TestUserPreferences(TestCase):
     def test_str(self):
         user_preferences = UserPreferencesFactory()
-        self.assertEquals(
-            str(user_preferences), 
-            f'{user_preferences.user} preferences'
-        )
+        self.assertEquals(str(user_preferences), f"{user_preferences.user} preferences")

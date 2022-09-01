@@ -1,7 +1,6 @@
 import decimal
 import datetime
 from unittest.mock import Mock, MagicMock, patch
-from unittest import SkipTest
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -25,7 +24,8 @@ from main.tests.factories import (
     UserFactory,
     UserFactoryNoSignal,
     AccountFactory,
-    TransactionFactory,
+    AccountTransactionFactory,
+    LoanTransactionFactory,
     LoanFactory,
 )
 import datetime
@@ -38,35 +38,12 @@ class TestUtilityFunctions(TestCase):
         super().setUp()
         self.user = UserFactoryNoSignal()
 
-    # def test_get_latest_transactions(self):
-    #     today = datetime.date.today()
-    #     user_account = AccountFactory(user=self.user)
-    #     TransactionFactory.create_batch(10)
-    #     for i in range(10):
-    #         TransactionFactory.create(
-    #             account=user_account,
-    #             category__is_transfer=False,
-    #             date=(today - timedelta(days=i)),
-    #         )
-    #         TransactionFactory.create(
-    #             account=user_account,
-    #             category__is_transfer=True,
-    #             date=(today - timedelta(days=i)),
-    #         )
-    #     queryset = get_latest_transactions(self.user, 5)
-    #     self.assertEquals(len(queryset), 5)
-    #     for i, object in enumerate(queryset):
-    #         self.assertEquals(object.account.user, self.user)
-    #         self.assertFalse(object.category.is_transfer)
-    #         if i < len(queryset) - 1:
-    #             self.assertGreater(object.date, queryset[i + 1].date)
-    
     @patch('main.utils.Account')
     @patch('main.utils.Transaction')
     def test_get_latest_transactions_no_db(self, mock_transaction, mock_account):
         user = 'user'
-        mock_account.objects.filter.return_value = AccountFactory.build()
-        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = TransactionFactory.build_batch(5)
+        mock_account.objects.filter.return_value.values_list.return_value = [AccountFactory.build().id]
+        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
         transactions = get_latest_transactions(user, 5)
         self.assertTrue(mock_account.called_once)
         self.assertTrue(mock_transaction.called_once)
@@ -76,23 +53,10 @@ class TestUtilityFunctions(TestCase):
     def test_get_latest_transfers(self, mock):
         user = 'user'
         qty = 5
-        mock.objects.filter.return_value.select_related.return_value.order_by.return_value = range(qty)
+        mock.objects.filter.return_value.prefetch_related.return_value.order_by.return_value = range(qty)
         transfers = get_latest_transfers(user, qty)
         self.assertTrue(mock.called_once)
         self.assertEquals(len(transfers), qty)
-
-
-    # def test_get_latest_transfers(self):
-    #     today = datetime.date.today()
-    #     TransferFactory.create_batch(10)
-    #     for i in range(10):
-    #         TransferFactory.create(user=self.user, date=(today - timedelta(days=i)))
-    #     queryset = get_latest_transfers(self.user, 5)
-    #     self.assertEquals(len(queryset), 5)
-    #     for i, object in enumerate(queryset):
-    #         self.assertEquals(object.user, self.user)
-    #         if i < len(queryset) - 1:
-    #             self.assertGreater(object.date, queryset[i + 1].date)
 
     def test_create_categories(self):
         create_categories(categories, self.user)
@@ -105,18 +69,6 @@ class TestUtilityFunctions(TestCase):
                 self.assertTrue(
                     Category.objects.filter(user=self.user, parent__name=key).exists()
                 )
-
-    # def test_get_account_data(self):
-    #     accounts = AccountFactory.create_batch(5)
-    #     user_accounts = AccountFactory.create_batch(5, user=self.user)
-    #     data = get_account_data(self.user)
-    #     self.assertEquals(len(data), 5)
-
-    # def test_get_loan_data(self):
-    #     loans = AccountFactory.create_batch(5)
-    #     user_loans = LoanFactory.create_batch(5, user=self.user)
-    #     data = get_loan_data(self.user)
-    #     self.assertEquals(len(data), 5)
 
     def test_validate_main_category_uniqueness(self):
         CategoryFactory(name="duplicate_name", user=self.user, type="E", parent=None)
@@ -151,10 +103,10 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(dates["year_start"], datetime.date(2005, 1, 1))
 
     def test_get_stats(self):
-        TransactionFactory(type='E', amount=1.00)
-        TransactionFactory(type='E', amount=2.00)
-        TransactionFactory(type='I', amount=3.00)
-        TransactionFactory(type='I', amount=4.00)
+        AccountTransactionFactory(type='E', amount=1.00)
+        AccountTransactionFactory(type='I', amount=3.00)
+        AccountTransactionFactory(type='E', amount=2.00)
+        AccountTransactionFactory(type='I', amount=4.00)
         balance = decimal.Decimal(14.00)
         diff = 4.00
         rate = '40.00%'
@@ -174,8 +126,8 @@ class TestUtilityFunctions(TestCase):
         subcategory = CategoryFactory(user=self.user, parent=categories[0], type='E')
         account = AccountFactory(user=self.user)
         for category in categories[:-1]:
-            TransactionFactory(account=account, amount=1, category=category)
-        TransactionFactory(account=account, amount=1, category=subcategory)
+            AccountTransactionFactory(content_object=account, amount=1, category=category)
+        AccountTransactionFactory(content_object=account, amount=1, category=subcategory)
         qs = Transaction.objects.all()
         category_stats = get_category_stats(qs, 'E', parent_category, self.user)
         self.assertEquals(len(category_stats), 4)

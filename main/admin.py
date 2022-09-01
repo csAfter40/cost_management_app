@@ -42,11 +42,11 @@ class LoanAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display= ('name', 'amount', 'account', 'date', 'get_user')
+    list_display= ('name', 'amount', 'date', 'get_user')
     ordering = ('-date',)
 
     def get_user(self, obj):
-        return obj.account.user
+        return obj.content_object.user
 
     # sets column name as 'user' in admin panel. otherwise it was 'get_user'
     get_user.short_description = 'user'

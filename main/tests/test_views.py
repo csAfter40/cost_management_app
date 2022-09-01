@@ -2,7 +2,7 @@ from decimal import Decimal
 import json
 import factory
 from wallet.settings import TESTING_ATOMIC
-from .factories import CategoryFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal
+from .factories import CategoryFactory, AccountTransactionFactory, TransferFactory, UserFactoryNoSignal
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
@@ -343,19 +343,20 @@ class TestMainView(BaseViewTestMixin, TestCase):
         self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
     def test_latest_transactions_list(self):
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             10, 
-            account__user=self.user, 
+            content_object__user=self.user, 
             category__is_transfer=False
         )
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             10, 
-            account__user=self.user, 
+            content_object__user=self.user, 
             category__is_transfer=True
         )
-        TransactionFactory.create_batch(10)
+        AccountTransactionFactory.create_batch(10)
+        accounts_list = Account.objects.filter(user=self.user).values_list('id', flat=True)
         transactions = (
-            Transaction.objects.filter(account__user=self.user)
+            Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list)
             .exclude(category__is_transfer=True)
             .order_by('-date')[:5]
         ) 
@@ -420,7 +421,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         transfer_obj = Transfer.objects.last()
         self.assertEquals(
             data['from_account'], 
-            transfer_obj.from_transaction.account.id,
+            transfer_obj.from_transaction.object_id,
             msg="From account value not matching",
         )
         self.assertEquals(
@@ -430,7 +431,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['to_account'], 
-            transfer_obj.to_transaction.account.id,
+            transfer_obj.to_transaction.object_id,
             msg="To account value not matching",
         )
         self.assertEquals(
@@ -500,7 +501,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['account'], 
-            transaction_obj.account.id,
+            transaction_obj.object_id,
             msg="Account id value not matching",
         )
         self.assertEquals(
@@ -576,7 +577,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertEquals(
             data['account'], 
-            transaction_obj.account.id,
+            transaction_obj.object_id,
             msg="Account id value not matching",
         )
         self.assertEquals(
@@ -628,21 +629,21 @@ class TestTransactionNameAutocomplete(BaseViewTestMixin, TestCase):
 
     def test_get(self):
         for i in range(6):
-            TransactionFactory(name=f'match_E{i}', type='E', account__user=self.user)
+            AccountTransactionFactory(name=f'match_E{i}', type='E', content_object__user=self.user)
         for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='E', account__user=self.user)
+            AccountTransactionFactory(name=f'fail{i}', type='E', content_object__user=self.user)
         for i in range(7):
-            TransactionFactory(name=f'match_I{i}', type='I', account__user=self.user)
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='I', account__user=self.user)
-        for i in range(5):
-            TransactionFactory(name=f'match{i}', type='E')
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='E')
-        for i in range(5):
-            TransactionFactory(name=f'match{i}', type='I')
-        for i in range(5):
-            TransactionFactory(name=f'fail{i}', type='I')
+            AccountTransactionFactory(name=f'match_I{i}', type='I', content_object__user=self.user)
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='I', content_object__user=self.user)
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'match{i}', type='E')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='E')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'match{i}', type='I')
+        for Accounti in range(5):
+            AccountTransactionFactory(name=f'fail{i}', type='I')
         data_set = [
             {'name': 'mat', 'type': 'I', 'count':7},
             {'name': 'mat', 'type': 'E', 'count':6},
@@ -922,10 +923,10 @@ class TestAccountDetailSubcategoryAjaxView(UserFailTestMixin, BaseViewTestMixin,
         self.assertEquals(response['content-type'], 'application/json')
         
     def test_get(self):    
-        TransactionFactory.create_batch(
+        AccountTransactionFactory.create_batch(
             20, 
             category=self.category, 
-            account=self.object
+            content_object=self.object
         )
         times = ('all', 'week', 'month', 'year')
         for time in times:
@@ -968,7 +969,7 @@ class TestAccountDetailView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         )
 
     def test_get(self):    
-        TransactionFactory.create_batch(20, account=self.object)
+        AccountTransactionFactory.create_batch(20, content_object=self.object)
         super().test_get()
     
     def test_get_account_not_active(self):
@@ -1043,7 +1044,7 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/loans/<pk>'
-        cls.context_list = ['progress']
+        cls.context_list = ['progress', 'transactions']
         cls.template = 'main/loan_detail.html'
         cls.get_method = True
         cls.view_function = views.LoanDetailView.as_view()
@@ -1058,6 +1059,42 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
         self.object.user = self.user
         self.object.save()  
 
+
+class TestLoanDetailAjaxView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.context_list = [
+            "transactions",
+        ]
+        cls.template = 'main/loan_detail_pack.html'
+        cls.view_function = views.LoanDetailAjaxView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Loan
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = LoanFactory(user=self.user)
+        self.test_url = reverse('main:loan_detail_ajax', kwargs={'pk':self.object.id})
+        
+    def test_get(self):    
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        # test template
+        self.assertTemplateUsed(response, self.template)
+        # test context
+        for item in self.context_list:
+                self.assertIn(item, response.context.keys())
+        
+    def test_laon_not_active(self):
+        self.object.is_active = False
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 404)
+     
 
 class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
@@ -1168,6 +1205,7 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
             200, 
             fetch_redirect_response=True
         )
+        self.assertEquals(Transaction.objects.count(), 2)
 
     def test_post_valid(self):
         for data in self.valid_data:

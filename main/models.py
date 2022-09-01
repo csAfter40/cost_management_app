@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
 from wallet.settings import DEFAULT_CURRENCY_PK
@@ -27,31 +29,6 @@ class UserPreferences(models.Model):
 
     def __str__(self):
         return f"{self.user} preferences"
-
-
-class Assets(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=64)
-    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    currency = models.ForeignKey(
-        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
-    )
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        abstract = True
-        unique_together = ('user', 'name')
-
-
-class Account(Assets):
-    pass
-
-
-class Loan(Assets):
-    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
 
 class Category(MPTTModel):
@@ -88,7 +65,10 @@ class Transaction(models.Model):
         ("I", "Income"),
     )
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=ContentType.objects.get(app_label='main', model='account').id)
+    object_id = models.PositiveIntegerField(default=7)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     name = models.CharField(max_length=128)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     date = models.DateField(blank=True, default=date.today)
@@ -98,7 +78,33 @@ class Transaction(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.name} - {self.amount} from {self.account}"
+        return f"{self.name} - {self.amount} on {self.content_object}"
+
+
+class Assets(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=64)
+    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
+    )
+    is_active = models.BooleanField(default=True)
+    transactions = GenericRelation(Transaction)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        abstract = True
+        unique_together = ('user', 'name')
+
+
+class Account(Assets):
+    pass
+
+
+class Loan(Assets):
+    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
 
 
 class Transfer(models.Model):
@@ -114,4 +120,4 @@ class Transfer(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"On {self.date} from {self.from_transaction.account} to {self.to_transaction.account} {self.from_transaction.amount}"
+        return f"On {self.date} from {self.from_transaction.content_object} to {self.to_transaction.content_object} {self.from_transaction.amount}"

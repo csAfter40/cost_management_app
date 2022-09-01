@@ -2,6 +2,7 @@ import factory
 import factory.fuzzy
 from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences
 from django.db.models import signals
+from django.contrib.contenttypes.models import ContentType
 import string
 
 
@@ -62,15 +63,33 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Transaction
-
-    account = factory.SubFactory(AccountFactory)
+    object_id = factory.SelfAttribute('content_object.id')
+    content_type = factory.LazyAttribute(
+        lambda o: ContentType.objects.get_for_model(o.content_object)
+    )
     name = factory.fuzzy.FuzzyText(length=6, chars=string.ascii_lowercase)
     amount = factory.Faker('random_int')
     date = factory.Faker('date')
     category = factory.SubFactory(CategoryFactory, parent__parent=None)
     type = factory.fuzzy.FuzzyChoice(('I', 'E'))
+
+    class Meta:
+        exclude = 'content_object'
+        abstract = True
+
+
+class LoanTransactionFactory(TransactionFactory):
+    content_object = factory.SubFactory(LoanFactory)
+
+    class Meta:
+        model = Transaction
+
+
+class AccountTransactionFactory(TransactionFactory):
+    content_object = factory.SubFactory(AccountFactory)
+
+    class Meta:
+        model = Transaction
 
 
 class TransferFactory(factory.django.DjangoModelFactory):
@@ -78,8 +97,8 @@ class TransferFactory(factory.django.DjangoModelFactory):
         model = Transfer
 
     user = factory.SubFactory(UserFactoryNoSignal)
-    from_transaction = factory.SubFactory(TransactionFactory, category__is_transfer=True)
-    to_transaction = factory.SubFactory(TransactionFactory, category__is_transfer=True)
+    from_transaction = factory.SubFactory(AccountTransactionFactory, category__is_transfer=True)
+    to_transaction = factory.SubFactory(AccountTransactionFactory, category__is_transfer=True)
     date = factory.Faker('date')
 
 
