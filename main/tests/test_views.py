@@ -1060,6 +1060,42 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
         self.object.save()  
 
 
+class TestLoanDetailAjaxView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.context_list = [
+            "transactions",
+        ]
+        cls.template = 'main/loan_detail_pack.html'
+        cls.view_function = views.LoanDetailAjaxView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Loan
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = LoanFactory(user=self.user)
+        self.test_url = reverse('main:loan_detail_ajax', kwargs={'pk':self.object.id})
+        
+    def test_get(self):    
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        # test template
+        self.assertTemplateUsed(response, self.template)
+        # test context
+        for item in self.context_list:
+                self.assertIn(item, response.context.keys())
+        
+    def test_laon_not_active(self):
+        self.object.is_active = False
+        self.object.save()
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 404)
+     
+
 class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
