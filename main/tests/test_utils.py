@@ -12,6 +12,7 @@ from main.utils import (
     get_latest_transfers,
     get_loan_progress,
     get_stats,
+    get_payment_stats,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -20,6 +21,7 @@ from main.utils import (
 from main.tests.factories import (
     CategoryFactory,
     CurrencyFactory,
+    TransactionFactory,
     TransferFactory,
     UserFactory,
     UserFactoryNoSignal,
@@ -32,6 +34,8 @@ import datetime
 from datetime import timedelta
 from main.categories import categories
 from main.models import Category, Transaction, Account, User, UserPreferences
+from freezegun import freeze_time
+
 
 class TestUtilityFunctions(TestCase):
     def setUp(self):
@@ -181,3 +185,15 @@ class TestUtilityFunctions(TestCase):
         mock.balance = 6
         progress = get_loan_progress(mock)
         self.assertEquals(progress, 40)
+
+    @freeze_time('2022-05-25')
+    def test_get_payment_stats(self):
+        loan = LoanFactory(initial=-50000)
+        for i in range(1,6):
+            LoanTransactionFactory(
+                content_object=loan,
+                date=datetime.datetime.now()+datetime.timedelta(days=30*i),
+                amount=100*i
+            )
+        data = get_payment_stats(loan)
+        self.assertIn('2022-05-25', data)
