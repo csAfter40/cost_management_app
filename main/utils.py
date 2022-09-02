@@ -174,6 +174,22 @@ def get_loan_progress(loan_object):
         progress = ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
         return round(progress, 2)
 
+def get_payment_stats(loan_object):
+    data = {}
+    data[loan_object.created.strftime('%Y-%m-%d')] = abs(loan_object.initial)
+    transactions = Transaction.objects.filter(
+        content_type__model='loan',
+        object_id=loan_object.id
+    ).order_by('date')
+    balance = loan_object.initial
+    for tr in transactions:
+        balance += tr.amount
+        data[tr.date] = abs(balance)
+    for key, value in data.items():
+        print(key, value)
+    return data
+
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
