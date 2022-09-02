@@ -30,6 +30,7 @@ from .utils import (
     get_comparison_stats,
     get_subcategory_stats,
     get_loan_progress,
+    get_payment_stats,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -483,6 +484,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         extra_context = {
             'progress': get_loan_progress(self.object),
             'transactions': page_obj,
+            'payment_stats': get_payment_stats(self.object)
         }
         return super().get_context_data(**extra_context)
 
