@@ -476,6 +476,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         loan = self.get_object()
+        form = LoanDetailPaymentForm(user=self.request.user, loan=loan)
         transactions = Transaction.objects.filter(
             content_type__model='loan',
             object_id=loan.id,
@@ -485,7 +486,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
             'progress': get_loan_progress(self.object),
             'transactions': page_obj,
             'payment_stats': get_payment_stats(self.object),
-            'form': LoanDetailPaymentForm,
+            'form': form,
         }
         return super().get_context_data(**extra_context)
 
