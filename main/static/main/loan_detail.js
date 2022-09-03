@@ -35,3 +35,7 @@ function getData(page = 1) {
     });
 
 };
+
+$(function () {
+    $("#loan-pay-datepicker").datepicker();
+});
