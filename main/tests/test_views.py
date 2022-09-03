@@ -1044,7 +1044,7 @@ class TestLoanDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/loans/<pk>'
-        cls.context_list = ['progress', 'transactions', 'payment_stats']
+        cls.context_list = ['progress', 'transactions', 'payment_stats', 'form']
         cls.template = 'main/loan_detail.html'
         cls.get_method = True
         cls.view_function = views.LoanDetailView.as_view()
