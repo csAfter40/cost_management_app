@@ -3,6 +3,7 @@ from main.forms import (
     IncomeInputForm,
     TransferForm,
     PayLoanForm,
+    LoanDetailPaymentForm
 )
 from main.tests.factories import (
     CurrencyFactory,
@@ -189,3 +190,29 @@ class TestForms(TestCase):
         }
         form = PayLoanForm(user=self.user, data=data)
         self.assertIn("Invalid account or loan data.", form.errors["__all__"])
+
+    def test_loan_detail_pay_form_with_valid_data(self):
+        currency = CurrencyFactory()
+        valid_loan = LoanFactory(user=self.user, currency=currency)
+        valid_account = AccountFactory(user=self.user, currency=currency)
+        data = {
+            "account": valid_account.id,
+            "amount": 10,
+            "date": datetime.date(2022, 2, 2),
+        }
+        form = LoanDetailPaymentForm(user=self.user, loan=valid_loan, data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+    def test_loan_detail_pay_form_with_invalid_data(self):
+        currency = CurrencyFactory()
+        invalid_loan = LoanFactory(currency=currency)
+        invalid_account = AccountFactory(currency=currency)
+        data = {
+            "account": invalid_account.id,
+            "amount": "invalid amount",
+            "date": "invalid date",
+        }
+        form = LoanDetailPaymentForm(user=self.user, loan=invalid_loan, data=data)
+        for key, value in data.items():
+            self.assertIn(key, form.errors)
