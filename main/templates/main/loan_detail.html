@@ -52,29 +52,13 @@
                         <canvas id="paymentsChart"></canvas>
                     </div>
                 </div>
-                <!-- <div class="col-6">
-                    <h4>Incomes</h4>
-                    <div>
-                        <canvas id="incomesChart"></canvas>
-                    </div>
-                </div> -->
             </div>
-            <!-- <div class="row my-4">
-                <div class="col-12">
-                    <h4>Comparison</h4>
-                    <div>
-                        <canvas id="comparisonChart"></canvas>
-                    </div>
-                </div>
-            </div> -->
-
         </div>
     </div>
 </div>
-<!-- {% include 'main/chart_modal.html' %} -->
 
 {% endblock %}
 {% block script %}
 <script src="{% static 'main/loan_detail.js' %}"></script>
-<!-- {% include 'main/account_detail_chart_script.html' %} -->
+{% include 'main/loan_detail_chart_script.html' %}
 {% endblock %}
