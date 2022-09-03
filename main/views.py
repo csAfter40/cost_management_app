@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan
-from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm
+from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm
 from .utils import (
     get_latest_transactions,
     get_latest_transfers,
@@ -484,7 +484,8 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         extra_context = {
             'progress': get_loan_progress(self.object),
             'transactions': page_obj,
-            'payment_stats': get_payment_stats(self.object)
+            'payment_stats': get_payment_stats(self.object),
+            'form': LoanDetailPaymentForm,
         }
         return super().get_context_data(**extra_context)
 
