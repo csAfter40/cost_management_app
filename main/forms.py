@@ -143,3 +143,22 @@ class PayLoanForm(forms.Form):
                     "Invalid account or loan data."
                 )
         return cleaned_data
+
+
+class LoanDetailPaymentForm(forms.Form):
+
+    amount = forms.DecimalField(decimal_places=2)
+    date = forms.DateField(
+        initial=date.today, widget=TextInput(attrs={"id": "loan-pay-datepicker"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        loan = kwargs.pop("loan", None)
+        currency = loan.currency
+        super().__init__(*args, **kwargs)
+        if user and loan:
+            qs_account = Account.objects.filter(user=user, is_active=True, currency=currency)
+            self.fields["account"] = forms.ModelChoiceField(
+                queryset=qs_account, widget=Select(attrs={"id": "account-field"})
+            )
