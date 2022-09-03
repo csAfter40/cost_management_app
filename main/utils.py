@@ -184,9 +184,7 @@ def get_payment_stats(loan_object):
     balance = loan_object.initial
     for tr in transactions:
         balance += tr.amount
-        data[tr.date] = abs(balance)
-    for key, value in data.items():
-        print(key, value)
+        data[tr.date.strftime('%Y-%m-%d')] = abs(balance)
     return data
 
 
