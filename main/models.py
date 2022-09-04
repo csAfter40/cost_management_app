@@ -22,8 +22,8 @@ class Currency(models.Model):
 
 
 class UserPreferences(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    currency = models.ForeignKey(
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_preferences')
+    primary_currency = models.ForeignKey(
         Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
     )
 

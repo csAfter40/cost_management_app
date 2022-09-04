@@ -107,4 +107,4 @@ class UserPreferencesFactory(factory.django.DjangoModelFactory):
         model = UserPreferences
 
     user = factory.SubFactory(UserFactoryNoSignal)
-    currency = factory.SubFactory(CurrencyFactory)
+    primary_currency = factory.SubFactory(CurrencyFactory)
