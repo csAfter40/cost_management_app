@@ -17,9 +17,7 @@ class ExpenseInputForm(ModelForm):
 
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
-    account = ModelChoiceField(
-        queryset=None
-    )
+    account = ModelChoiceField(queryset=None)
 
     class Meta:
         model = Transaction
@@ -42,7 +40,7 @@ class ExpenseInputForm(ModelForm):
 
     def save(self, commit=True):
         transaction = super().save(commit=False)
-        transaction.content_object = self.cleaned_data['account']
+        transaction.content_object = self.cleaned_data["account"]
         if commit:
             transaction.save()
         return transaction
@@ -72,10 +70,10 @@ class IncomeInputForm(ModelForm):
         self.fields["account"].queryset = Account.objects.filter(
             user=self.user, is_active=True
         )
-        
+
     def save(self, commit=True):
         transaction = super().save(commit=False)
-        transaction.content_object = self.cleaned_data['account']
+        transaction.content_object = self.cleaned_data["account"]
         if commit:
             transaction.save()
         return transaction
@@ -103,7 +101,7 @@ class TransferForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('from_account') and cleaned_data.get('to_account'):
+        if cleaned_data.get("from_account") and cleaned_data.get("to_account"):
             if cleaned_data["from_account"] == cleaned_data["to_account"]:
                 raise ValidationError(
                     "From account and To account can not have same value."
@@ -133,15 +131,13 @@ class PayLoanForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('account', None) and cleaned_data.get('loan', None):
+        if cleaned_data.get("account", None) and cleaned_data.get("loan", None):
             if cleaned_data["account"].currency != cleaned_data["loan"].currency:
                 raise ValidationError(
                     "Account and loan currencies can not be different."
                 )
         else:
-            raise ValidationError(
-                    "Invalid account or loan data."
-                )
+            raise ValidationError("Invalid account or loan data.")
         return cleaned_data
 
 
@@ -158,10 +154,17 @@ class LoanDetailPaymentForm(forms.Form):
         currency = loan.currency
         super().__init__(*args, **kwargs)
         if user and loan:
-            qs_account = Account.objects.filter(user=user, is_active=True, currency=currency)
+            qs_account = Account.objects.filter(
+                user=user, is_active=True, currency=currency
+            )
             self.fields["account"] = forms.ModelChoiceField(
                 queryset=qs_account, widget=Select(attrs={"id": "account-field"})
             )
 
+
 class SetupForm(forms.Form):
-    currency = forms.ModelChoiceField(queryset=Currency.objects.all())
+    currency = forms.ModelChoiceField(
+        queryset=Currency.objects.all(),
+        widget=Select(attrs={"class": "my-2"}),
+        label="Primary Currency",
+    )
