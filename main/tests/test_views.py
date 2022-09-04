@@ -811,7 +811,7 @@ class TestSetupView(BaseViewTestMixin, TestCase):
         cls.template = 'main/setup.html'
         cls.post_method = True
         cls.get_method = True
-        cls.post_data = [{'currency': '7'}]
+        cls.post_data = {'currency': '7'}
         cls.view_function = views.SetupView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal

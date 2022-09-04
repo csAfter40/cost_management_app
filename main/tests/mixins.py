@@ -15,7 +15,7 @@ class BaseViewTestMixin(object):
         cls.template = None  # str 'app_name/template_name.html'
         cls.post_method = False
         cls.get_method = True
-        cls.post_data = None  # List of dictionaries
+        cls.post_data = None
         cls.view_function = None  # Add .as_view()
         cls.login_required = False  # bool
         cls.user_factory = None
