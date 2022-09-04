@@ -2,7 +2,7 @@ from decimal import Decimal
 import json
 import factory
 from wallet.settings import TESTING_ATOMIC
-from .factories import CategoryFactory, AccountTransactionFactory, TransferFactory, UserFactoryNoSignal
+from .factories import CategoryFactory, AccountTransactionFactory, TransferFactory, UserFactoryNoSignal, UserPreferencesFactory
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
@@ -10,7 +10,7 @@ from .cbv_test_mixins import (
     TestDetailViewMixin
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
-from main.models import Account, Category, Loan, Transaction, Transfer, User
+from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences
 from main.tests.mixins import BaseViewTestMixin, UserFailTestMixin
 from .factories import AccountFactory, CurrencyFactory, LoanFactory
 from django.urls import reverse, resolve
@@ -811,10 +811,15 @@ class TestSetupView(BaseViewTestMixin, TestCase):
         cls.template = 'main/setup.html'
         cls.post_method = True
         cls.get_method = True
-        cls.post_data = {'currency': '7'}
         cls.view_function = views.SetupView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        user_preferences = UserPreferencesFactory(user=self.user)
+        currency = CurrencyFactory()
+        self.post_data = {'currency': currency.id}
 
         
 class TestCheckUsername(BaseViewTestMixin, TestCase):
