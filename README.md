@@ -6,10 +6,11 @@ App can be seen live at: https://django-wallet-app.herokuapp.com/
     python manage.py loaddata currencies.json
 
 In this project I have experienced:
-    * Deploying a Django app on Heroku.
-    * Using a tree model for the hierarchical category data.
-    * Implementing a category system in which users can add, delete or edit categories.
-    * Using Bootstrap's modal dialog boxes for user experience improvement.
-    * Working with branches on git.
-    * Writing unit tests and integration tests. Using mocks and patch.
-    * Using Django contenttype framework.
+* Deploying a Django app on Heroku.
+* Using a tree model for the hierarchical category data.
+* Implementing a category system in which users can add, delete or edit categories and sub-categories.
+* Using Bootstrap's modal dialog boxes for user experience improvement.
+* Working with branches on git.
+* Writing unit tests and integration tests. Using mocks and patch.
+* Using Django contenttype framework.
+* Writing commit messages in Conventional Commits style.
