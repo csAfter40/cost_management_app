@@ -1,16 +1,19 @@
 from main.forms import (
     ExpenseInputForm,
     IncomeInputForm,
+    SetupForm,
     TransferForm,
     PayLoanForm,
     LoanDetailPaymentForm
 )
+from main.models import UserPreferences
 from main.tests.factories import (
     CurrencyFactory,
     UserFactoryNoSignal,
     AccountFactory,
     CategoryFactory,
     LoanFactory,
+    UserPreferencesFactory,
 )
 import datetime
 from django.test.testcases import TestCase
@@ -216,3 +219,12 @@ class TestForms(TestCase):
         form = LoanDetailPaymentForm(user=self.user, loan=invalid_loan, data=data)
         for key, value in data.items():
             self.assertIn(key, form.errors)
+
+    def test_setup_form_with_valid_data(self):
+        currency = CurrencyFactory()
+        data = {
+            'currency': currency.id
+        }
+        form = SetupForm(data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
