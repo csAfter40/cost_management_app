@@ -67,7 +67,7 @@
                 <div class="row py-2 my-2 justify-content-center">
                     <div class="col-12">
                         <div class="text-center mt-3">
-                            <h4 class="text-dark">Pay Loan</h4>
+                            <h4 class="text-dark">Pay {{object.name|title}}</h4>
                         </div>
                         <form action="{% url 'main:pay_loan' %}" method="POST" id="form-pay-loan">
                             {% csrf_token %}
