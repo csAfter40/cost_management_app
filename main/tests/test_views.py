@@ -743,7 +743,7 @@ class TestRegisterView(BaseViewTestMixin, TestCase):
         cls.test_url = reverse('main:register')
         cls.template = 'main/register.html'
         cls.view_function = views.RegisterView.as_view()
-        cls.success_url = reverse('main:main')
+        cls.success_url = reverse('main:setup')
         cls.error_url = reverse('main:register')
         cls.user_factory = UserFactoryNoSignal
         cls.context_list = []
