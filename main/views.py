@@ -204,7 +204,7 @@ class RegisterView(View):
             messages.error(request, "Username already taken!")
             return HttpResponseRedirect(reverse("main:register"))
         login(request, user)
-        return HttpResponseRedirect(reverse("main:main"))
+        return HttpResponseRedirect(reverse("main:setup"))
 
 
 class SetupView(LoginRequiredMixin, FormView):
