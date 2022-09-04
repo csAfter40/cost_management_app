@@ -13,8 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
-from .models import Account, Transfer, User, Transaction, Category, Loan
-from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm
+from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
+from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm
 from .utils import (
     get_latest_transactions,
     get_latest_transfers,
@@ -205,6 +205,19 @@ class RegisterView(View):
             return HttpResponseRedirect(reverse("main:register"))
         login(request, user)
         return HttpResponseRedirect(reverse("main:main"))
+
+
+class SetupView(LoginRequiredMixin, FormView):
+    form_class = SetupForm
+    success_url = reverse_lazy('main:main')
+    template_name = 'main/setup.html'
+
+    def form_valid(self, form):
+        primary_currency = form.cleaned_data['currency']
+        user_preferences = self.request.user.user_preferences
+        user_preferences.primary_currency = primary_currency
+        user_preferences.save()
+        return super().form_valid(form)
 
 
 def check_username(request, *args, **kwargs):
