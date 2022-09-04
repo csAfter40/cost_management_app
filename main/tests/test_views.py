@@ -800,6 +800,22 @@ class TestRegisterView(BaseViewTestMixin, TestCase):
         )
         self.assertIsNotNone(response.cookies.get('messages', None))
     
+
+class TestSetupView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:setup')
+        cls.redirect_url = reverse('main:main')
+        cls.context_list = ['form']
+        cls.template = 'main/setup.html'
+        cls.post_method = True
+        cls.get_method = True
+        cls.post_data = [{'currency': '7'}]
+        cls.view_function = views.SetupView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
         
 class TestCheckUsername(BaseViewTestMixin, TestCase):
     
