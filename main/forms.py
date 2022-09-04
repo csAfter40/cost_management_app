@@ -8,7 +8,7 @@ from django.forms import (
     ValidationError,
     ModelChoiceField,
 )
-from .models import Account, Transaction, Transfer, Category, Loan
+from .models import Account, Currency, Transaction, Transfer, Category, Loan
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
 
@@ -162,3 +162,6 @@ class LoanDetailPaymentForm(forms.Form):
             self.fields["account"] = forms.ModelChoiceField(
                 queryset=qs_account, widget=Select(attrs={"id": "account-field"})
             )
+
+class SetupForm(forms.Form):
+    currency = forms.ModelChoiceField(queryset=Currency.objects.all())
