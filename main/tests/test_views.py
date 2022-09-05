@@ -1774,3 +1774,15 @@ class TestDeleteIncomeCategory(UserFailTestMixin, BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 404)
         self.assertTrue(Category.objects.filter(id=self.object.id).exists())
+
+
+class TestWorthView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:worth')
+        cls.context_list = ['stats']
+        cls.template = 'main/worth.html'
+        cls.view_function = views.WorthView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
