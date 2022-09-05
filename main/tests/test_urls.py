@@ -39,6 +39,9 @@ class TestUrls(SimpleTestCase):
     def test_register_url(self):
         self.assert_path_resolves_to_CBV("/register", views.RegisterView, "register")
 
+    def test_setup_url(self):
+        self.assert_path_resolves_to_CBV("/setup", views.SetupView, "setup")
+
     def test_accounts_url(self):
         self.assert_path_resolves_to_CBV("/accounts", views.AccountsView, "accounts")
 
@@ -160,3 +163,6 @@ class TestUrls(SimpleTestCase):
             views.transaction_name_autocomplete,
             "transaction_name_autocomplete",
         )
+
+    def test_worth_url(self):
+        self.assert_path_resolves_to_CBV("/worth", views.WorthView, "worth")
