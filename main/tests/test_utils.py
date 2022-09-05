@@ -1,6 +1,7 @@
 import decimal
 import datetime
 from unittest.mock import Mock, MagicMock, patch
+from urllib import response
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -13,10 +14,11 @@ from main.utils import (
     get_loan_progress,
     get_stats,
     get_payment_stats,
+    get_worth_stats,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
-    create_user_preferences
+    create_user_preferences,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -197,3 +199,8 @@ class TestUtilityFunctions(TestCase):
             )
         data = get_payment_stats(loan)
         self.assertIn('2022-05-25', data)
+
+    def test_get_worth_stats(self):
+        response = get_worth_stats(self.user)
+        self.assertIsInstance(response, dict)
+        self.assertIn('stats', response)
