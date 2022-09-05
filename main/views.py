@@ -7,6 +7,7 @@ from django.views.generic import (
     DetailView, 
     DeleteView,
     FormView,
+    TemplateView
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -31,6 +32,7 @@ from .utils import (
     get_subcategory_stats,
     get_loan_progress,
     get_payment_stats,
+    get_worth_stats
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -800,3 +802,12 @@ class DeleteIncomeCategory(LoginRequiredMixin, DeleteView):
         if self.object.is_protected:
             raise Http404
         return super().form_valid(form)
+
+
+class WorthView(LoginRequiredMixin, TemplateView):
+    
+    template_name = 'main/worth.html'
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.extra_context = {'stats': get_worth_stats(self.user)}
