@@ -810,4 +810,4 @@ class WorthView(LoginRequiredMixin, TemplateView):
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.extra_context = {'stats': get_worth_stats(self.user)}
+        self.extra_context = {'stats': get_worth_stats(self.request.user)}
