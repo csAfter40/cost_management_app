@@ -203,4 +203,3 @@ class TestUtilityFunctions(TestCase):
     def test_get_worth_stats(self):
         response = get_worth_stats(self.user)
         self.assertIsInstance(response, dict)
-        self.assertIn('stats', response)
