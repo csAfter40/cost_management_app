@@ -49,8 +49,6 @@ urlpatterns = [
         views.CreateIncomeCategory.as_view(),
         name="create_income_category",
     ),
-    # path('categories/expense/create/<pk>', views.CreateExpenseSubcategory.as_view(), name='create_expense_subcategory'),
-    # path('categories/income/create/<pk>', views.CreateIncomeSubcategory.as_view(), name='create_income_subcategory'),
     path(
         "categories/expense/edit",
         views.EditExpenseCategory.as_view(),
@@ -71,9 +69,7 @@ urlpatterns = [
         views.DeleteIncomeCategory.as_view(),
         name="delete_income_category",
     ),
-    # path('transactions/expense', views.expense_input_view, name='expense_create'),
-    # path('transactions/income', views.income_input_view, name='income_create'),
-    # path('transactions/transfer', views.make_transfer_view, name='make_transfer'),
+    path('worth', views.WorthView.as_view(), name='worth'),
 ]
 
 htmx_urlpatterns = [
