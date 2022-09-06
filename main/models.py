@@ -90,6 +90,7 @@ class Assets(models.Model):
     )
     is_active = models.BooleanField(default=True)
     transactions = GenericRelation(Transaction)
+    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -106,8 +107,7 @@ class Account(Assets):
 
 
 class Loan(Assets):
-    initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-
+    pass
 
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
