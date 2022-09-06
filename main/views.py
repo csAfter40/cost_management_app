@@ -390,6 +390,7 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
+        self.object.initial = self.object.balance
         try:
             self.object.save()
         except IntegrityError:
