@@ -36,8 +36,9 @@ class AccountFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda x: x+1)
     user = factory.SubFactory(UserFactoryNoSignal)
     name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
-    balance = factory.fuzzy.FuzzyDecimal(low=0)
+    balance = factory.fuzzy.FuzzyDecimal(50000)
     currency = factory.SubFactory(CurrencyFactory)
+    initial = factory.SelfAttribute('balance')
 
 
 class LoanFactory(factory.django.DjangoModelFactory):
@@ -47,8 +48,9 @@ class LoanFactory(factory.django.DjangoModelFactory):
     id = factory.Sequence(lambda x: x+1)
     user = factory.SubFactory(UserFactoryNoSignal)
     name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
-    balance = factory.fuzzy.FuzzyDecimal(low=0)
+    balance = factory.fuzzy.FuzzyDecimal(low=-50000, high=0)
     currency = factory.SubFactory(CurrencyFactory)
+    initial = factory.SelfAttribute('balance')
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
