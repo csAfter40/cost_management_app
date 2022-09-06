@@ -15,6 +15,7 @@ from main.utils import (
     get_payment_stats,
     get_worth_stats,
     get_monthly_asset_balance_change,
+    get_monthly_asset_balance,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -216,3 +217,21 @@ class TestUtilityFunctions(TestCase):
             AccountTransactionFactory.create(content_object=account, date=date)
         monthly_totals = get_monthly_asset_balance_change(account)
         self.assertEquals(len(monthly_totals), 3)
+
+    @freeze_time('2022-05-25')
+    def test_get_monthly_asset_balance(self):
+        account = AccountFactory(balance=decimal.Decimal(10000))
+        dates = [
+            datetime.date(2022, 6, 10),
+            datetime.date(2022, 7, 10),
+        ]
+        for date in dates:
+            AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='I')
+        monthly_balances = get_monthly_asset_balance(account)
+        expected = {
+            '2022-5': 10000,
+            '2022-6': 11000,
+            '2022-7': 12000,
+        }
+        self.assertEquals(monthly_balances, expected)
+                
