@@ -1,7 +1,8 @@
+from decimal import Decimal
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Sum, DecimalField
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, ExtractMonth, ExtractYear
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
 from .models import (
@@ -18,9 +19,11 @@ from datetime import date, timedelta
 
 
 def get_latest_transactions(user, qty):
-    account_ids = Account.objects.filter(user=user).values_list('id', flat=True)
+    account_ids = Account.objects.filter(user=user).values_list("id", flat=True)
     transactions = (
-        Transaction.objects.filter(content_type__model='account', object_id__in=account_ids)
+        Transaction.objects.filter(
+            content_type__model="account", object_id__in=account_ids
+        )
         .exclude(category__is_transfer=True)
         .order_by("-date")[:qty]
     )
@@ -30,10 +33,11 @@ def get_latest_transactions(user, qty):
 def get_latest_transfers(user, qty):
     transfers = (
         Transfer.objects.filter(user=user)
-            .prefetch_related(
-                "from_transaction__content_object__currency", "to_transaction__content_object__currency"
-            )
-            .order_by("-date")[:qty]
+        .prefetch_related(
+            "from_transaction__content_object__currency",
+            "to_transaction__content_object__currency",
+        )
+        .order_by("-date")[:qty]
     )
     return transfers
 
@@ -169,23 +173,74 @@ def get_loan_progress(loan_object):
     Given a loan object, returns percentage of .
     """
     if loan_object.initial == 0:
-        return '0.00'
+        return "0.00"
     else:
-        progress = ((loan_object.initial - loan_object.balance) / loan_object.initial) * 100
+        progress = (
+            (loan_object.initial - loan_object.balance) / loan_object.initial
+        ) * 100
         return round(progress, 2)
+
 
 def get_payment_stats(loan_object):
     data = {}
-    data[loan_object.created.strftime('%Y-%m-%d')] = abs(loan_object.initial)
+    data[loan_object.created.strftime("%Y-%m-%d")] = abs(loan_object.initial)
     transactions = Transaction.objects.filter(
-        content_type__model='loan',
-        object_id=loan_object.id
-    ).order_by('date')
+        content_type__model="loan", object_id=loan_object.id
+    ).order_by("date")
     balance = loan_object.initial
     for tr in transactions:
         balance += tr.amount
-        data[tr.date.strftime('%Y-%m-%d')] = abs(balance)
+        data[tr.date.strftime("%Y-%m-%d")] = abs(balance)
     return data
+
+def get_monthly_asset_balance_change(asset):
+    '''
+        Takes an asset(account or loan) and returns a queryset of dictionaries of monthly change.
+        (total incomes - total expences)
+    '''
+    transactions = Transaction.objects.filter(
+        content_type__model=asset.__class__.__name__.lower(),
+        object_id= asset.id
+    )
+    monthly_total = (
+        transactions.annotate(month=ExtractMonth('date'), year=ExtractYear('date'))
+        .values('month', 'year')
+        .annotate(total=Coalesce(Sum('amount', filter=Q(type='I')), Decimal(0))-Coalesce(Sum('amount', filter=Q(type='E')), Decimal(0)))
+        .order_by('year', 'month')
+    )
+    return monthly_total
+
+
+def get_worth_stats(user):
+    stats = {}
+    # user = User.objects.get(username="baris")
+    # accounts_list = Account.objects.filter(user=user).values_list("id", flat=True)
+    # transactions = Transaction.objects.filter(
+    #     content_type__model="account", object_id__in=accounts_list
+    # )
+    # expences = transactions.filter(type="E")
+    # monthly_expences = (
+    #     expences.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
+    #     .values("month", "year")
+    #     .annotate(Sum("amount"))
+    #     .order_by("year", "month")
+    # )
+    # print("\n---monthly expences---")
+    # for item in monthly_expences:
+    #     print(item)
+
+    # incomes = transactions.filter(type="I")
+    # monthly_incomes = (
+    #     incomes.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
+    #     .values("month", "year")
+    #     .annotate(Sum("amount"))
+    #     .order_by("year", "month")
+    # )
+    # print("\n---monthly incomes---")
+    # for item in monthly_incomes:
+    #     print(item)
+
+    return stats
 
 
 @receiver(post_save, sender=User)
