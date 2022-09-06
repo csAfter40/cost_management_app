@@ -1,7 +1,6 @@
 import decimal
 import datetime
 from unittest.mock import Mock, MagicMock, patch
-from urllib import response
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -15,6 +14,7 @@ from main.utils import (
     get_stats,
     get_payment_stats,
     get_worth_stats,
+    get_monthly_asset_balance_change,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -203,3 +203,16 @@ class TestUtilityFunctions(TestCase):
     def test_get_worth_stats(self):
         response = get_worth_stats(self.user)
         self.assertIsInstance(response, dict)
+
+    def test_get_mothly_asset_balance_change(self):
+        account = AccountFactory()
+        dates = [
+            datetime.date(2022, 2, 10),
+            datetime.date(2022, 3, 10),
+            datetime.date(2022, 4, 10),
+            datetime.date(2022, 4, 15),
+        ]
+        for date in dates:
+            AccountTransactionFactory.create(content_object=account, date=date)
+        monthly_totals = get_monthly_asset_balance_change(account)
+        self.assertEquals(len(monthly_totals), 3)
