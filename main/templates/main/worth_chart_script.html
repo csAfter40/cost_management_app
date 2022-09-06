@@ -1,0 +1,43 @@
+<script id="chart-script">
+
+  const dataPayment = {
+    datasets: [{
+      data: [{% for key, value in payment_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
+      borderColor: 'rgb(75, 192, 192)',
+    }]
+  };
+
+  const configPayment = {
+    type: 'line',
+    data: dataPayment,
+    options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          },
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: {
+              unit: 'month'
+            },
+          },
+          
+          y: {
+            min: 0,
+            max: 3000,
+            title: {
+              display: true,
+              text: '{{object.currency}}'
+            }
+          },
+          
+        },
+      }
+  };
+
+  const paymentsCtx = document.querySelector('#paymentsChart');
+  const paymentsChart = new Chart(paymentsCtx, configPayment);
+</script>
