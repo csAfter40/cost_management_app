@@ -221,12 +221,12 @@ def get_monthly_asset_balance(asset):
     (total incomes - total expences)
     """
     data = {}
-    data[asset.created.strftime("%Y-%#m")] = asset.initial
+    data[asset.created.strftime("%Y-%m")] = asset.initial
     monthly_totals = get_monthly_asset_balance_change(asset)
     balance = asset.initial
     for item in monthly_totals:
         balance += item["total"]
-        data[f"{item['year']}-{item['month']}"] = balance
+        data[f"{item['year']}-{item['month']:02d}"] = balance
     return data
 
 
