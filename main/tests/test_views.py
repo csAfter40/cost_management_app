@@ -1015,7 +1015,9 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     
     def setUp(self) -> None:
         super().setUp()
-        self.object = AccountFactory(user=self.user)
+        CategoryFactory(user=self.user, type='E', name='Asset Delete', parent=None)
+        CategoryFactory(user=self.user, type='I', name='Asset Delete', parent=None)
+        self.object = AccountFactory(user=self.user, balance=0)
         self.test_url = reverse('main:delete_account', kwargs={'pk':self.object.id})
 
     def test_inactive_account(self):
@@ -1029,6 +1031,21 @@ class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, self.post_data)
         self.assertEquals(response.status_code, 302)
 
+    def test_with_positive_balance_account(self):
+        account = AccountFactory(user=self.user, balance=100)
+        test_url = reverse('main:delete_account', kwargs={'pk':account.id})
+        self.client.post(test_url)
+        transaction = Transaction.objects.first()
+        self.assertEquals(transaction.amount, 100)
+        self.assertEquals(transaction.type, 'E')
+
+    def test_with_negative_balance_account(self):
+        account = AccountFactory(user=self.user, balance=-100)
+        test_url = reverse('main:delete_account', kwargs={'pk':account.id})
+        self.client.post(test_url)
+        transaction = Transaction.objects.first()
+        self.assertEquals(transaction.amount, 100)
+        self.assertEquals(transaction.type, 'I')
 
 class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     
