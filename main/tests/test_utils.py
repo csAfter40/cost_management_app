@@ -16,6 +16,7 @@ from main.utils import (
     get_worth_stats,
     get_monthly_asset_balance_change,
     get_monthly_asset_balance,
+    get_monthly_currency_balance,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -233,6 +234,30 @@ class TestUtilityFunctions(TestCase):
             '2022-5': 10000,
             '2022-6': 11000,
             '2022-7': 12000,
+        }
+        self.assertEquals(monthly_balances, expected)
+
+    @freeze_time('2022-05-25')
+    def test_get_monthly_currency_balance(self):
+        currency = CurrencyFactory()
+        currency_account_1 = AccountFactory(user=self.user, balance=decimal.Decimal(10000), currency=currency)
+        currency_account_2 = AccountFactory(user=self.user, balance=decimal.Decimal(5000), currency=currency)
+        non_currency_account = AccountFactory(user=self.user, balance=decimal.Decimal(20000))
+        non_user_account = AccountFactory(currency=currency, balance=decimal.Decimal(20000))
+        dates = [
+            datetime.date(2022, 6, 10),
+            datetime.date(2022, 7, 10),
+        ]
+        accounts = [currency_account_1, currency_account_2, non_currency_account, non_user_account]
+        for date in dates:
+            for account in accounts:
+                AccountTransactionFactory.create(content_object=account, date=date, amount=2000, type='I')
+                AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='E')
+        monthly_balances = get_monthly_currency_balance(user=self.user, currency=currency)
+        expected = {
+            '2022-5': 15000,
+            '2022-6': 17000,
+            '2022-7': 19000,
         }
         self.assertEquals(monthly_balances, expected)
                 
