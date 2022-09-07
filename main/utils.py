@@ -243,6 +243,16 @@ def get_monthly_currency_balance(user, currency):
             data[key] = data.get(key, 0) + value
     return data
 
+def get_user_currencies(user):
+    '''
+    Takes a user and returns a set of user's active accounts.
+    '''
+    currencies = set()
+    active_user_accounts = Account.objects.filter(user=user, is_active=True)
+    for account in active_user_accounts:
+        currencies.add(account.currency)
+    return currencies
+
 def get_worth_stats(user):
     stats = {}
 
