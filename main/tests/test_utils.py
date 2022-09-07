@@ -19,6 +19,7 @@ from main.utils import (
     get_monthly_currency_balance,
     get_user_currencies,
     get_worth_stats,
+    sort_balance_data,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -233,9 +234,9 @@ class TestUtilityFunctions(TestCase):
             AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='E')
         monthly_balances = get_monthly_asset_balance(account)
         expected = {
-            '2022-5': 10000,
-            '2022-6': 11000,
-            '2022-7': 12000,
+            '2022-05': 10000,
+            '2022-06': 11000,
+            '2022-07': 12000,
         }
         self.assertEquals(monthly_balances, expected)
 
@@ -257,9 +258,9 @@ class TestUtilityFunctions(TestCase):
                 AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='E')
         monthly_balances = get_monthly_currency_balance(user=self.user, currency=currency)
         expected = {
-            '2022-5': 15000,
-            '2022-6': 17000,
-            '2022-7': 19000,
+            '2022-05': 15000,
+            '2022-06': 17000,
+            '2022-07': 19000,
         }
         self.assertEquals(monthly_balances, expected)
                 
@@ -279,3 +280,9 @@ class TestUtilityFunctions(TestCase):
         stats = get_worth_stats(user=self.user)
         for currency in currencies:
             self.assertIn(currency, stats)
+
+    def test_sort_balance_data(self):
+        data = {'2022-06':5, '2022-01':2, '2022-02':1}
+        sorted_data = sort_balance_data(data)
+        expected = {'2022-01':2, '2022-02':1, '2022-06':5}
+        self.assertEquals(sorted_data, expected)
