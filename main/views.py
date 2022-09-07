@@ -502,6 +502,29 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
     def form_valid(self, form):
         success_url = self.get_success_url()
         self.object.is_active = False
+        if self.object.balance > 0:
+            type = 'E'
+            category = Category.objects.get(user=self.object.user, type=type, name='Asset Delete')
+            transaction = Transaction(
+                content_object=self.object, 
+                name='Asset Delete',
+                amount=self.object.balance,
+                category=category,
+                type=type,
+            )
+            transaction.save()
+        if self.object.balance < 0:
+            type='I'
+            category = Category.objects.get(user=self.request.user, type=type, name='Asset Delete')
+            transaction = Transaction(
+                content_object=self.object, 
+                name='Asset Delete',
+                amount=-self.object.balance,
+                category=category,
+                type=type,
+            )
+            transaction.save()
+        self.object.balance = 0
         self.object.save()
         return HttpResponseRedirect(success_url)
 
