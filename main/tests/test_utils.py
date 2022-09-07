@@ -18,6 +18,7 @@ from main.utils import (
     get_monthly_asset_balance,
     get_monthly_currency_balance,
     get_user_currencies,
+    get_worth_stats,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -268,3 +269,13 @@ class TestUtilityFunctions(TestCase):
             AccountFactory.create_batch(2, user=self.user, currency=currency)
         user_currencies = get_user_currencies(self.user)
         self.assertAlmostEquals(len(user_currencies), 3)
+
+    def test_get_worth_stats(self):
+        currencies = set()
+        for _ in range(3):
+            currency = CurrencyFactory()
+            AccountFactory.create_batch(2, user=self.user, currency=currency)
+            currencies.add(currency)
+        stats = get_worth_stats(user=self.user)
+        for currency in currencies:
+            self.assertIn(currency, stats)
