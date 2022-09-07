@@ -1,15 +1,21 @@
 <script id="chart-script">
 
-  const dataPayment = {
-    datasets: [{
-      data: [{% for key, value in payment_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
-      borderColor: 'rgb(75, 192, 192)',
-    }]
+  const dataWorth = {
+    datasets: [
+      {% for currency, currency_stats in stats.items %}
+        {
+        label: '{{currency}}',
+        data: [{% for key, value in currency_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
+        borderColor: 'rgb(75, 192, 192)',
+        // yAxisID: 'y',
+        },
+      {% endfor %}
+  ]
   };
 
-  const configPayment = {
+  const configWorth = {
     type: 'line',
-    data: dataPayment,
+    data: dataWorth,
     options: {
         responsive: true,
         plugins: {
@@ -27,17 +33,17 @@
           
           y: {
             min: 0,
-            max: 3000,
+            max: 20000,
+            
             title: {
               display: true,
-              text: '{{object.currency}}'
-            }
+              text: 'hello'
+            },
           },
-          
         },
       }
   };
 
-  const paymentsCtx = document.querySelector('#paymentsChart');
-  const paymentsChart = new Chart(paymentsCtx, configPayment);
+  const worthCtx = document.querySelector('#worthChart');
+  const worthChart = new Chart(worthCtx, configWorth);
 </script>
