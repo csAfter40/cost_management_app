@@ -17,6 +17,7 @@ from main.utils import (
     get_monthly_asset_balance_change,
     get_monthly_asset_balance,
     get_monthly_currency_balance,
+    get_user_currencies,
     is_owner,
     validate_main_category_uniqueness,
     create_user_categories,
@@ -261,3 +262,9 @@ class TestUtilityFunctions(TestCase):
         }
         self.assertEquals(monthly_balances, expected)
                 
+    def test_get_user_currencies(self):
+        for _ in range(3):
+            currency = CurrencyFactory()
+            AccountFactory.create_batch(2, user=self.user, currency=currency)
+        user_currencies = get_user_currencies(self.user)
+        self.assertAlmostEquals(len(user_currencies), 3)
