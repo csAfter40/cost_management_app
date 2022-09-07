@@ -255,7 +255,9 @@ def get_user_currencies(user):
 
 def get_worth_stats(user):
     stats = {}
-
+    currencies = get_user_currencies(user)
+    for currency in currencies:
+        stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
 
 
