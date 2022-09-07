@@ -214,6 +214,11 @@ def get_monthly_asset_balance_change(asset):
     )
     return monthly_total
 
+def sort_balance_data(data):
+    '''
+    Takes a dictionary and returns a sorted dictionary by keys.
+    '''
+    return dict(sorted(data.items()))
 
 def get_monthly_asset_balance(asset):
     """
@@ -241,7 +246,7 @@ def get_monthly_currency_balance(user, currency):
         monthly_balance = get_monthly_asset_balance(account)
         for key, value in monthly_balance.items():
             data[key] = data.get(key, 0) + value
-    return data
+    return sort_balance_data(data)
 
 def get_user_currencies(user):
     '''
