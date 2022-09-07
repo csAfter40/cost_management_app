@@ -226,7 +226,8 @@ class TestUtilityFunctions(TestCase):
             datetime.date(2022, 7, 10),
         ]
         for date in dates:
-            AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='I')
+            AccountTransactionFactory.create(content_object=account, date=date, amount=2000, type='I')
+            AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='E')
         monthly_balances = get_monthly_asset_balance(account)
         expected = {
             '2022-5': 10000,
