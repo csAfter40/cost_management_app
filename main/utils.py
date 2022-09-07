@@ -193,65 +193,58 @@ def get_payment_stats(loan_object):
         data[tr.date.strftime("%Y-%m-%d")] = abs(balance)
     return data
 
+
 def get_monthly_asset_balance_change(asset):
-    '''
-        Takes an asset(account or loan) and returns a queryset of dictionaries of monthly change.
-        (total incomes - total expences)
-    '''
+    """
+    Takes an asset(account or loan) and returns a queryset of dictionaries of monthly change.
+    (total incomes - total expences)
+    """
     transactions = Transaction.objects.filter(
-        content_type__model=asset.__class__.__name__.lower(),
-        object_id= asset.id
+        content_type__model=asset.__class__.__name__.lower(), 
+        object_id=asset.id, 
     )
     monthly_total = (
-        transactions.annotate(month=ExtractMonth('date'), year=ExtractYear('date'))
-        .values('month', 'year')
-        .annotate(total=Coalesce(Sum('amount', filter=Q(type='I')), Decimal(0))-Coalesce(Sum('amount', filter=Q(type='E')), Decimal(0)))
-        .order_by('year', 'month')
+        transactions.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
+        .values("month", "year")
+        .annotate(
+            total=Coalesce(Sum("amount", filter=Q(type="I")), Decimal(0))
+            - Coalesce(Sum("amount", filter=Q(type="E")), Decimal(0))
+        )
+        .order_by("year", "month")
     )
     return monthly_total
 
+
 def get_monthly_asset_balance(asset):
-    '''
-        Takes an asset(account or loan) and returns a dictionary of monthly balance.
-        (total incomes - total expences)
-    '''
+    """
+    Takes an asset(account or loan) and returns a dictionary of monthly balance.
+    (total incomes - total expences)
+    """
     data = {}
     data[asset.created.strftime("%Y-%#m")] = asset.initial
     monthly_totals = get_monthly_asset_balance_change(asset)
     balance = asset.initial
     for item in monthly_totals:
-        balance += item['total']
+        balance += item["total"]
         data[f"{item['year']}-{item['month']}"] = balance
+    return data
+
+
+def get_monthly_currency_balance(user, currency):
+    """
+    Takes an currency and returns a dictionary of monthly balance for all accounts in that currency.
+    (total incomes - total expences)
+    """
+    accounts = Account.objects.filter(user=user, currency=currency)
+    data = {}
+    for account in accounts:
+        monthly_balance = get_monthly_asset_balance(account)
+        for key, value in monthly_balance.items():
+            data[key] = data.get(key, 0) + value
     return data
 
 def get_worth_stats(user):
     stats = {}
-    # user = User.objects.get(username="baris")
-    # accounts_list = Account.objects.filter(user=user).values_list("id", flat=True)
-    # transactions = Transaction.objects.filter(
-    #     content_type__model="account", object_id__in=accounts_list
-    # )
-    # expences = transactions.filter(type="E")
-    # monthly_expences = (
-    #     expences.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
-    #     .values("month", "year")
-    #     .annotate(Sum("amount"))
-    #     .order_by("year", "month")
-    # )
-    # print("\n---monthly expences---")
-    # for item in monthly_expences:
-    #     print(item)
-
-    # incomes = transactions.filter(type="I")
-    # monthly_incomes = (
-    #     incomes.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
-    #     .values("month", "year")
-    #     .annotate(Sum("amount"))
-    #     .order_by("year", "month")
-    # )
-    # print("\n---monthly incomes---")
-    # for item in monthly_incomes:
-    #     print(item)
 
     return stats
 
