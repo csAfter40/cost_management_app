@@ -216,9 +216,10 @@ def get_monthly_asset_balance_change(asset):
 
 def sort_balance_data(data):
     '''
-    Takes a dictionary and returns a sorted dictionary by keys.
+    Takes a dictionary and returns a list of tuples sorted by dictionary keys.
     '''
-    return dict(sorted(data.items()))
+    return sorted(data.items())
+
 
 def get_monthly_asset_balance(asset):
     """
