@@ -257,11 +257,11 @@ class TestUtilityFunctions(TestCase):
                 AccountTransactionFactory.create(content_object=account, date=date, amount=2000, type='I')
                 AccountTransactionFactory.create(content_object=account, date=date, amount=1000, type='E')
         monthly_balances = get_monthly_currency_balance(user=self.user, currency=currency)
-        expected = {
-            '2022-05': 15000,
-            '2022-06': 17000,
-            '2022-07': 19000,
-        }
+        expected = [
+            ('2022-05', 15000),
+            ('2022-06', 17000),
+            ('2022-07', 19000),
+        ]
         self.assertEquals(monthly_balances, expected)
                 
     def test_get_user_currencies(self):
@@ -284,5 +284,5 @@ class TestUtilityFunctions(TestCase):
     def test_sort_balance_data(self):
         data = {'2022-06':5, '2022-01':2, '2022-02':1}
         sorted_data = sort_balance_data(data)
-        expected = {'2022-01':2, '2022-02':1, '2022-06':5}
+        expected = [('2022-01', 2), ('2022-02', 1), ('2022-06', 5)]
         self.assertEquals(sorted_data, expected)
