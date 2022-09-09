@@ -22,6 +22,7 @@ from main.utils import (
     sort_balance_data,
     is_owner,
     validate_main_category_uniqueness,
+    convert_str_to_date,
     create_user_categories,
     create_user_preferences,
 )
@@ -286,3 +287,8 @@ class TestUtilityFunctions(TestCase):
         sorted_data = sort_balance_data(data)
         expected = [('2022-01', 2), ('2022-02', 1), ('2022-06', 5)]
         self.assertEquals(sorted_data, expected)
+
+    def test_convert_srt_to_date(self):
+        date = convert_str_to_date('2022-02')
+        expected = datetime.datetime(2022,2,1)
+        self.assertEquals(date, expected)
