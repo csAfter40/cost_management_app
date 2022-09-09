@@ -123,3 +123,12 @@ class Transfer(models.Model):
 
     def __str__(self):
         return f"On {self.date} from {self.from_transaction.content_object} to {self.to_transaction.content_object} {self.from_transaction.amount}"
+
+
+class Rate(models.Model):
+    currency = models.OneToOneField(Currency, on_delete=models.CASCADE, related_name='rate')
+    rate = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.currency} - {self.rate}'
