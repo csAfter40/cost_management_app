@@ -15,7 +15,8 @@ from .models import (
     Loan,
 )
 from .categories import categories
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
+from dateutil.relativedelta import relativedelta
 
 
 def get_latest_transactions(user, qty):
@@ -221,6 +222,32 @@ def sort_balance_data(data):
     return sorted(data.items())
 
 
+def convert_str_to_date(str):
+    return datetime.strptime(str, "%Y-%m")
+
+
+def convert_date_to_str(date):
+    return date.strftime("%Y-%m")
+
+def get_next_month(date: str) -> str:
+        datetime_obj = convert_str_to_date(date)
+        new_date = datetime_obj + relativedelta(months=+1)
+        return convert_date_to_str(new_date)
+
+def fill_missing_monthly_data(data):
+    start_date = min(data)
+    end_date = max(data)
+    current_date = start_date
+    current_value = data[current_date]
+    while current_date < end_date:
+        if current_date in data:
+            current_value = data[current_date]
+        else:
+           data[current_date] = current_value
+        current_date = get_next_month(current_date)
+    return data
+
+
 def get_monthly_asset_balance(asset):
     """
     Takes an asset(account or loan) and returns a dictionary of monthly balance.
@@ -247,6 +274,7 @@ def get_monthly_currency_balance(user, currency):
         monthly_balance = get_monthly_asset_balance(account)
         for key, value in monthly_balance.items():
             data[key] = data.get(key, 0) + value
+    data = fill_missing_monthly_data(data)
     return sort_balance_data(data)
 
 def get_user_currencies(user):
