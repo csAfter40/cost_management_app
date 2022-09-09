@@ -23,6 +23,7 @@ from main.utils import (
     is_owner,
     validate_main_category_uniqueness,
     convert_str_to_date,
+    convert_date_to_str,
     create_user_categories,
     create_user_preferences,
 )
@@ -292,3 +293,8 @@ class TestUtilityFunctions(TestCase):
         date = convert_str_to_date('2022-02')
         expected = datetime.datetime(2022,2,1)
         self.assertEquals(date, expected)
+
+    def test_convert_date_to_str(self):
+        date = datetime.datetime(2022,2,1)
+        str = convert_date_to_str(date)
+        self.assertEquals(str, '2022-02')
