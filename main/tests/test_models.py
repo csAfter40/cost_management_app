@@ -18,6 +18,7 @@ from main.tests.factories import (
     LoanTransactionFactory,
     TransferFactory,
     UserPreferencesFactory,
+    RateFactory,
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -117,3 +118,8 @@ class TestUserPreferences(TestCase):
     def test_str(self):
         user_preferences = UserPreferencesFactory()
         self.assertEquals(str(user_preferences), f"{user_preferences.user} preferences")
+
+class TestRate(TestCase):
+    def test_str(self):
+        rate = RateFactory()
+        self.assertEquals(str(rate), f'{rate.currency} - {rate.rate}')
