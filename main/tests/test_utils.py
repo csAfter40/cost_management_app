@@ -24,6 +24,7 @@ from main.utils import (
     validate_main_category_uniqueness,
     convert_str_to_date,
     convert_date_to_str,
+    get_next_month,
     create_user_categories,
     create_user_preferences,
 )
@@ -298,3 +299,9 @@ class TestUtilityFunctions(TestCase):
         date = datetime.datetime(2022,2,1)
         str = convert_date_to_str(date)
         self.assertEquals(str, '2022-02')
+
+    def test_get_next_month(self):
+        date1 = get_next_month('2022-02')
+        date2 = get_next_month('2022-12')
+        self.assertEquals(date1,'2022-03')
+        self.assertEquals(date2,'2023-01')
