@@ -1,14 +1,20 @@
 <script id="chart-script">
-  const colors = ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda']
-  const yAxisPositions = ['left', 'right']
+  const colors = ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'];
+  const yAxisPositions = ['left', 'right'];
+  const now = Date.now();
+  function addMonths(numOfMonths, date = new Date()) {
+    date.setMonth(date.getMonth() + numOfMonths);
+    return date
+  };
+  const minDate = addMonths(-6);
+  const maxDate = addMonths(2);
+
   const dataWorth = {
     datasets: [
       {% for currency, currency_stats in stats.items %}
         {
         label: '{{currency}}',
         data: [{% for values in currency_stats %}{x:'{{values.0}}', y:{{ values.1 }}}, {% endfor %}],
-        // data: [{% for key, value in currency_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
-        // borderColor: 'rgb(75, 192, 192)',
         yAxisID: 'y{{forloop.counter}}',
         borderColor: colors[{{forloop.counter0}} % colors.length],
         backgroundColor: colors[{{forloop.counter0}} % colors.length],
@@ -26,11 +32,13 @@
         plugins: {
           title: {
             display: true,
-            text: 'Monthly Net Worth'
+            text: 'Monthly Net Worth by Currency'
           }
         },
         scales: {
           x: {
+            min: minDate,
+            max: maxDate,
             type: 'time',
             time: {
               unit: 'month'
@@ -38,13 +46,16 @@
           },
           {% for currency, currency_stats in stats.items %}
             y{{forloop.counter}}: {
-              min: 0,
+              suggestedMin: 0,
               ticks: {
                 color: colors[{{forloop.counter0}} % colors.length],
+                callback: function(value, index, ticks) {
+                  return '{{currency.symbol}}' + value;
+                },
               },
               type: 'linear',
               display: true,
-              position: yAxisPositions[{{forloop.counter}}%2],
+              position: yAxisPositions[{{forloop.counter0}}%2],
               title: {
                 display: true,
                 text: '{{currency}}',
