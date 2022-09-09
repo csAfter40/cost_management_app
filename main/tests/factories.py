@@ -1,6 +1,6 @@
 import factory
 import factory.fuzzy
-from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences
+from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences, Rate
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
 import string
@@ -10,7 +10,6 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    # username = factory.Faker('user_name')
     username = factory.Sequence(lambda n: f'user{n}')
     email = factory.Faker('email')
 
@@ -110,3 +109,11 @@ class UserPreferencesFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactoryNoSignal)
     primary_currency = factory.SubFactory(CurrencyFactory)
+
+class RateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Rate
+
+    currency = factory.SubFactory(CurrencyFactory)
+    rate = factory.fuzzy.FuzzyDecimal(0, 10, 2)
+    
