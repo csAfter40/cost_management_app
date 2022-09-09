@@ -1,14 +1,19 @@
 <script id="chart-script">
-
+  const colors = ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda']
+  const yAxisPositions = ['left', 'right']
   const dataWorth = {
     datasets: [
       {% for currency, currency_stats in stats.items %}
         {
         label: '{{currency}}',
-        data: [{% for key, value in currency_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
-        borderColor: 'rgb(75, 192, 192)',
-        // yAxisID: 'y',
+        data: [{% for values in currency_stats %}{x:'{{values.0}}', y:{{ values.1 }}}, {% endfor %}],
+        // data: [{% for key, value in currency_stats.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
+        // borderColor: 'rgb(75, 192, 192)',
+        yAxisID: 'y{{forloop.counter}}',
+        borderColor: colors[{{forloop.counter0}} % colors.length],
+        backgroundColor: colors[{{forloop.counter0}} % colors.length],
         },
+
       {% endfor %}
   ]
   };
@@ -19,9 +24,10 @@
     options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false
-          },
+          title: {
+            display: true,
+            text: 'Monthly Net Worth'
+          }
         },
         scales: {
           x: {
@@ -30,16 +36,22 @@
               unit: 'month'
             },
           },
-          
-          y: {
-            min: 0,
-            max: 20000,
-            
-            title: {
+          {% for currency, currency_stats in stats.items %}
+            y{{forloop.counter}}: {
+              min: 0,
+              ticks: {
+                color: colors[{{forloop.counter0}} % colors.length],
+              },
+              type: 'linear',
               display: true,
-              text: 'hello'
+              position: yAxisPositions[{{forloop.counter}}%2],
+              title: {
+                display: true,
+                text: '{{currency}}',
+                color: colors[{{forloop.counter0}} % colors.length],
+              }
             },
-          },
+          {% endfor %}
         },
       }
   };
