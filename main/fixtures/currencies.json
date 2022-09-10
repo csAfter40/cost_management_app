@@ -1144,15 +1144,6 @@
     },
     {
         "model": "main.currency",
-        "pk": 211,
-        "fields": {
-            "code": "SSP",
-            "name": "South Sudanese pound",
-            "symbol": "\u00a3"
-        }
-    },
-    {
-        "model": "main.currency",
         "pk": 213,
         "fields": {
             "code": "LKR",
@@ -1338,15 +1329,6 @@
             "code": "VUV",
             "name": "Vanuatu vatu",
             "symbol": "Vt"
-        }
-    },
-    {
-        "model": "main.currency",
-        "pk": 243,
-        "fields": {
-            "code": "VEF",
-            "name": "Venezuelan bol\u00edvar",
-            "symbol": "Bs F"
         }
     },
     {
