@@ -8,6 +8,7 @@ from .models import (
     Transfer,
     UserPreferences,
     Loan,
+    Rate,
 )
 
 
@@ -61,3 +62,9 @@ class TransferAdmin(admin.ModelAdmin):
 class UserPreferencesAdmin(admin.ModelAdmin):
     list_display = ('user',)
     ordering = ('user__username',)
+
+
+@admin.register(Rate)
+class RateAdmin(admin.ModelAdmin):
+    list_display = ('currency', 'rate', 'updated')
+    ordering = ('currency',)
