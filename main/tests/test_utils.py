@@ -29,6 +29,7 @@ from main.utils import (
     fill_missing_monthly_data,
     convert_money,
     get_net_worth_by_currency,
+    get_user_net_worths,
     create_user_categories,
     create_user_preferences,
 )
@@ -335,4 +336,15 @@ class TestUtilityFunctions(TestCase):
         non_user_account_in_currency = AccountFactory(currency=currency)
         result = get_net_worth_by_currency(user=self.user, currency=currency)
         expected = 300
+        self.assertEquals(result, expected)
+
+    def test_get_user_net_worths(self):
+        currency1 = CurrencyFactory()
+        currency2 = CurrencyFactory()
+        currency1_account1 = AccountFactory(user=self.user, currency=currency1, balance=100)
+        currency1_account2 = AccountFactory(user=self.user, currency=currency1, balance=200)
+        currency2_account1 = AccountFactory(user=self.user, currency=currency2, balance=300)
+        currency2_account2 = AccountFactory(user=self.user, currency=currency2, balance=400)
+        result = get_user_net_worths(self.user)
+        expected = {currency1: 300, currency2: 700}
         self.assertEquals(result, expected)
