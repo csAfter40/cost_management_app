@@ -1,9 +1,9 @@
 from main.models import (
-    User, Currency, Account, Loan, Category, Transaction,
+    Rate, User, Currency, Account, Loan, Category, Transaction,
     Transfer, UserPreferences,
 )
 from main.tests.factories import (
-    AccountTransactionFactory, LoanTransactionFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
+    AccountTransactionFactory, LoanTransactionFactory, RateFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
     LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
@@ -56,3 +56,7 @@ class TestTransferFactoryNoSignal(BaseFactoryTestMixin, TestCase):
 class TestUserPreferecesFactory(BaseFactoryTestMixin, TestCase):
     model = UserPreferences
     factory_class = UserPreferencesFactory
+
+class TestRateFactory(BaseFactoryTestMixin, TestCase):
+    model = Rate
+    factory_class = RateFactory
