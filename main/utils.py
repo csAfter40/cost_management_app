@@ -1,4 +1,5 @@
 from decimal import Decimal
+from locale import currency
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Sum, DecimalField
@@ -13,6 +14,7 @@ from .models import (
     Category,
     Transaction,
     Loan,
+    Rate,
 )
 from .categories import categories
 from datetime import date, timedelta, datetime
@@ -293,6 +295,16 @@ def get_worth_stats(user):
     for currency in currencies:
         stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
+
+def convert_money(from_currency, to_currency, amount):
+    '''
+    A basic currency converter. Takes from currency, to currency and an amount. 
+    Returns converted amount. 
+    '''
+    from_currency_rate = Rate.objects.get(currency=from_currency)
+    to_currency_rate = Rate.objects.get(currency=to_currency)
+    conversion_rate = to_currency_rate.rate / from_currency_rate.rate
+    return amount * conversion_rate
 
 
 @receiver(post_save, sender=User)
