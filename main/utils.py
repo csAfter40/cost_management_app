@@ -306,6 +306,15 @@ def convert_money(from_currency, to_currency, amount):
     conversion_rate = to_currency_rate.rate / from_currency_rate.rate
     return amount * conversion_rate
 
+def get_net_worth_by_currency(user, currency):
+    '''
+    Takes user and currency objects and returns a decimal showing new worth of user in the currency.
+    '''
+    accounts = Account.objects.filter(user=user, currency=currency)
+    net_worth = 0
+    for account in accounts:
+        net_worth += account.balance
+    return net_worth
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
