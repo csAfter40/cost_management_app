@@ -28,6 +28,7 @@ from main.utils import (
     get_next_month,
     fill_missing_monthly_data,
     convert_money,
+    get_net_worth_by_currency,
     create_user_categories,
     create_user_preferences,
 )
@@ -324,4 +325,14 @@ class TestUtilityFunctions(TestCase):
         to_rate = RateFactory(currency=to_currency, rate=18)
         result = convert_money(from_currency=from_currency, to_currency=to_currency, amount=100)
         expected = 1800
+        self.assertEquals(result, expected)
+
+    def test_get_net_worth_by_currency(self):
+        currency = CurrencyFactory()
+        user_account_in_currency_1 = AccountFactory(user=self.user, currency=currency, balance=100)
+        user_account_in_currency_2 = AccountFactory(user=self.user, currency=currency, balance=200)
+        user_account_in_other_currency = AccountFactory(user=self.user, balance=1000)
+        non_user_account_in_currency = AccountFactory(currency=currency)
+        result = get_net_worth_by_currency(user=self.user, currency=currency)
+        expected = 300
         self.assertEquals(result, expected)
