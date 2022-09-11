@@ -1,5 +1,6 @@
 import decimal
 import datetime
+from locale import currency
 from unittest.mock import Mock, MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
@@ -26,12 +27,14 @@ from main.utils import (
     convert_date_to_str,
     get_next_month,
     fill_missing_monthly_data,
+    convert_money,
     create_user_categories,
     create_user_preferences,
 )
 from main.tests.factories import (
     CategoryFactory,
     CurrencyFactory,
+    RateFactory,
     TransactionFactory,
     TransferFactory,
     UserFactory,
@@ -311,4 +314,14 @@ class TestUtilityFunctions(TestCase):
         data = {'2022-02':1, '2022-01':5, '2022-04':9}
         result = fill_missing_monthly_data(data)
         expected = {'2022-02':1, '2022-01':5, '2022-03':1, '2022-04':9}
+        self.assertEquals(result, expected)
+
+
+    def test_convert_money(self):
+        from_currency = CurrencyFactory(code='USD')
+        to_currency = CurrencyFactory(code='TRY')
+        from_rate = RateFactory(currency=from_currency, rate=1)
+        to_rate = RateFactory(currency=to_currency, rate=18)
+        result = convert_money(from_currency=from_currency, to_currency=to_currency, amount=100)
+        expected = 1800
         self.assertEquals(result, expected)
