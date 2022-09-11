@@ -317,7 +317,7 @@ def get_net_worth_by_currency(user, currency):
     """
     Takes user and currency objects and returns a decimal showing new worth of user in the currency.
     """
-    accounts = Account.objects.filter(user=user, currency=currency)
+    accounts = Account.objects.filter(user=user, currency=currency, is_active=True)
     net_worth = 0
     for account in accounts:
         net_worth += account.balance
