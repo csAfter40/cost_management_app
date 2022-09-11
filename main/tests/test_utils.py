@@ -330,8 +330,9 @@ class TestUtilityFunctions(TestCase):
 
     def test_get_net_worth_by_currency(self):
         currency = CurrencyFactory()
-        user_account_in_currency_1 = AccountFactory(user=self.user, currency=currency, balance=100)
-        user_account_in_currency_2 = AccountFactory(user=self.user, currency=currency, balance=200)
+        user_account1_in_currency = AccountFactory(user=self.user, currency=currency, balance=100)
+        user_account2_in_currency = AccountFactory(user=self.user, currency=currency, balance=200)
+        user_inactive_account_in_currency = AccountFactory(user=self.user, currency=currency, balance=1000, is_active=False)
         user_account_in_other_currency = AccountFactory(user=self.user, balance=1000)
         non_user_account_in_currency = AccountFactory(currency=currency)
         result = get_net_worth_by_currency(user=self.user, currency=currency)
