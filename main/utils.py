@@ -203,8 +203,8 @@ def get_monthly_asset_balance_change(asset):
     (total incomes - total expences)
     """
     transactions = Transaction.objects.filter(
-        content_type__model=asset.__class__.__name__.lower(), 
-        object_id=asset.id, 
+        content_type__model=asset.__class__.__name__.lower(),
+        object_id=asset.id,
     )
     monthly_total = (
         transactions.annotate(month=ExtractMonth("date"), year=ExtractYear("date"))
@@ -217,10 +217,11 @@ def get_monthly_asset_balance_change(asset):
     )
     return monthly_total
 
+
 def sort_balance_data(data):
-    '''
+    """
     Takes a dictionary and returns a list of tuples sorted by dictionary keys.
-    '''
+    """
     return sorted(data.items())
 
 
@@ -231,10 +232,12 @@ def convert_str_to_date(str):
 def convert_date_to_str(date):
     return date.strftime("%Y-%m")
 
+
 def get_next_month(date: str) -> str:
-        datetime_obj = convert_str_to_date(date)
-        new_date = datetime_obj + relativedelta(months=+1)
-        return convert_date_to_str(new_date)
+    datetime_obj = convert_str_to_date(date)
+    new_date = datetime_obj + relativedelta(months=+1)
+    return convert_date_to_str(new_date)
+
 
 def fill_missing_monthly_data(data):
     start_date = min(data)
@@ -245,7 +248,7 @@ def fill_missing_monthly_data(data):
         if current_date in data:
             current_value = data[current_date]
         else:
-           data[current_date] = current_value
+            data[current_date] = current_value
         current_date = get_next_month(current_date)
     return data
 
@@ -279,15 +282,17 @@ def get_monthly_currency_balance(user, currency):
     data = fill_missing_monthly_data(data)
     return sort_balance_data(data)
 
+
 def get_user_currencies(user):
-    '''
+    """
     Takes a user and returns a set of user's active accounts.
-    '''
+    """
     currencies = set()
     active_user_accounts = Account.objects.filter(user=user, is_active=True)
     for account in active_user_accounts:
         currencies.add(account.currency)
     return currencies
+
 
 def get_worth_stats(user):
     stats = {}
@@ -296,25 +301,41 @@ def get_worth_stats(user):
         stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
 
+
 def convert_money(from_currency, to_currency, amount):
-    '''
-    A basic currency converter. Takes from currency, to currency and an amount. 
-    Returns converted amount. 
-    '''
+    """
+    A basic currency converter. Takes from currency, to currency and an amount.
+    Returns converted amount.
+    """
     from_currency_rate = Rate.objects.get(currency=from_currency)
     to_currency_rate = Rate.objects.get(currency=to_currency)
     conversion_rate = to_currency_rate.rate / from_currency_rate.rate
     return amount * conversion_rate
 
+
 def get_net_worth_by_currency(user, currency):
-    '''
+    """
     Takes user and currency objects and returns a decimal showing new worth of user in the currency.
-    '''
+    """
     accounts = Account.objects.filter(user=user, currency=currency)
     net_worth = 0
     for account in accounts:
         net_worth += account.balance
     return net_worth
+
+
+def get_user_net_worths(user):
+    """
+    Takes a user object and returns a dictionary of net worths in which keys are 
+    currencies and values are total balance of all accounts of the user in that 
+    currency.
+    """
+    net_worths = {}
+    currencies = get_user_currencies(user)
+    for currency in currencies:
+        net_worth = get_net_worth_by_currency(user, currency)
+        net_worths[currency] = net_worth
+    return net_worths
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
