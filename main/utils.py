@@ -323,6 +323,16 @@ def get_net_worth_by_currency(user, currency):
         net_worth += account.balance
     return net_worth
 
+def get_currency_account_balances(user, currency):
+    '''
+    Takes a user and currency object and returns a dictionary of all account 
+    balances of the user in the given currency.
+    '''
+    data = {}
+    accounts = Account.objects.filter(user=user, currency=currency, is_active=True)
+    for account in accounts:
+        data[account] = account.balance
+    return data
 
 def get_user_net_worths(user):
     """
