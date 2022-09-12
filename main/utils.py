@@ -323,6 +323,16 @@ def get_net_worth_by_currency(user, currency):
         net_worth += account.balance
     return net_worth
 
+def get_accounts_total_balance(account_data):
+    '''
+    Takes a dictionary of accounts data in which keys are accounts and values are 
+    balances. Returns a decimal value of sum of all balances in the dictionary.
+    '''
+    total = 0
+    for key, value in account_data.items():
+        total += value
+    return total
+
 def get_currency_account_balances(user, currency):
     '''
     Takes a user and currency object and returns a dictionary of all account 
