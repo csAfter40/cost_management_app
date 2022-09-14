@@ -357,6 +357,20 @@ def get_user_net_worths(user):
         net_worths[currency] = net_worth
     return net_worths
 
+def get_currency_details(user):
+    """
+    Takes a user and returns a dictionary of data in which keys are currencies(of the 
+    user) and values are dictionaries that contains account(in that currency) balances 
+    and total balance of the currency.
+    """
+    currency_details = {}
+    currencies = get_user_currencies(user)
+    for currency in currencies:
+        details = get_currency_account_balances(user, currency)
+        details['total'] = get_accounts_total_balance(details)
+        currency_details[currency] = details
+    return currency_details
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
