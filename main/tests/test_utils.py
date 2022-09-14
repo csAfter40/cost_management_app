@@ -32,6 +32,7 @@ from main.utils import (
     get_user_net_worths,
     get_currency_account_balances,
     get_accounts_total_balance,
+    get_currency_details,
     create_user_categories,
     create_user_preferences,
 )
@@ -367,4 +368,26 @@ class TestUtilityFunctions(TestCase):
         data = {'account1': 100, 'account2': 200}
         result = get_accounts_total_balance(data)
         expected = 300
+        self.assertEquals(result, expected)
+
+    def test_get_currency_details(self):
+        currency1 = CurrencyFactory()
+        currency2 = CurrencyFactory()
+        user_currency1_account1 = AccountFactory(user=self.user, currency=currency1, balance=100)
+        user_currency1_account2 = AccountFactory(user=self.user, currency=currency1, balance=200)
+        user_currency2_account1 = AccountFactory(user=self.user, currency=currency2, balance=300)
+        user_currency2_account2 = AccountFactory(user=self.user, currency=currency2, balance=400)
+        result = get_currency_details(self.user)
+        expected = {
+            currency1: {
+                user_currency1_account1: 100,
+                user_currency1_account2: 200,
+                'total': 300,
+            },
+            currency2: {
+                user_currency2_account1: 300,
+                user_currency2_account2: 400,
+                'total': 700,
+            },
+        }
         self.assertEquals(result, expected)
