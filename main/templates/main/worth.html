@@ -12,6 +12,36 @@
 {% csrf_token %}
 <div class="container">
     <div class="row justify-content-center py-3">
+        <div class="col-md-12 col-lg-8">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Currency</th>
+                        <th scope="col">Account</th>
+                        <th scope="col">Net Worth</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for currency, details in currency_details.items %}
+                        {% for account, balance in details.items %}
+                            {% if forloop.last %}
+                                <tr class="table-active" style="font-weight:bold">
+                            {% else %}
+                                <tr>
+                            {% endif %}
+                                {% if forloop.first %}
+                                    <td rowspan="{{details|length}}">{{currency}}</td>
+                                {% endif %}
+                                <td>{{account}}</td>
+                                <td>{{currency.symbol}}{{balance}}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row justify-content-center py-3">
         <div class="col-lg-8">
             <canvas id="worthChart"></canvas>
         </div>
