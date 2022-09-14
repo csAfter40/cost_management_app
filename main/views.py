@@ -32,7 +32,8 @@ from .utils import (
     get_subcategory_stats,
     get_loan_progress,
     get_payment_stats,
-    get_worth_stats
+    get_worth_stats,
+    get_currency_details,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -855,6 +856,11 @@ class WorthView(LoginRequiredMixin, TemplateView):
     
     template_name = 'main/worth.html'
 
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        self.extra_context = {'stats': get_worth_stats(self.request.user)}
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        extra_context = {
+                'stats': get_worth_stats(self.request.user),
+                'currency_details': get_currency_details(self.request.user)
+        }
+        kwargs.update(extra_context)
+        return kwargs
