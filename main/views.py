@@ -34,6 +34,7 @@ from .utils import (
     get_payment_stats,
     get_worth_stats,
     get_currency_details,
+    get_users_grand_total,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -862,5 +863,9 @@ class WorthView(LoginRequiredMixin, TemplateView):
                 'stats': get_worth_stats(self.request.user),
                 'currency_details': get_currency_details(self.request.user)
         }
+        extra_context['grand_total'] = get_users_grand_total( 
+            user=self.request.user, 
+            data=extra_context['currency_details']
+        )
         kwargs.update(extra_context)
         return kwargs
