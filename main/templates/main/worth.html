@@ -37,6 +37,12 @@
                             </tr>
                         {% endfor %}
                     {% endfor %}
+                    <tfoot>
+                        <tr class="table-active" style="font-weight:bold;">
+                            <td colspan="2">Grand Total in {{grand_total.currency}}</td>
+                            <td>{{grand_total.currency.symbol}}{{grand_total.total}}</td>
+                        </tr>
+                    </tfoot>
                 </tbody>
             </table>
         </div>
@@ -50,5 +56,6 @@
 
 {% endblock %}
 {% block script %}
+<!-- Chart script -->
 {% include 'main/worth_chart_script.html' %}
 {% endblock %}
