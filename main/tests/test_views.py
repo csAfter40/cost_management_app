@@ -1815,8 +1815,12 @@ class TestWorthView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:worth')
-        cls.context_list = ['stats', 'currency_details']
+        cls.context_list = ['stats', 'currency_details', 'grand_total']
         cls.template = 'main/worth.html'
         cls.view_function = views.WorthView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+    
+    def setUp(self):
+        super().setUp()
+        self.user.user_preferences = UserPreferencesFactory(user=self.user)
