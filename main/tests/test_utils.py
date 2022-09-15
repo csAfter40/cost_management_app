@@ -33,6 +33,7 @@ from main.utils import (
     get_currency_account_balances,
     get_accounts_total_balance,
     get_currency_details,
+    get_users_grand_total,
     create_user_categories,
     create_user_preferences,
 )
@@ -48,6 +49,7 @@ from main.tests.factories import (
     AccountTransactionFactory,
     LoanTransactionFactory,
     LoanFactory,
+    UserPreferencesFactory,
 )
 import datetime
 from datetime import timedelta
@@ -390,4 +392,30 @@ class TestUtilityFunctions(TestCase):
                 'total': 700,
             },
         }
+        self.assertEquals(result, expected)
+
+    def test_get_users_grand_total(self):
+        currency1 = CurrencyFactory()
+        currency2 = CurrencyFactory()
+        user_profile = UserPreferencesFactory(user=self.user, primary_currency = currency1)
+        rate1 = RateFactory(currency=currency1, rate=1)
+        rate2 = RateFactory(currency=currency2, rate=2)
+        user_currency1_account1 = AccountFactory(user=self.user, currency=currency1, balance=100)
+        user_currency1_account2 = AccountFactory(user=self.user, currency=currency1, balance=200)
+        user_currency2_account1 = AccountFactory(user=self.user, currency=currency2, balance=300)
+        user_currency2_account2 = AccountFactory(user=self.user, currency=currency2, balance=400)
+        currency_details = {
+            currency1: {
+                user_currency1_account1: 100,
+                user_currency1_account2: 200,
+                'total': 300,
+            },
+            currency2: {
+                user_currency2_account1: 300,
+                user_currency2_account2: 400,
+                'total': 700,
+            },
+        }
+        result = get_users_grand_total(user=self.user, data=currency_details)
+        expected = 650
         self.assertEquals(result, expected)
