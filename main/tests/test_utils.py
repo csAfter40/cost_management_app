@@ -417,5 +417,8 @@ class TestUtilityFunctions(TestCase):
             },
         }
         result = get_users_grand_total(user=self.user, data=currency_details)
-        expected = 650
+        expected = {
+            'currency': currency1,
+            'total': 650
+        }
         self.assertEquals(result, expected)
