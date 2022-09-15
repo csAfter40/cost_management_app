@@ -387,7 +387,7 @@ def get_users_grand_total(user, data):
             amount=currency_total
         )
         grand_total += converted_total
-    return {'currency': user_currency, 'total': grand_total}
+    return {'currency': user_currency, 'total': round(grand_total, 2)}
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
