@@ -168,4 +168,4 @@ class TestUrls(SimpleTestCase):
         self.assert_path_resolves_to_CBV("/worth", views.WorthView, "worth")
 
     def test_edit_transaction_url(self):
-        self.assert_path_resolves_to_CBV("/transactions/1/edit", views.EditTransactionView, "edit_transaction")
+        self.assert_path_resolves_to_CBV("/transactions/1/edit", views.EditTransactionView, "edit_transaction", pk=1)
