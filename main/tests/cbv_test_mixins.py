@@ -106,6 +106,7 @@ class TestUpdateViewMixin(BaseViewTestMixin):
         cls.valid_data = None # List of dictionaries
         cls.invalid_data = None # List of dictionaries
         cls.model_factory = None # factory.Factory
+        cls.user_factory = None # factory.Factory
 
     def setUp(self) -> None:
         self.user = self.get_user()
