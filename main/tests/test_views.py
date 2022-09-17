@@ -1833,16 +1833,17 @@ class TestEditTransactionView(TestUpdateViewMixin, TestCase):
         cls.test_url_pattern = '/transactions/<pk>/edit'
         cls.success_url = reverse('main:main')
         cls.model = Transaction
-        cls.model_factory = TransactionFactory
+        cls.model_factory = AccountTransactionFactory
+        cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         super().setUp()
         self.account1 = AccountFactory(user=self.user, balance=10)
         self.account2 = AccountFactory(user=self.user, balance=20)
-        category1 = CategoryFactory(user=self.user)
+        category1 = CategoryFactory(user=self.user, parent=None)
         self.object = AccountTransactionFactory(
             name='test_transfer', 
-            account=self.account1, 
+            content_object=self.account1, 
             category=category1,
             amount=1,
             date=date(2020, 5, 17),
@@ -1870,7 +1871,7 @@ class TestEditTransactionView(TestUpdateViewMixin, TestCase):
 
 
     def test_post_success(self):
-        category2 = CategoryFactory(user=self.user)
+        category2 = CategoryFactory(user=self.user, parent=None)
         success_data = [{
             'name': 'test_transfer_edit',
             'account': self.account2.id,
@@ -1905,7 +1906,7 @@ class TestEditTransactionView(TestUpdateViewMixin, TestCase):
         self.assertEquals(self.account2.balance, 20)
 
     def test_post_failure(self):
-        category2 = CategoryFactory(user=self.user)
+        category2 = CategoryFactory(user=self.user, parent=None)
         fail_data = {
             'name': 'test_transfer_edit',
             'account': self.account2.id,
