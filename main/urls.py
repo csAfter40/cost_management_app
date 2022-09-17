@@ -9,10 +9,14 @@ urlpatterns = [
     path("login", views.LoginView.as_view(), name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.RegisterView.as_view(), name="register"),
-    path('setup', views.SetupView.as_view(), name='setup'),
+    path("setup", views.SetupView.as_view(), name="setup"),
     path("accounts", views.AccountsView.as_view(), name="accounts"),
     path("accounts/create", views.CreateAccountView.as_view(), name="create_account"),
-    path("accounts/del/<int:pk>", views.DeleteAccountView.as_view(), name="delete_account"),
+    path(
+        "accounts/del/<int:pk>",
+        views.DeleteAccountView.as_view(),
+        name="delete_account",
+    ),
     path(
         "accounts/<int:pk>/ajax",
         views.AccountDetailAjaxView.as_view(),
@@ -69,7 +73,12 @@ urlpatterns = [
         views.DeleteIncomeCategory.as_view(),
         name="delete_income_category",
     ),
-    path('worth', views.WorthView.as_view(), name='worth'),
+    path("worth", views.WorthView.as_view(), name="worth"),
+    path(
+        "transactions/<int:pk>/edit",
+        views.EditTransactionView.as_view(),
+        name="edit_transaction",
+    ),
 ]
 
 htmx_urlpatterns = [
