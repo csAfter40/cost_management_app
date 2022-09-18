@@ -1,13 +1,16 @@
+from unicodedata import category
 from main.forms import (
     ExpenseInputForm,
     IncomeInputForm,
     SetupForm,
     TransferForm,
     PayLoanForm,
-    LoanDetailPaymentForm
+    LoanDetailPaymentForm,
+    EditTransactionForm,
 )
 from main.models import UserPreferences
 from main.tests.factories import (
+    AccountTransactionFactory,
     CurrencyFactory,
     UserFactoryNoSignal,
     AccountFactory,
@@ -226,5 +229,18 @@ class TestForms(TestCase):
             'currency': currency.id
         }
         form = SetupForm(data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+    def test_edit_transaction_form(self):
+        data = {
+            'name': 'test_name',
+            'account': self.valid_account.id,
+            'type': 'E',
+            'amount': 1,
+            'date': datetime.date(2022, 2, 2),
+            'category': self.valid_expense_category.id,
+        }
+        form = EditTransactionForm(data=data)
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
