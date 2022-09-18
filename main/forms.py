@@ -168,3 +168,16 @@ class SetupForm(forms.Form):
         widget=Select(attrs={"class": "my-2"}),
         label="Primary Currency",
     )
+
+
+class EditTransactionForm(ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ['name', 'amount', 'category', 'date', 'type']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        self.fields['account'] = forms.ModelChoiceField(
+            queryset=Account.objects.filter(user=user, is_active=True)
+        )
