@@ -1826,32 +1826,46 @@ class TestWorthView(BaseViewTestMixin, TestCase):
         self.user.user_preferences = UserPreferencesFactory(user=self.user)
 
 
-class TestEditTransactionView(TestUpdateViewMixin, TestCase):
+class TestEditTransactionView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.test_url_pattern = '/transactions/<pk>/edit'
         cls.success_url = reverse('main:main')
         cls.model = Transaction
         cls.model_factory = AccountTransactionFactory
         cls.user_factory = UserFactoryNoSignal
+        cls.login_required = True
+        cls.context_list = ['form']
+        cls.template = 'main/transaction_edit.html'
+        cls.get_method = True
+        cls.view_function = views.EditTransactionView.as_view()
+        cls.test_url = ''
 
     def setUp(self) -> None:
         super().setUp()
         self.account1 = AccountFactory(user=self.user, balance=10)
         self.account2 = AccountFactory(user=self.user, balance=20)
-        category1 = CategoryFactory(user=self.user, parent=None)
+        expense_category1 = CategoryFactory(user=self.user, parent=None, type='E')
         self.object = AccountTransactionFactory(
             name='test_transfer', 
             content_object=self.account1, 
-            category=category1,
+            category=expense_category1,
             amount=1,
             date=date(2020, 5, 17),
             type='E',
         )
-        self.set_test_url()
+        self.test_url = reverse('main:edit_transaction', kwargs={'pk': self.object.id})
 
-    def subtest_post_success(self, data):
+    def test_expense_post_success(self):
+        expense_category2 = CategoryFactory(user=self.user, parent=None, type='E')
+        
+        data = {
+            'name': 'test_transfer_edit',
+            'object_id': self.account2.id,
+            'amount': 2,
+            'category': expense_category2.id,
+            'date': date(2020, 5, 18),
+            }
         response = self.client.post(self.test_url, data)
         self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
         self.object.refresh_from_db()
@@ -1862,40 +1876,21 @@ class TestEditTransactionView(TestUpdateViewMixin, TestCase):
                 self.assertEquals(getattr(self.object, key), value)
         self.account1.refresh_from_db()
         self.account2.refresh_from_db()
-        if data['type'] == 'E':
-            self.assertEquals(self.account1.balance, 11)
-            self.assertEquals(self.account2.balance, 18)
-        else:
-            self.assertEquals(self.account1.balance, 9)
-            self.assertEquals(self.account2.balance, 22)
-
-
-    def test_post_success(self):
-        category2 = CategoryFactory(user=self.user, parent=None)
-        success_data = [{
+        self.assertEquals(self.account1.balance, 11)
+        self.assertEquals(self.account2.balance, 18)
+    
+    def test_expense_post_failure(self):
+        expense_category2 = CategoryFactory(user=self.user, parent=None, type='E')
+        
+        data = {
             'name': 'test_transfer_edit',
-            'account': self.account2.id,
-            'amount': 2,
-            'category': category2.id,
+            'object_id': self.account2.id,
+            'amount': 'abc',
+            'category': expense_category2.id,
             'date': date(2020, 5, 18),
-            'type': 'E'
-            },
-            {
-            'name': 'test_transfer_edit',
-            'account': self.account2.id,
-            'amount': 2,
-            'category': category2.id,
-            'date': date(2020, 5, 18),
-            'type': 'I'
-            },
-        ]
-        for data in success_data:
-            with self.subTest(data):
-                self.subtest_post_success(data)
-
-    def subtest_post_failure(self, data):
+            }
         pre_update_values = self.object.__dict__
-        response = self.client.post(self.test_url, data=data)
+        response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 200)
         self.object.refresh_from_db()
         post_update_values = self.object.__dict__
@@ -1904,17 +1899,49 @@ class TestEditTransactionView(TestUpdateViewMixin, TestCase):
         self.account2.refresh_from_db()
         self.assertEquals(self.account1.balance, 10)
         self.assertEquals(self.account2.balance, 20)
-
-    def test_post_failure(self):
-        category2 = CategoryFactory(user=self.user, parent=None)
-        fail_data = {
+    
+    def test_income_post_success(self):
+        self.object.type = 'I'
+        self.object.save()
+        income_category2 = CategoryFactory(user=self.user, parent=None, type='I')
+        
+        data = {
             'name': 'test_transfer_edit',
-            'account': self.account2.id,
-            'amount': 'abc', #invalid amount
-            'category': category2.id,
+            'object_id': self.account2.id,
+            'amount': 2,
+            'category': income_category2.id,
             'date': date(2020, 5, 18),
-            'type': 'E'
-        }
-        for data in fail_data:
-            with self.subTest(data):
-                self.subtest_post_failure(data)
+            }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.object.refresh_from_db()
+        for key, value in data.items():
+            if isinstance(getattr(self.object, key), models.Model):
+                self.assertEquals(getattr(self.object, key).id, value)
+            else:
+                self.assertEquals(getattr(self.object, key), value)
+        self.account1.refresh_from_db()
+        self.account2.refresh_from_db()
+        self.assertEquals(self.account1.balance, 9)
+        self.assertEquals(self.account2.balance, 22)
+
+    def test_income_post_failure(self):
+        income_category2 = CategoryFactory(user=self.user, parent=None, type='I')
+        
+        data = {
+            'name': 'test_transfer_edit',
+            'object_id': self.account2.id,
+            'amount': 'abc',
+            'category': income_category2.id,
+            'date': date(2020, 5, 18),
+            }
+        pre_update_values = self.object.__dict__
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+        self.object.refresh_from_db()
+        post_update_values = self.object.__dict__
+        self.assertEquals(pre_update_values, post_update_values)
+        self.account1.refresh_from_db()
+        self.account2.refresh_from_db()
+        self.assertEquals(self.account1.balance, 10)
+        self.assertEquals(self.account2.balance, 20)
