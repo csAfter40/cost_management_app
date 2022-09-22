@@ -173,11 +173,21 @@ class SetupForm(forms.Form):
 class EditTransactionForm(ModelForm):
     class Meta:
         model = Transaction
-        fields = ['name', 'amount', 'category', 'date', 'type']
+        fields = ['name', 'amount', 'category', 'date', 'object_id']
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
+        instance = kwargs.get('instance', None)
         super().__init__(*args, **kwargs)
-        self.fields['account'] = forms.ModelChoiceField(
-            queryset=Account.objects.filter(user=user, is_active=True)
+        self.fields['object_id'] = forms.ModelChoiceField(
+            queryset=Account.objects.filter(user=user, is_active=True),
+            label='Account'
         )
+        self.fields['category'] = TreeNodeChoiceField(
+            queryset=Category.objects.filter(user=user, is_transfer=False, is_protected=False, type=instance.type)
+        )
+
+    def clean(self):
+        data = self.cleaned_data
+        data['object_id'] = data["object_id"].id
+        return data
