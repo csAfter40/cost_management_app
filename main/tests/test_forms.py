@@ -12,6 +12,7 @@ from main.models import UserPreferences
 from main.tests.factories import (
     AccountTransactionFactory,
     CurrencyFactory,
+    TransactionFactory,
     UserFactoryNoSignal,
     AccountFactory,
     CategoryFactory,
@@ -232,15 +233,32 @@ class TestForms(TestCase):
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
 
-    def test_edit_transaction_form(self):
+    def test_edit_expense_transaction_form(self):
+        user_account_1 = AccountFactory(user=self.user)
+        user_account_2 = AccountFactory(user=self.user)
+        expense_transaction = AccountTransactionFactory(content_object=user_account_1, type='E')
         data = {
             'name': 'test_name',
-            'account': self.valid_account.id,
-            'type': 'E',
+            'object_id': user_account_2.id,
             'amount': 1,
             'date': datetime.date(2022, 2, 2),
             'category': self.valid_expense_category.id,
         }
-        form = EditTransactionForm(data=data)
+        form = EditTransactionForm(data=data, user=self.user, instance=expense_transaction)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+    
+    def test_edit_income_transaction_form(self):
+        user_account_1 = AccountFactory(user=self.user)
+        user_account_2 = AccountFactory(user=self.user)
+        income_transaction = AccountTransactionFactory(content_object=user_account_1, type='I')
+        data = {
+            'name': 'test_name',
+            'object_id': user_account_2.id,
+            'amount': 1,
+            'date': datetime.date(2022, 2, 2),
+            'category': self.valid_income_category.id,
+        }
+        form = EditTransactionForm(data=data, user=self.user, instance=income_transaction)
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
