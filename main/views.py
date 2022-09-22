@@ -15,7 +15,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
-from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm
+from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
 from .utils import (
     get_latest_transactions,
     get_latest_transfers,
@@ -869,3 +869,57 @@ class WorthView(LoginRequiredMixin, TemplateView):
         )
         kwargs.update(extra_context)
         return kwargs
+
+
+class EditTransactionView(LoginRequiredMixin, UpdateView):
+    model = Transaction
+    form_class = EditTransactionForm
+    success_url = reverse_lazy('main:main')
+    template_name = 'main/transaction_edit.html'
+
+    def get_object(self, queryset=None):
+        object = super().get_object(queryset=None)
+        self.initial_vars = vars(object).copy()
+        return object
+    
+    def get_queryset(self):
+        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
+        return super().get_queryset().filter(object_id__in=user_accounts_list)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs   
+
+    def form_valid(self, form):
+        print('form valid called')
+        data = form.cleaned_data
+        account_initial = Account.objects.get(id=self.initial_vars['object_id'])
+        amount_initial = self.initial_vars['amount']
+        account_final = Account.objects.get(id=data.get('object_id'))
+        amount_final = data.get('amount')
+
+        try:
+            with transaction.atomic():
+                if settings.TESTING_ATOMIC:
+                    raise IntegrityError
+                # set accounts
+                if self.object.type == 'E':
+                    account_initial.balance += amount_initial
+                    account_initial.save()
+                    account_final.refresh_from_db()
+                    account_final.balance -= amount_final
+                else:
+                    account_initial.balance -= amount_initial
+                    account_initial.save()
+                    account_final.refresh_from_db()
+                    account_final.balance += amount_final
+                account_final.save()
+                # save transaction object
+                self.object = form.save()
+                self.object.save()
+        except IntegrityError:
+            messages.error(self.request, 'Error during transaction update')
+            context = self.get_context_data(form=form)
+            return render(self.request, self.template_name, context)
+        return HttpResponseRedirect(self.get_success_url())
