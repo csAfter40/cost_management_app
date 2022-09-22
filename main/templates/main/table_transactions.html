@@ -13,6 +13,7 @@
                 {% if show_account %}
                 <th class="align-middle col-md-2" scope="col">Account</th>
                 {% endif %}
+                <th class="align-middle col-md-1 text-center" scope="col">Edit</th>
             </tr>
         </thead>
         <tbody>
@@ -37,6 +38,9 @@
                 {% if show_account %}
                 <td>{{ transaction.content_object }}</td>
                 {% endif %}
+                <td style="text-align: center;" class="align-middle">
+                    <a href="{% url 'main:edit_transaction' pk=transaction.id %}"><i class="bi bi-pencil-square"></i></a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
