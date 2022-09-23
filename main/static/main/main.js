@@ -105,7 +105,7 @@ deleteAccountButtons.forEach(function (deleteAccountButton) {
         let accountId = deleteAccountButton.dataset.id;
         deleteAccountIdInput.setAttribute('value', accountId);
         let balance = parseFloat(deleteAccountButton.dataset.balance).toFixed(2);
-
+        
         let currency = deleteAccountButton.dataset.currency;
         if (balance > 0) {
             deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;
@@ -115,6 +115,23 @@ deleteAccountButtons.forEach(function (deleteAccountButton) {
         let url = deleteAccountButton.dataset.url;
         deleteAccountModalForm.setAttribute('action', url);
     });
+    
+});
+
+// set transaction delete button events
+const deleteTransactionButtons = document.querySelectorAll('.delete-transaction-button');
+const deleteTransactionMessageDiv = document.querySelector('#modal-transaction-delete-message');
+const deleteTransactionIdInput = document.querySelector('#modal-transaction-id');
+const deleteTransactionModalForm = document.querySelector('#deleteTransactionModalForm');
+
+deleteTransactionButtons.forEach(function (deleteTransactionButton) {
+    deleteTransactionButton.addEventListener('click', function () {
+        let transactionId = deleteTransactionButton.dataset.id;
+        deleteTransactionIdInput.setAttribute('value', transactionId);
+        let url = deleteTransactionButton.dataset.url;
+        deleteTransactionModalForm.setAttribute('action', url);
+    });
+    
 });
 
 // set loan delete button events

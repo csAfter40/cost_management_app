@@ -43,3 +43,26 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteTransactionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detele Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-transaction-delete-message">
+                Do you really want to delete this transaction?
+            </div>
+            <div class="modal-footer">
+                <form action="" method="post" id="deleteTransactionModalForm">
+                    {% csrf_token %}
+                    <input id="modal-transaction-id" type="hidden" name="id" value="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
