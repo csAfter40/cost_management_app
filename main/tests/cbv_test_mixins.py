@@ -240,7 +240,7 @@ class TestDeleteViewMixin(BaseViewTestMixin):
         cls.object_context_name = 'object'
         cls.test_url_pattern = None # str 
         cls.success_url = None
-        
+
         # object identification property(<pk>, <slug> or <id>) must be included.
         # ex: '/object_name/update/<pk>', '/some_obj/<slug>/update' 
 
@@ -276,6 +276,8 @@ class TestDeleteViewMixin(BaseViewTestMixin):
         '''
             Tests if response context has the expected object.
         '''
+        if not self.get_method:
+            return
         if not self.model_factory:
             raise ImproperlyConfigured('No model factory available. Please provide a model_factory.')
         db_object = self.model.objects.get(id=self.object.id)
@@ -292,7 +294,7 @@ class TestDeleteViewMixin(BaseViewTestMixin):
         response = self.client.post(self.test_url, self.post_data)
         self.assertRedirects(
             response,
-            self.redirect_url,
+            self.success_url,
             302,
             200,
             fetch_redirect_response=True,
