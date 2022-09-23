@@ -7,7 +7,7 @@ from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
     TestUpdateViewMixin,
-    TestDetailViewMixin
+    TestDetailViewMixin,
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences
@@ -1945,3 +1945,30 @@ class TestEditTransactionView(BaseViewTestMixin, TestCase):
         self.account2.refresh_from_db()
         self.assertEquals(self.account1.balance, 10)
         self.assertEquals(self.account2.balance, 20)
+
+
+class TestDeleteTransactionView(UserFailTestMixin, TestDeleteViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.model = Transaction
+        cls.model_factory = AccountTransactionFactory
+        cls.test_url_pattern = '/transactions/<pk>/delete' 
+        cls.success_url = reverse('main:main')
+        cls.context_list = []
+        cls.get_method = False
+        cls.post_data = {}
+        cls.view_function = views.DeleteTransactionView.as_view()  # Add .as_view()
+        cls.login_required = True  # bool
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_user_fail_test(self):
+        non_user_account = AccountFactory()
+        non_user_object = AccountTransactionFactory(content_object=non_user_account)
+        test_url=f'/transactions/{non_user_object.id}/delete'
+        response = self.client.post(test_url, self.post_data)
+        self.assertIn(response.status_code, (403, 404))
+
+    def set_object(self):
+        self.user_account = AccountFactory(user=self.user)
+        self.object = AccountTransactionFactory(content_object=self.user_account)
