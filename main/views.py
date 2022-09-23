@@ -892,7 +892,6 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
         return kwargs   
 
     def form_valid(self, form):
-        print('form valid called')
         data = form.cleaned_data
         account_initial = Account.objects.get(id=self.initial_vars['object_id'])
         amount_initial = self.initial_vars['amount']
@@ -923,3 +922,13 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
             context = self.get_context_data(form=form)
             return render(self.request, self.template_name, context)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class DeleteTransactionView(LoginRequiredMixin, DeleteView):
+    model = Transaction
+    success_url = reverse_lazy('main:main')
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
+        return queryset.filter(object_id__in=accounts_list)
