@@ -398,6 +398,15 @@ def withdraw_asset_balance(transaction):
         account.balance -= amount
     account.save()
 
+def handle_transaction_delete(transaction):
+    category = transaction.category
+    if category.name == 'Pay Loan' and category.is_protected:
+        transfer = Transfer.objects.filter(Q(from_transaction=transaction)|Q(to_transaction=transaction)).first()
+        withdraw_asset_balance(transfer.from_transaction)
+        withdraw_asset_balance(transfer.to_transaction)
+    else: 
+        withdraw_asset_balance(transaction)
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
