@@ -462,5 +462,5 @@ class TestUtilityFunctions(TestCase):
             to_transaction = loan_transaction,
         )
         handle_transaction_delete(account_transaction)
-        calls = (call(loan_transaction), call(account_transaction))
-        mock.assert_has_calls(calls, any_order=True)
+        mock.assert_any_call(account_transaction)
+        mock.assert_any_call(loan_transaction)
