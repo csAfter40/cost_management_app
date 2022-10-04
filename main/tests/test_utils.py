@@ -1,3 +1,4 @@
+from cgi import print_directory
 import decimal
 import datetime
 from locale import currency
@@ -36,6 +37,7 @@ from main.utils import (
     get_users_grand_total,
     create_user_categories,
     create_user_preferences,
+    withdraw_asset_balance,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -422,3 +424,23 @@ class TestUtilityFunctions(TestCase):
             'total': 650
         }
         self.assertEquals(result, expected)
+
+    def test_withdraw_asset_balance_with_account(self):
+        account_transaction = AccountTransactionFactory(type='E')
+        account = account_transaction.content_object
+        amount = account_transaction.amount
+        initial_balance = account.balance
+        withdraw_asset_balance(account_transaction)
+        account.refresh_from_db()
+        final_balance = account.balance
+        self.assertEquals(final_balance, initial_balance+amount)
+    
+    def test_withdraw_asset_balance_with_loan(self):
+        loan_transaction = LoanTransactionFactory(type='I')
+        loan = loan_transaction.content_object
+        amount = loan_transaction.amount
+        initial_balance = loan.balance
+        withdraw_asset_balance(loan_transaction)
+        loan.refresh_from_db()
+        final_balance = loan.balance
+        self.assertEquals(final_balance, initial_balance-amount)
