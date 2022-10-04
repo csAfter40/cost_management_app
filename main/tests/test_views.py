@@ -8,6 +8,7 @@ from .cbv_test_mixins import (
     TestListViewMixin,
     TestUpdateViewMixin,
     TestDetailViewMixin,
+    TestDeleteViewMixin
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences
@@ -1260,6 +1261,7 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
             200, 
             fetch_redirect_response=True
         )
+        self.assertEquals(Transfer.objects.count(), 1)
         self.assertEquals(Transaction.objects.count(), 2)
 
     def test_post_valid(self):
@@ -1970,5 +1972,35 @@ class TestDeleteTransactionView(UserFailTestMixin, TestDeleteViewMixin, TestCase
         self.assertIn(response.status_code, (403, 404))
 
     def set_object(self):
-        self.user_account = AccountFactory(user=self.user)
-        self.object = AccountTransactionFactory(content_object=self.user_account)
+        self.user_account = AccountFactory(user=self.user, balance=10)
+        self.object = AccountTransactionFactory(content_object=self.user_account, amount=1, type='E')
+
+    def test_post_expense_success(self):
+        self.assertTrue(self.model.objects.all().exists())
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertRedirects(
+            response,
+            self.success_url,
+            302,
+            200,
+            fetch_redirect_response=True,
+        )
+        self.assertFalse(self.model.objects.all().exists())
+        self.user_account.refresh_from_db()
+        self.assertEquals(self.user_account.balance, 11)
+
+    def test_post_income_success(self):
+        self.object.type = 'I'
+        self.object.save()
+        self.assertTrue(self.model.objects.all().exists())
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertRedirects(
+            response,
+            self.success_url,
+            302,
+            200,
+            fetch_redirect_response=True,
+        )
+        self.assertFalse(self.model.objects.all().exists())
+        self.user_account.refresh_from_db()
+        self.assertEquals(self.user_account.balance, 9)
