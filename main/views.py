@@ -643,6 +643,13 @@ class PayLoanView(LoginRequiredMixin, FormView):
                 )
                 transaction_account.save()
                 transaction_loan.save()
+                transfer = Transfer(
+                    user = self.request.user,
+                    from_transaction = transaction_account,
+                    to_transaction = transaction_loan,
+                    date = date
+                )
+                transfer.save()
                 loan.balance += amount
                 if loan.balance > 0:
                     loan.balance = 0
@@ -932,3 +939,20 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
         queryset = super().get_queryset()
         accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
         return queryset.filter(object_id__in=accounts_list)
+    
+    def form_valid(self, form):
+        account = self.object.content_object
+        try:
+            with transaction.atomic():
+                if settings.TESTING_ATOMIC:
+                    raise IntegrityError
+                if self.object.type == 'E':
+                    account.balance += self.object.amount
+                else:
+                    account.balance -= self.object.amount
+                account.save()
+                self.object.delete()
+        except IntegrityError:
+            messages.error(self.request, 'Error during transaction update')
+            HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(self.get_success_url())
