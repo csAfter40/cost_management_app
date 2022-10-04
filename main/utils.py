@@ -389,6 +389,15 @@ def get_users_grand_total(user, data):
         grand_total += converted_total
     return {'currency': user_currency, 'total': round(grand_total, 2)}
 
+def withdraw_asset_balance(transaction):
+    account = transaction.content_object
+    amount = transaction.amount
+    if transaction.type == 'E':
+        account.balance += amount
+    else:
+        account.balance -= amount
+    account.save()
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
