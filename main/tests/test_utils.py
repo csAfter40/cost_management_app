@@ -2,7 +2,7 @@ from cgi import print_directory
 import decimal
 import datetime
 from locale import currency
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch, call
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -38,6 +38,7 @@ from main.utils import (
     create_user_categories,
     create_user_preferences,
     withdraw_asset_balance,
+    handle_transaction_delete
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -444,3 +445,22 @@ class TestUtilityFunctions(TestCase):
         loan.refresh_from_db()
         final_balance = loan.balance
         self.assertEquals(final_balance, initial_balance-amount)
+
+    @patch('main.utils.withdraw_asset_balance')
+    def test_handle_transaction_delete(self, mock):
+        transaction = AccountTransactionFactory()
+        handle_transaction_delete(transaction)
+        mock.assert_called_once()
+
+    @patch('main.utils.withdraw_asset_balance')
+    def test_handle_transaction_delete_with_loan_payment(self, mock):
+        category = CategoryFactory(name='Pay Loan', is_protected=True, parent=None)
+        account_transaction = AccountTransactionFactory(type='E', category=category)
+        loan_transaction = LoanTransactionFactory(type='I', category=category)
+        transfer = TransferFactory(
+            from_transaction = account_transaction,
+            to_transaction = loan_transaction,
+        )
+        handle_transaction_delete(account_transaction)
+        calls = (call(loan_transaction), call(account_transaction))
+        mock.assert_has_calls(calls, any_order=True)
