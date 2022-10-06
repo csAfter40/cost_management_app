@@ -1,8 +1,8 @@
 from decimal import Decimal
-from locale import currency
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, Sum, DecimalField
+from django.db import transaction
+from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce, ExtractMonth, ExtractYear
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
@@ -398,14 +398,16 @@ def withdraw_asset_balance(transaction):
         account.balance -= amount
     account.save()
 
-def handle_transaction_delete(transaction):
-    category = transaction.category
-    if category.name == 'Pay Loan' and category.is_protected:
-        transfer = Transfer.objects.filter(Q(from_transaction=transaction)|Q(to_transaction=transaction)).first()
-        withdraw_asset_balance(transfer.from_transaction)
-        withdraw_asset_balance(transfer.to_transaction)
-    else: 
-        withdraw_asset_balance(transaction)
+def handle_transaction_delete(transaction_obj):
+    with transaction.atomic():
+        if transaction_obj.has_transfer():
+            couple_transaction_obj = transaction_obj.get_couple_transaction()
+            withdraw_asset_balance(transaction_obj)
+            withdraw_asset_balance(couple_transaction_obj)
+            couple_transaction_obj.delete()
+        else: 
+            withdraw_asset_balance(transaction_obj)
+        transaction_obj.delete()
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
