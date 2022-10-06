@@ -80,6 +80,23 @@ class Transaction(models.Model):
     def __str__(self):
         return f"{self.name} - {self.amount} on {self.content_object}"
 
+    def has_transfer(self):
+        '''
+            Returns True if transaction belongs to a transfer.
+        '''
+        return self.transfer_to.exists() or self.transfer_from.exists()
+
+    def get_couple_transaction(self):
+        '''
+            If the transaction belongs to a transfer, this method returns the other transaction in the transfer object.
+        '''
+        if self.has_transfer():
+            if self.transfer_to.exists():
+                return self.transfer_to.first().from_transaction
+            else:
+                return self.transfer_from.first().to_transaction
+        return None
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -112,10 +129,10 @@ class Loan(Assets):
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
     from_transaction = models.ForeignKey(
-        Transaction, on_delete=models.CASCADE, related_name="transfers_from", null=True
+        Transaction, on_delete=models.CASCADE, related_name="transfer_from", null=True
     )
     to_transaction = models.ForeignKey(
-        Transaction, on_delete=models.CASCADE, related_name="transfers_to", null=True
+        Transaction, on_delete=models.CASCADE, related_name="transfer_to", null=True
     )
     date = models.DateField(blank=True, default=date.today)
     created = models.DateTimeField(auto_now_add=True)
