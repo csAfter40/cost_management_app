@@ -22,6 +22,7 @@ from .utils import (
     get_account_data,
     get_loan_data,
     get_subcategory_stats,
+    handle_transaction_delete,
     validate_main_category_uniqueness,
     get_dates,
     get_stats,
@@ -35,6 +36,7 @@ from .utils import (
     get_worth_stats,
     get_currency_details,
     get_users_grand_total,
+    withdraw_asset_balance
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -941,18 +943,9 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
         return queryset.filter(object_id__in=accounts_list)
     
     def form_valid(self, form):
-        account = self.object.content_object
         try:
-            with transaction.atomic():
-                if settings.TESTING_ATOMIC:
-                    raise IntegrityError
-                if self.object.type == 'E':
-                    account.balance += self.object.amount
-                else:
-                    account.balance -= self.object.amount
-                account.save()
-                self.object.delete()
+            handle_transaction_delete(self.object)
         except IntegrityError:
             messages.error(self.request, 'Error during transaction update')
-            HttpResponseRedirect(self.get_success_url())
-        return HttpResponseRedirect(self.get_success_url())
+        finally:
+            return HttpResponseRedirect(self.get_success_url())
