@@ -77,28 +77,37 @@ class TestCategory(TestCase):
             second_category = CategoryFactory(parent=parent_category, name="duplicate")
 
 
-class TestAccountTransaction(TestCase):
+class TestTransaction(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.object = AccountTransactionFactory()
+        self.couple_object = AccountTransactionFactory()
+        self.no_transfer_object = AccountTransactionFactory()
+        self.transfer = TransferFactory(
+            from_transaction = self.object,
+            to_transaction = self.couple_object
+        )
+
     def test_str(self):
-        transaction = AccountTransactionFactory()
         self.assertEquals(
-            str(transaction),
+            str(self.object),
             (
-                f"{transaction.name} - {transaction.amount} on "
-                f"{transaction.content_object}"
+                f"{self.object.name} - {self.object.amount} on "
+                f"{self.object.content_object}"
             ),
         )
 
+    def test_has_transfer_returns_true(self):
+        self.assertTrue(self.object.has_transfer())
+    
+    def test_has_transfer_returns_false(self):
+        self.assertFalse(self.no_transfer_object.has_transfer())
 
-class TestLoanTransaction(TestCase):
-    def test_str(self):
-        transaction = LoanTransactionFactory()
-        self.assertEquals(
-            str(transaction),
-            (
-                f"{transaction.name} - {transaction.amount} on "
-                f"{transaction.content_object}"
-            ),
-        )
+    def test_get_couple_transaction(self):
+        self.assertEquals(self.object.get_couple_transaction(), self.couple_object)
+
+    def test_get_couple_transaction_returns_none(self):
+        self.assertIsNone(self.no_transfer_object.get_couple_transaction())
 
 
 class TestTransfer(TestCase):
