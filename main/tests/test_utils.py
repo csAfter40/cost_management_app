@@ -11,7 +11,6 @@ from main.utils import (
     get_account_data,
     get_category_stats,
     get_dates,
-    get_from_transaction,
     get_loan_data,
     get_latest_transactions,
     get_latest_transfers,
@@ -43,6 +42,8 @@ from main.utils import (
     withdraw_asset_balance,
     handle_transaction_delete,
     edit_asset_balance,
+    get_from_transaction,
+    get_to_transaction,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -509,4 +510,16 @@ class TestUtilityFunctions(TestCase):
         }
         result = get_from_transaction(data, user='1')
         mock.assert_called_once()
-        self.assertAlmostEquals(result, 'test value')
+        self.assertEquals(result, 'test value')
+    
+    @patch('main.utils.create_transaction')
+    def test_get_to_transaction(self, mock):
+        mock.return_value = 'test value'
+        data = {
+            'to_account': 'to_account',
+            'to_amount': 'to_amount',
+            'date': 'date',
+        }
+        result = get_to_transaction(data, user='1')
+        mock.assert_called_once()
+        self.assertEquals(result, 'test value')
