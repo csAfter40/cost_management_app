@@ -36,7 +36,8 @@ from .utils import (
     get_worth_stats,
     get_currency_details,
     get_users_grand_total,
-    withdraw_asset_balance
+    withdraw_asset_balance,
+    create_transfer,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -62,52 +63,11 @@ def main(request):
             form = TransferForm(request.POST, user=request.user)
             if form.is_valid():
                 data = form.cleaned_data
-                date = data["date"]
-                from_account = data["from_account"]
-                to_account = data["to_account"]
-                from_amount = data["from_amount"]
-                to_amount = (
-                    data["to_amount"] if data["to_amount"] else data["from_amount"]
-                )
-                from_category = Category.objects.get(
-                    user=request.user, name="Transfer Out"
-                )
-                to_category = Category.objects.get(
-                    user=request.user, name="Transfer In"
-                )
-
-                with transaction.atomic():
-                    from_transaction = Transaction(
-                        content_object=from_account,
-                        name="Transfer Out",
-                        amount=from_amount,
-                        date=date,
-                        type="E",
-                        category=from_category,
-                    )
-                    from_account.balance -= from_amount
-                    from_account.save()
-                    from_transaction.save()
-                    to_transaction = Transaction(
-                        content_object=to_account,
-                        name="Transfer In",
-                        amount=to_amount,
-                        date=date,
-                        type="I",
-                        category=to_category,
-                    )
-                    to_account.balance += to_amount
-                    to_account.save()
-                    to_transaction.save()
-                    transfer = Transfer(
-                        user=request.user,
-                        from_transaction=from_transaction,
-                        to_transaction=to_transaction,
-                        date=date,
-                    )
-                    transfer.save()
+                try:
+                    create_transfer(data, request.user)
+                except IntegrityError:
+                    messages.error(request, 'Error during transfer')
                 return HttpResponseRedirect(reverse("main:main"))
-
             else:
                 transfer_form = form
 
