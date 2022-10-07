@@ -11,6 +11,7 @@ from main.utils import (
     get_account_data,
     get_category_stats,
     get_dates,
+    get_from_transaction,
     get_loan_data,
     get_latest_transactions,
     get_latest_transfers,
@@ -497,3 +498,15 @@ class TestUtilityFunctions(TestCase):
         self.assertIsNotNone(transaction_object)
         self.assertEquals(transaction_object.name, data['name'])
         mock.assert_called_once()
+
+    @patch('main.utils.create_transaction')
+    def test_get_from_transaction(self, mock):
+        mock.return_value = 'test value'
+        data = {
+            'from_account': 'from_account',
+            'from_amount': 'from_amount',
+            'date': 'date',
+        }
+        result = get_from_transaction(data, user='1')
+        mock.assert_called_once()
+        self.assertAlmostEquals(result, 'test value')
