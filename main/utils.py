@@ -431,6 +431,22 @@ def create_transaction(data):
     edit_asset_balance(transaction)
     return transaction
 
+def get_from_transaction(data, user):
+    '''
+    Accepts a data dictionary and user object. Extracts data for "from transaction" and creates from transaction object.
+    Returns the created transaction object.
+    '''
+    from_data = {
+        'content_object': data['from_account'],
+        'name': 'Transfer Out',
+        'amount': data['from_amount'],
+        'date': data['date'],
+        'category': Category.objects.filter(user=user, name="Transfer Out").first(),
+        'type': 'E'
+    }
+    return create_transaction(from_data)
+
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
