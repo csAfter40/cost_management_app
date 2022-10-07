@@ -446,6 +446,20 @@ def get_from_transaction(data, user):
     }
     return create_transaction(from_data)
 
+def get_to_transaction(data, user):
+    '''
+    Accepts a data dictionary and user object. Extracts data for "to transaction" and creates from transaction object.
+    Returns the created transaction object.
+    '''
+    to_data = {
+        'content_object': data['to_account'],
+        'name': 'Transfer In',
+        'amount': data['to_amount'],
+        'date': data['date'],
+        'category': Category.objects.filter(user=user, name="Transfer In").first(),
+        'type': 'I'
+    }
+    return create_transaction(to_data)
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
