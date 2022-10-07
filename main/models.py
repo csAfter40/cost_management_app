@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import UniqueConstraint, Q
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -116,15 +117,29 @@ class Assets(models.Model):
 
     class Meta:
         abstract = True
-        unique_together = ('user', 'name')
-
+    
 
 class Account(Assets):
-    pass
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['name', 'user'], 
+                condition=Q(is_active=True), 
+                name='unique account name and user when active'
+            )
+        ]
 
 
 class Loan(Assets):
-    pass
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['name', 'user'], 
+                condition=Q(is_active=True), 
+                name='unique loan name and user when active'
+            )
+        ]
+    
 
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
