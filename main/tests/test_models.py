@@ -46,11 +46,19 @@ class TestAccount(TestCase):
         account = AccountFactory()
         self.assertEquals(str(account), account.name)
 
-    def test_unique_together(self):
+    def test_unique_constraint_success(self):
+        user = UserFactoryNoSignal()
+        try:
+            first_account = AccountFactory(user=user, name="duplicate", is_active=False)
+            second_account = AccountFactory(user=user, name="duplicate", is_active=True)
+        except IntegrityError as e:
+            self.fail('Failed to create objects together')
+
+    def test_unique_constraint_fail(self):
         user = UserFactoryNoSignal()
         with self.assertRaises(IntegrityError):
-            first_account = AccountFactory(user=user, name="duplicate")
-            second_account = AccountFactory(user=user, name="duplicate")
+            first_account = AccountFactory(user=user, name="duplicate", is_active=True)
+            second_account = AccountFactory(user=user, name="duplicate", is_active=True)
 
 
 class TestLoan(TestCase):
