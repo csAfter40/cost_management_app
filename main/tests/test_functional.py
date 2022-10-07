@@ -3,6 +3,7 @@ import unittest
 from django.urls import reverse
 from django.test import LiveServerTestCase
 
+@unittest.skip('skip due to test duration')
 class FuncTestLogin(LiveServerTestCase):
 
     @classmethod
