@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unicodedata import category
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -408,6 +409,18 @@ def handle_transaction_delete(transaction_obj):
         else: 
             withdraw_asset_balance(transaction_obj)
         transaction_obj.delete()
+
+def edit_asset_balance(transaction):
+    '''
+    Edits account or loan balance when a transaction is made. Accepts a transaction object.
+    '''
+    asset = transaction.content_object
+    amount = transaction.amount
+    if transaction.type == 'E':
+        asset.balance -= amount 
+    else:
+        asset.balance += amount 
+    asset.save()
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
