@@ -2,10 +2,12 @@ from cgi import print_directory
 import decimal
 import datetime
 from locale import currency
+from unicodedata import category
 from unittest.mock import Mock, MagicMock, patch, call
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
+    create_transaction,
     get_account_data,
     get_category_stats,
     get_dates,
@@ -478,4 +480,20 @@ class TestUtilityFunctions(TestCase):
         edit_asset_balance(transaction)
         account.refresh_from_db()
         self.assertEquals(account.balance, 30)
-        
+
+    @patch('main.utils.edit_asset_balance') 
+    def test_create_transaction(self, mock):
+        account = AccountFactory()
+        category = CategoryFactory(parent=None)
+        data = {
+            'content_object': account,
+            'name': 'test',
+            'amount': 10,
+            'date': datetime.date(2001,1,1),
+            'category': category,
+            'type': 'E'
+        }
+        transaction_object = create_transaction(data)
+        self.assertIsNotNone(transaction_object)
+        self.assertEquals(transaction_object.name, data['name'])
+        mock.assert_called_once()
