@@ -8,6 +8,7 @@ from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
     create_transaction,
+    create_transfer,
     get_account_data,
     get_category_stats,
     get_dates,
@@ -62,7 +63,7 @@ from main.tests.factories import (
 import datetime
 from datetime import timedelta
 from main.categories import categories
-from main.models import Category, Transaction, Account, User, UserPreferences
+from main.models import Category, Transaction, Account, User, UserPreferences, Transfer
 from freezegun import freeze_time
 
 
@@ -523,3 +524,15 @@ class TestUtilityFunctions(TestCase):
         result = get_to_transaction(data, user='1')
         mock.assert_called_once()
         self.assertEquals(result, 'test value')
+
+    @patch('main.utils.get_to_transaction')
+    @patch('main.utils.get_from_transaction')
+    def test_create_transfer(self, from_mock, to_mock):
+        transaction = AccountTransactionFactory()
+        from_mock.return_value = transaction
+        to_mock.return_value = transaction
+        data = {'date': datetime.date(2001,1,1)}
+        create_transfer(data, self.user)
+        from_mock.assert_called_once_with(data, self.user)
+        to_mock.assert_called_once_with(data, self.user)
+        self.assertTrue(Transfer.objects.exists())
