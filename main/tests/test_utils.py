@@ -471,3 +471,11 @@ class TestUtilityFunctions(TestCase):
         edit_asset_balance(transaction)
         account.refresh_from_db()
         self.assertEquals(account.balance, 10)
+
+    def test_edit_asset_balance_with_income_transaction(self):
+        account = AccountFactory(balance=20)
+        transaction = AccountTransactionFactory(type='I', amount=10, content_object=account)
+        edit_asset_balance(transaction)
+        account.refresh_from_db()
+        self.assertEquals(account.balance, 30)
+        
