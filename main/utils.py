@@ -461,6 +461,20 @@ def get_to_transaction(data, user):
     }
     return create_transaction(to_data)
 
+def create_transfer(data, user):
+    '''
+    Accepts a data dictionary and user object. Creates a transfer object and related transaction objects.
+    '''
+    with transaction.atomic():
+        from_transaction = get_from_transaction(data, user)
+        to_transaction = get_to_transaction(data, user)
+        Transfer.objects.create(
+            user = user,
+            from_transaction = from_transaction,
+            to_transaction = to_transaction,
+            date = data['date']
+        )
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
