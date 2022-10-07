@@ -17,6 +17,7 @@ from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
 from .utils import (
+    create_transaction,
     get_latest_transactions,
     get_latest_transfers,
     get_account_data,
@@ -75,11 +76,7 @@ def main(request):
         if request.POST.get("submit-expense"):
             form = ExpenseInputForm(request.user, request.POST)
             if form.is_valid():
-                account = form.cleaned_data["account"]
-                amount = form.cleaned_data["amount"]
-                form.save()
-                account.balance -= amount
-                account.save()
+                create_transaction(form.cleaned_data)
                 return HttpResponseRedirect(reverse("main:main"))
             else:
                 expense_form = form
@@ -87,11 +84,7 @@ def main(request):
         if request.POST.get("submit-income"):
             form = IncomeInputForm(request.user, request.POST)
             if form.is_valid():
-                account = form.cleaned_data["account"]
-                amount = form.cleaned_data["amount"]
-                form.save()
-                account.balance += amount
-                account.save()
+                create_transaction(form.cleaned_data)
                 return HttpResponseRedirect(reverse("main:main"))
             else:
                 income_form = form

@@ -17,7 +17,7 @@ class ExpenseInputForm(ModelForm):
 
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
-    account = ModelChoiceField(queryset=None)
+    content_object = ModelChoiceField(queryset=None, label='Account')
 
     class Meta:
         model = Transaction
@@ -34,13 +34,13 @@ class ExpenseInputForm(ModelForm):
         self.fields["category"].queryset = Category.objects.filter(
             user=self.user, type="E", is_protected=False
         )
-        self.fields["account"].queryset = Account.objects.filter(
+        self.fields["content_object"].queryset = Account.objects.filter(
             user=self.user, is_active=True
         )
 
     def save(self, commit=True):
         transaction = super().save(commit=False)
-        transaction.content_object = self.cleaned_data["account"]
+        transaction.content_object = self.cleaned_data["content_object"]
         if commit:
             transaction.save()
         return transaction
@@ -50,7 +50,7 @@ class IncomeInputForm(ModelForm):
 
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
-    account = ModelChoiceField(queryset=None)
+    content_object = ModelChoiceField(queryset=None, label='Account')
 
     class Meta:
         model = Transaction
@@ -67,13 +67,13 @@ class IncomeInputForm(ModelForm):
         self.fields["category"].queryset = Category.objects.filter(
             user=self.user, type="I", is_protected=False
         )
-        self.fields["account"].queryset = Account.objects.filter(
+        self.fields["content_object"].queryset = Account.objects.filter(
             user=self.user, is_active=True
         )
 
     def save(self, commit=True):
         transaction = super().save(commit=False)
-        transaction.content_object = self.cleaned_data["account"]
+        transaction.content_object = self.cleaned_data["content_object"]
         if commit:
             transaction.save()
         return transaction

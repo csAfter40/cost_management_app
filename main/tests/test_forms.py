@@ -39,7 +39,7 @@ class TestForms(TestCase):
     def test_expense_input_form_with_valid_data(self):
         data = {
             "name": "test_name",
-            "account": self.valid_account.id,
+            "content_object": self.valid_account.id,
             "amount": "10",
             "category": self.valid_expense_category.id,
             "date": datetime.date(2022, 2, 2),
@@ -52,7 +52,7 @@ class TestForms(TestCase):
     def test_expense_input_form_with_invalid_data(self):
         data = {
             "name": "",
-            "account": self.invalid_account.id,
+            "content_object": self.invalid_account.id,
             "amount": "abc",
             "category": self.invalid_category.id,
             "date": "invalid_date",
@@ -65,7 +65,7 @@ class TestForms(TestCase):
     def test_income_input_form_with_valid_data(self):
         data = {
             "name": "test_name",
-            "account": self.valid_account.id,
+            "content_object": self.valid_account.id,
             "amount": "10",
             "category": self.valid_income_category.id,
             "date": datetime.date(2022, 2, 2),
@@ -78,7 +78,7 @@ class TestForms(TestCase):
     def test_income_input_form_with_invalid_data(self):
         data = {
             "name": "",
-            "account": self.invalid_account.id,
+            "content_object": self.invalid_account.id,
             "amount": "abc",
             "category": self.invalid_category.id,
             "date": "invalid_date",

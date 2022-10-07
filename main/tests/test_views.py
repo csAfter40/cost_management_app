@@ -476,7 +476,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         data = {
             'submit-expense': True,
             'name': 'test_transfer',
-            'account': account.id,
+            'content_object': account.id,
             'amount': 12,
             'category': category.id,
             'date': date.today(),
@@ -501,7 +501,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
             msg="Name value not matching",
         )
         self.assertEquals(
-            data['account'], 
+            data['content_object'], 
             transaction_obj.object_id,
             msg="Account id value not matching",
         )
@@ -552,7 +552,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         data = {
             'submit-income': True,
             'name': 'test_transfer',
-            'account': account.id,
+            'content_object': account.id,
             'amount': 12,
             'category': category.id,
             'date': date.today(),
@@ -577,7 +577,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
             msg="Name value not matching",
         )
         self.assertEquals(
-            data['account'], 
+            data['content_object'], 
             transaction_obj.object_id,
             msg="Account id value not matching",
         )
@@ -1847,7 +1847,7 @@ class TestEditTransactionView(BaseViewTestMixin, TestCase):
         super().setUp()
         self.account1 = AccountFactory(user=self.user, balance=10)
         self.account2 = AccountFactory(user=self.user, balance=20)
-        expense_category1 = CategoryFactory(user=self.user, parent=None, type='E')
+        expense_category1 = CategoryFactory(user=self.user, parent=None, type='E', is_transfer=False)
         self.object = AccountTransactionFactory(
             name='test_transfer', 
             content_object=self.account1, 
@@ -1859,7 +1859,7 @@ class TestEditTransactionView(BaseViewTestMixin, TestCase):
         self.test_url = reverse('main:edit_transaction', kwargs={'pk': self.object.id})
 
     def test_expense_post_success(self):
-        expense_category2 = CategoryFactory(user=self.user, parent=None, type='E')
+        expense_category2 = CategoryFactory(user=self.user, parent=None, type='E', is_transfer=False)
         
         data = {
             'name': 'test_transfer_edit',
@@ -1905,7 +1905,7 @@ class TestEditTransactionView(BaseViewTestMixin, TestCase):
     def test_income_post_success(self):
         self.object.type = 'I'
         self.object.save()
-        income_category2 = CategoryFactory(user=self.user, parent=None, type='I')
+        income_category2 = CategoryFactory(user=self.user, parent=None, type='I', is_transfer=False)
         
         data = {
             'name': 'test_transfer_edit',
