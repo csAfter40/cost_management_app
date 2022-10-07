@@ -38,7 +38,8 @@ from main.utils import (
     create_user_categories,
     create_user_preferences,
     withdraw_asset_balance,
-    handle_transaction_delete
+    handle_transaction_delete,
+    edit_asset_balance,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -463,3 +464,10 @@ class TestUtilityFunctions(TestCase):
         )
         handle_transaction_delete(account_transaction)
         self.assertEquals(mock.call_count, 2)
+
+    def test_edit_asset_balance_with_expense_transaction(self):
+        account = AccountFactory(balance=20)
+        transaction = AccountTransactionFactory(type='E', amount=10, content_object=account)
+        edit_asset_balance(transaction)
+        account.refresh_from_db()
+        self.assertEquals(account.balance, 10)
