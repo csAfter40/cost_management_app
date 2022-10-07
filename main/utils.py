@@ -427,9 +427,10 @@ def create_transaction(data):
     Accepts a dictionary object, creates a transaction, edits related asset balance 
     and returns the created transaction object.
     '''
-    transaction = Transaction.objects.create(**data)   
-    edit_asset_balance(transaction)
-    return transaction
+    with transaction.atomic():
+        transaction_obj = Transaction.objects.create(**data)   
+        edit_asset_balance(transaction_obj)
+    return transaction_obj
 
 def get_from_transaction(data, user):
     '''
