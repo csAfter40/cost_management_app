@@ -59,8 +59,9 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactoryNoSignal)
     name = factory.fuzzy.FuzzyText(length=8, chars=string.ascii_lowercase)
     parent = factory.SubFactory('main.tests.factories.CategoryFactory')
-    type = factory.fuzzy.FuzzyChoice(('I', 'E'))
-    is_transfer = factory.fuzzy.FuzzyChoice((True, False, False, False))
+    type = 'E'
+    is_transfer = False
+    is_protected = False
 
 
 class TransactionFactory(factory.django.DjangoModelFactory):
@@ -72,7 +73,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     amount = factory.Faker('random_int')
     date = factory.Faker('date')
     category = factory.SubFactory(CategoryFactory, parent__parent=None)
-    type = factory.fuzzy.FuzzyChoice(('I', 'E'))
+    type = 'E'
 
     class Meta:
         exclude = 'content_object'
