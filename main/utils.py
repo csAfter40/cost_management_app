@@ -422,6 +422,15 @@ def edit_asset_balance(transaction):
         asset.balance += amount 
     asset.save()
 
+def create_transaction(data):
+    '''
+    Accepts a dictionary object, creates a transaction, edits related asset balance 
+    and returns the created transaction object.
+    '''
+    transaction = Transaction.objects.create(**data)   
+    edit_asset_balance(transaction)
+    return transaction
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
