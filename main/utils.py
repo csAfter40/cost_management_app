@@ -493,6 +493,20 @@ def get_loan_payment_transaction_data(form, asset):
     }
     return transaction_data
 
+def handle_loan_payment(form):
+    '''
+    Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
+    '''
+    with transaction.atomic():
+        account_transaction = create_transaction(get_loan_payment_transaction_data(form, asset='account'))
+        loan_transaction = create_transaction(get_loan_payment_transaction_data(form, asset='loan'))
+        Transfer.objects.create(
+                user = form.user,
+                from_transaction = account_transaction,
+                to_transaction = loan_transaction,
+                date = account_transaction.date
+            )
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
