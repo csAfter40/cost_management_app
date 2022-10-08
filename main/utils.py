@@ -476,6 +476,23 @@ def create_transfer(data, user):
             date = data['date']
         )
 
+def get_loan_payment_transaction_data(form, asset):
+    '''
+    Accepts a Django form and asset string. Creates and returns a data dictionary 
+    required for creating a transaction object.
+    '''
+    data = form.cleaned_data
+    category = Category.objects.get(user=form.user, name='Pay Loan')
+    transaction_data = {
+        'content_object': data.get(asset),
+        'name': 'Pay Loan',
+        'amount': abs(data.get('amount')),
+        'date': data.get('date'),
+        'category': category,
+        'type': 'E' if asset == 'account' else 'I'
+    }
+    return transaction_data
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
