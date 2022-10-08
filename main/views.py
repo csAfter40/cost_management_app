@@ -18,6 +18,7 @@ from .models import Account, Transfer, User, Transaction, Category, Loan, UserPr
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
 from .utils import (
     create_transaction,
+    edit_asset_balance,
     get_latest_transactions,
     get_latest_transfers,
     get_account_data,
@@ -838,11 +839,6 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
     form_class = EditTransactionForm
     success_url = reverse_lazy('main:main')
     template_name = 'main/transaction_edit.html'
-
-    def get_object(self, queryset=None):
-        object = super().get_object(queryset=None)
-        self.initial_vars = vars(object).copy()
-        return object
     
     def get_queryset(self):
         user_accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
@@ -854,31 +850,11 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
         return kwargs   
 
     def form_valid(self, form):
-        data = form.cleaned_data
-        account_initial = Account.objects.get(id=self.initial_vars['object_id'])
-        amount_initial = self.initial_vars['amount']
-        account_final = Account.objects.get(id=data.get('object_id'))
-        amount_final = data.get('amount')
-
         try:
             with transaction.atomic():
-                if settings.TESTING_ATOMIC:
-                    raise IntegrityError
-                # set accounts
-                if self.object.type == 'E':
-                    account_initial.balance += amount_initial
-                    account_initial.save()
-                    account_final.refresh_from_db()
-                    account_final.balance -= amount_final
-                else:
-                    account_initial.balance -= amount_initial
-                    account_initial.save()
-                    account_final.refresh_from_db()
-                    account_final.balance += amount_final
-                account_final.save()
-                # save transaction object
+                withdraw_asset_balance(self.get_object()) # get initial object from get_object method
                 self.object = form.save()
-                self.object.save()
+                edit_asset_balance(self.object)
         except IntegrityError:
             messages.error(self.request, 'Error during transaction update')
             context = self.get_context_data(form=form)
