@@ -15,6 +15,7 @@ from main.utils import (
     get_loan_data,
     get_latest_transactions,
     get_latest_transfers,
+    get_loan_payment_transaction_data,
     get_loan_progress,
     get_stats,
     get_payment_stats,
@@ -536,3 +537,51 @@ class TestUtilityFunctions(TestCase):
         from_mock.assert_called_once_with(data, self.user)
         to_mock.assert_called_once_with(data, self.user)
         self.assertTrue(Transfer.objects.exists())
+
+    def test_get_loan_payment_transaction_data_with_account(self):
+        account = AccountFactory()
+        loan = LoanFactory()
+        data = {
+            'account': account,
+            'loan': loan,
+            'amount': 10,
+            'date': datetime.date(2001, 1, 1)
+        }
+        form = Mock()
+        form.cleaned_data = data
+        user = UserFactoryNoSignal()
+        form.user = user
+        category = CategoryFactory(user=user, name='Pay Loan', parent=None)
+        result = get_loan_payment_transaction_data(form, 'account')
+        validation_data = {
+            'content_object': account,
+            'name': 'Pay Loan',
+            'amount': 10,
+            'date': datetime.date(2001, 1, 1),
+            'category': category,
+            'type': 'E'
+        }
+    
+    def test_get_loan_payment_transaction_data_with_loan(self):
+        account = AccountFactory()
+        loan = LoanFactory()
+        data = {
+            'account': account,
+            'loan': loan,
+            'amount': 10,
+            'date': datetime.date(2001, 1, 1)
+        }
+        form = Mock()
+        form.cleaned_data = data
+        user = UserFactoryNoSignal()
+        form.user = user
+        category = CategoryFactory(user=user, name='Pay Loan', parent=None)
+        result = get_loan_payment_transaction_data(form, 'loan')
+        validation_data = {
+            'content_object': loan,
+            'name': 'Pay Loan',
+            'amount': 10,
+            'date': datetime.date(2001, 1, 1),
+            'category': category,
+            'type': 'I'
+        }
