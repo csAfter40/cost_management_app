@@ -40,6 +40,7 @@ from .utils import (
     get_users_grand_total,
     withdraw_asset_balance,
     create_transfer,
+    handle_loan_payment
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -571,47 +572,8 @@ class PayLoanView(LoginRequiredMixin, FormView):
         return kwargs    
 
     def form_valid(self, form):
-        data = form.cleaned_data
-        account = data.get('account')
-        loan = data.get('loan')
-        amount = abs(data.get('amount'))
-        date = data.get('date')
-        category = Category.objects.get(user=self.request.user, name='Pay Loan')
         try:
-            with transaction.atomic():
-                if settings.TESTING_ATOMIC:
-                    raise IntegrityError
-                transaction_account = Transaction(
-                    content_object=account,
-                    name='Pay Loan', 
-                    amount=amount, 
-                    date=date, 
-                    category=category, 
-                    type='E'
-                )
-                transaction_loan = Transaction(
-                    content_object=loan,
-                    name='Pay Loan', 
-                    amount=amount, 
-                    date=date, 
-                    category=category, 
-                    type='I'
-                )
-                transaction_account.save()
-                transaction_loan.save()
-                transfer = Transfer(
-                    user = self.request.user,
-                    from_transaction = transaction_account,
-                    to_transaction = transaction_loan,
-                    date = date
-                )
-                transfer.save()
-                loan.balance += amount
-                if loan.balance > 0:
-                    loan.balance = 0
-                loan.save()
-                account.balance -= amount
-                account.save()
+            handle_loan_payment(form)
         except IntegrityError:
             messages.error(self.request, 'Error during loan payment')
             context = self.get_context_data(form=form)
