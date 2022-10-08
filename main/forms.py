@@ -128,6 +128,7 @@ class PayLoanForm(forms.Form):
             self.fields["loan"] = forms.ModelChoiceField(
                 queryset=qs_loan, widget=Select(attrs={"id": "loan-field"})
             )
+            self.user = user
 
     def clean(self):
         cleaned_data = super().clean()
