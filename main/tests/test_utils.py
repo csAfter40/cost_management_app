@@ -25,6 +25,7 @@ from main.utils import (
     get_monthly_currency_balance,
     get_user_currencies,
     get_worth_stats,
+    handle_loan_payment,
     sort_balance_data,
     is_owner,
     validate_main_category_uniqueness,
@@ -585,3 +586,15 @@ class TestUtilityFunctions(TestCase):
             'category': category,
             'type': 'I'
         }
+
+    @patch('main.utils.create_transaction')
+    @patch('main.utils.get_loan_payment_transaction_data')
+    def test_handle_loan_payment(self, get_mock, create_mock):
+        transaction = AccountTransactionFactory()
+        create_mock.return_value = transaction
+        form = Mock()
+        form.user = UserFactoryNoSignal()
+        handle_loan_payment(form)
+        self.assertEquals(create_mock.call_count, 2)
+        self.assertEquals(get_mock.call_count, 2)
+        self.assertTrue(Transfer.objects.exists())
