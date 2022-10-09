@@ -27,6 +27,7 @@ from main.utils import (
     get_worth_stats,
     handle_asset_delete,
     handle_loan_payment,
+    handle_transfer_delete,
     sort_balance_data,
     is_owner,
     validate_main_category_uniqueness,
@@ -619,3 +620,10 @@ class TestUtilityFunctions(TestCase):
         asset = AccountFactory(balance=0, user=self.user)
         handle_asset_delete(asset)
         mock.assert_not_called()
+
+    @patch('main.utils.handle_transaction_delete')
+    def test_handle_transfer_delete(self, mock):
+        from_transaction = AccountTransactionFactory()
+        transfer = TransferFactory(from_transaction=from_transaction)
+        handle_transfer_delete(transfer)
+        mock.assert_called_once_with(from_transaction)
