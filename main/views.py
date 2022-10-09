@@ -41,8 +41,8 @@ from .utils import (
     withdraw_asset_balance,
     create_transfer,
     handle_loan_payment,
-    handle_account_delete,
     handle_asset_delete,
+    handle_transfer_delete
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -794,5 +794,21 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
             handle_transaction_delete(self.object)
         except IntegrityError:
             messages.error(self.request, 'Error during transaction update')
+        finally:
+            return HttpResponseRedirect(self.get_success_url())
+
+
+class DeleteTransferView(LoginRequiredMixin, DeleteView):
+    model = Transfer
+    success_url = reverse_lazy('main:main')
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def form_valid(self, form):
+        try:
+            handle_transfer_delete(self.object)
+        except IntegrityError:
+            messages.error(self.request, 'Error during deleting transfer')
         finally:
             return HttpResponseRedirect(self.get_success_url())
