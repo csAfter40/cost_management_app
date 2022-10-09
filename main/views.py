@@ -42,6 +42,7 @@ from .utils import (
     create_transfer,
     handle_loan_payment,
     handle_account_delete,
+    handle_asset_delete,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -393,30 +394,7 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
         return super().get_queryset().filter(user=self.request.user, is_active=True)
 
     def form_valid(self, form):
-        handle_account_delete(self.object)
-        # if self.object.balance > 0:
-        #     type = 'E'
-        #     category = Category.objects.get(user=self.object.user, type=type, name='Asset Delete')
-        #     transaction = Transaction(
-        #         content_object=self.object, 
-        #         name='Asset Delete',
-        #         amount=self.object.balance,
-        #         category=category,
-        #         type=type,
-        #     )
-        #     transaction.save()
-        # if self.object.balance < 0:
-        #     type='I'
-        #     category = Category.objects.get(user=self.request.user, type=type, name='Asset Delete')
-        #     transaction = Transaction(
-        #         content_object=self.object, 
-        #         name='Asset Delete',
-        #         amount=-self.object.balance,
-        #         category=category,
-        #         type=type,
-        #     )
-        #     transaction.save()
-        # self.object.balance = 0
+        handle_asset_delete(self.object)
         self.object.is_active = False
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -460,33 +438,10 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
         return super().get_queryset().filter(user=self.request.user, is_active=True)
 
     def form_valid(self, form):
-        success_url = self.get_success_url()
+        handle_asset_delete(self.object)
         self.object.is_active = False
-        if self.object.balance > 0:
-            type = 'E'
-            category = Category.objects.get(user=self.object.user, type=type, name='Asset Delete')
-            transaction = Transaction(
-                content_object=self.object, 
-                name='Asset Delete',
-                amount=self.object.balance,
-                category=category,
-                type=type,
-            )
-            transaction.save()
-        if self.object.balance < 0:
-            type='I'
-            category = Category.objects.get(user=self.request.user, type=type, name='Asset Delete')
-            transaction = Transaction(
-                content_object=self.object, 
-                name='Asset Delete',
-                amount=-self.object.balance,
-                category=category,
-                type=type,
-            )
-            transaction.save()
-        self.object.balance = 0
         self.object.save()
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class LoanDetailView(LoginRequiredMixin, DetailView):
