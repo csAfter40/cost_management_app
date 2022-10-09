@@ -507,26 +507,26 @@ def handle_loan_payment(form):
                 date = account_transaction.date
             )
 
-def handle_account_delete(account):
+def handle_asset_delete(asset):
     '''
-    Accepts an account object and creates required transactions to zero account balance.
+    Accepts an asset(account or loan) object and creates required transactions to zero account balance.
     '''
-    if account.balance > 0:
-        category = Category.objects.get(user=account.user, type='E', name='Asset Delete')
+    if asset.balance > 0:
+        category = Category.objects.get(user=asset.user, type='E', name='Asset Delete')
         data = {
-            'content_object': account,
+            'content_object': asset,
             'name': 'Asset Delete',
-            'amount': account.balance,
+            'amount': asset.balance,
             'category': category,
             'type': 'E'
         }
         create_transaction(data)
-    if account.balance < 0:
-        category = Category.objects.get(user=account.user, type='I', name='Asset Delete')
+    if asset.balance < 0:
+        category = Category.objects.get(user=asset.user, type='I', name='Asset Delete')
         data = {
-            'content_object': account,
+            'content_object': asset,
             'name': 'Asset Delete',
-            'amount': account.balance,
+            'amount': asset.balance,
             'category': category,
             'type': 'I'
         }
