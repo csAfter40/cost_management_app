@@ -25,7 +25,7 @@ from main.utils import (
     get_monthly_currency_balance,
     get_user_currencies,
     get_worth_stats,
-    handle_account_delete,
+    handle_asset_delete,
     handle_loan_payment,
     sort_balance_data,
     is_owner,
@@ -601,21 +601,21 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(Transfer.objects.exists())
 
     @patch('main.utils.create_transaction')
-    def test_handle_account_delete_with_positive_balance(self, mock):
+    def test_handle_asset_delete_with_positive_balance(self, mock):
         CategoryFactory(parent=None, user=self.user, type='E', name='Asset Delete')
-        account = AccountFactory(balance=10, user=self.user)
-        handle_account_delete(account)
+        asset = AccountFactory(balance=10, user=self.user)
+        handle_asset_delete(asset)
         mock.assert_called_once()
 
     @patch('main.utils.create_transaction')
-    def test_handle_account_delete_with_negative_balance(self, mock):
+    def test_handle_asset_delete_with_negative_balance(self, mock):
         CategoryFactory(parent=None, user=self.user, type='I', name='Asset Delete')
-        account = AccountFactory(balance=-10, user=self.user)
-        handle_account_delete(account)
+        asset = AccountFactory(balance=-10, user=self.user)
+        handle_asset_delete(asset)
         mock.assert_called_once()
 
     @patch('main.utils.create_transaction')
-    def test_handle_account_delete_with_zero_balance(self, mock):
-        account = AccountFactory(balance=0, user=self.user)
-        handle_account_delete(account)
+    def test_handle_asset_delete_with_zero_balance(self, mock):
+        asset = AccountFactory(balance=0, user=self.user)
+        handle_asset_delete(asset)
         mock.assert_not_called()
