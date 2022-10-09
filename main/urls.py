@@ -84,6 +84,11 @@ urlpatterns = [
         views.DeleteTransactionView.as_view(),
         name="delete_transaction",
     ),
+    path(
+        'transfers/<int:pk>/delete',
+        views.DeleteTransferView.as_view(),
+        name='delete_transfer'
+    )
 ]
 
 htmx_urlpatterns = [
