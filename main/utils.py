@@ -532,6 +532,14 @@ def handle_asset_delete(asset):
         }
         create_transaction(data)
 
+def handle_transfer_delete(transfer):
+    '''
+    Accepts a transfer object and calls handle_transaction_delete function with 
+    object's from_transfer field object which will delete the transfer object, 
+    all related transactions and withdraw account balances.
+    '''
+    handle_transaction_delete(transfer.from_transaction)
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
