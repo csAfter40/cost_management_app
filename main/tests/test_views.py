@@ -1,6 +1,7 @@
 from decimal import Decimal
 import json
 import factory
+import unittest
 from wallet.settings import TESTING_ATOMIC
 from .factories import CategoryFactory, AccountTransactionFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal, UserPreferencesFactory
 from .cbv_test_mixins import (
@@ -1278,6 +1279,7 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
             with self.subTest(data):
                 self.subtest_invalid_post(data)
     
+    @unittest.skip('will be implemented')
     def test_atomic_transaction(self):
         data = self.valid_data[0]
         before_transaction_qty = Transaction.objects.all().count()
@@ -2004,3 +2006,36 @@ class TestDeleteTransactionView(UserFailTestMixin, TestDeleteViewMixin, TestCase
         self.assertFalse(self.model.objects.all().exists())
         self.user_account.refresh_from_db()
         self.assertEquals(self.user_account.balance, 9)
+
+class TestDeleteTransferView(UserFailTestMixin, TestDeleteViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.model = Transfer
+        cls.model_factory = TransferFactory
+        cls.object_context_name = 'object'
+        cls.context_list = []
+        cls.test_url_pattern = '/transfers/<pk>/delete'
+        cls.success_url = reverse('main:main')
+        cls.get_method = False
+        cls.post_data = None
+        cls.view_function = views.DeleteTransferView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def set_object(self):
+        self.object = self.model_factory.create(user=self.user)
+
+    def test_post_success(self):
+        self.assertTrue(Transaction.objects.exists())
+        self.assertTrue(Transfer.objects.exists())
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertRedirects(
+            response,
+            self.success_url,
+            302,
+            200,
+            fetch_redirect_response=True,
+        )
+        self.assertFalse(Transfer.objects.exists())
+        self.assertFalse(Transaction.objects.exists())
