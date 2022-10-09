@@ -98,6 +98,10 @@ class Transaction(models.Model):
                 return self.transfer_from.first().to_transaction
         return None
 
+    def save(self, *args, **kwargs):
+        self.amount = abs(self.amount)
+        super().save(*args, **kwargs)
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
