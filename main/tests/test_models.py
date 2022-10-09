@@ -117,6 +117,12 @@ class TestTransaction(TestCase):
     def test_get_couple_transaction_returns_none(self):
         self.assertIsNone(self.no_transfer_object.get_couple_transaction())
 
+    def test_save(self):
+        positive_amount_transaction = AccountTransactionFactory(amount=10)
+        negative_amount_transaction = AccountTransactionFactory(amount=-10)
+        self.assertEquals(positive_amount_transaction.amount, 10)
+        self.assertEquals(negative_amount_transaction.amount, 10)
+
 
 class TestTransfer(TestCase):
     def test_str(self):
