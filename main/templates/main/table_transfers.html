@@ -9,6 +9,10 @@
                 <th class="align-middle col-md-2" scope="col">Amount</th>
                 <th class="align-middle col-md-2" scope="col">To</th>
                 <th class="align-middle col-md-2" scope="col">Amount</th>
+                {% if table_max %}
+                    <th class="align-middle col-md-1 text-center" scope="col">Edit</th>
+                    <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -26,6 +30,18 @@
                 <td>{{ transfer.to_transaction.content_object }}</td>
                 <td class="text-success">+{{ transfer.to_transaction.amount }}
                     {{ transfer.to_transaction.content_object.currency.symbol }}</td>
+                {% if table_max %}
+                    <td style="text-align: center;" class="align-middle">
+                        <a href=""><i class="bi bi-pencil-square"></i></a> 
+                    </td>
+                    <td style="text-align: center;" class="align-middle">
+                        <button type="button" class="btn px-0 delete-transfer-button" data-bs-toggle="modal"
+                            data-bs-target="#deleteTransferModal" data-id="{{transfer.id}}"
+                            data-url="{% url 'main:delete_transfer' pk=transfer.id %}">   
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
