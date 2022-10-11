@@ -2039,3 +2039,14 @@ class TestDeleteTransferView(UserFailTestMixin, TestDeleteViewMixin, TestCase):
         )
         self.assertFalse(Transfer.objects.exists())
         self.assertFalse(Transaction.objects.exists())
+
+class TestTransfersView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:transfers')
+        cls.context_list = ['transfers', 'paginator']
+        cls.template = 'main/transfers.html'
+        cls.view_function = views.TransfersView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
