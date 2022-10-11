@@ -798,6 +798,16 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(self.get_success_url())
 
 
+class TransfersView(LoginRequiredMixin, ListView):
+    model = Transfer
+    paginate_by = 10
+    template_name = 'main/transfers.html'
+    context_object_name = 'transfers'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan').order_by('-date')
+
+
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
     model = Transfer
     success_url = reverse_lazy('main:main')
