@@ -85,6 +85,11 @@ urlpatterns = [
         name="delete_transaction",
     ),
     path(
+        'transfers',
+        views.TransfersView.as_view(),
+        name='transfers'
+    ),
+    path(
         'transfers/<int:pk>/delete',
         views.DeleteTransferView.as_view(),
         name='delete_transfer'
