@@ -810,7 +810,7 @@ class TransfersView(LoginRequiredMixin, ListView):
 
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
     model = Transfer
-    success_url = reverse_lazy('main:main')
+    success_url = reverse_lazy('main:transfers')
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)

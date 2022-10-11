@@ -2016,7 +2016,7 @@ class TestDeleteTransferView(UserFailTestMixin, TestDeleteViewMixin, TestCase):
         cls.object_context_name = 'object'
         cls.context_list = []
         cls.test_url_pattern = '/transfers/<pk>/delete'
-        cls.success_url = reverse('main:main')
+        cls.success_url = reverse('main:transfer')
         cls.get_method = False
         cls.post_data = None
         cls.view_function = views.DeleteTransferView.as_view()
