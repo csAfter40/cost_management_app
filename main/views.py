@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import (
@@ -7,7 +8,12 @@ from django.views.generic import (
     DetailView, 
     DeleteView,
     FormView,
-    TemplateView
+    TemplateView,
+    MonthArchiveView,
+    WeekArchiveView,
+    YearArchiveView,
+    DayArchiveView,
+    ArchiveIndexView
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -798,14 +804,18 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(self.get_success_url())
 
 
-class TransfersView(LoginRequiredMixin, ListView):
+class TransfersView(LoginRequiredMixin, ArchiveIndexView):
     model = Transfer
+    date_field = 'date'
     paginate_by = 10
-    template_name = 'main/transfers.html'
+    allow_future = True
+    allow_empty = True
     context_object_name = 'transfers'
+    template_name = 'main/transfers.html'
+    extra_context = {'date': datetime.today()}
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan').order_by('-date')
+        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
 
 
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
