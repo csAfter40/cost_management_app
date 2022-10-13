@@ -178,3 +178,6 @@ class TestUrls(SimpleTestCase):
 
     def test_transfers_url(self):
         self.assert_path_resolves_to_CBV('/transfers', views.TransfersView, 'transfers')
+    
+    def test_transfers_year_archive_url(self):
+        self.assert_path_resolves_to_CBV('/transfers/date/2001', views.TransfersYearArchiveView, 'transfers_year_archive', year=2001)
