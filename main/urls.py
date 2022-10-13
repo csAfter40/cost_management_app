@@ -95,6 +95,11 @@ urlpatterns = [
         name='delete_transfer'
     ),
     path(
+        'transfers/date',
+        views.TransfersAllArchiveView.as_view(),
+        name='transfers_all_archive'
+    ),
+    path(
         'transfers/date/<int:year>',
         views.TransfersYearArchiveView.as_view(),
         name='transfers_year_archive'
