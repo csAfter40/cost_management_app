@@ -818,6 +818,20 @@ class TransfersView(LoginRequiredMixin, ArchiveIndexView):
         return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
 
 
+class TransfersAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
+    model = Transfer
+    date_field = 'date'
+    paginate_by = 10
+    allow_future = True
+    allow_empty = True
+    extra_context = {'table_template': 'main/table_transfers.html'}
+    context_object_name = 'transfers'
+    template_name = 'main/group_table_paginator.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+
+
 class TransfersYearArchiveView(LoginRequiredMixin, YearArchiveView):
     model = Transfer
     date_field = 'date'
