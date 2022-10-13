@@ -93,7 +93,12 @@ urlpatterns = [
         'transfers/<int:pk>/delete',
         views.DeleteTransferView.as_view(),
         name='delete_transfer'
-    )
+    ),
+    path(
+        'transfers/date/<int:year>',
+        views.TransfersYearArchiveView.as_view(),
+        name='transfers_year_archive'
+    ),
 ]
 
 htmx_urlpatterns = [
