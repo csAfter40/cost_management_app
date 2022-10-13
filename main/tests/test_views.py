@@ -2050,3 +2050,14 @@ class TestTransfersView(BaseViewTestMixin, TestCase):
         cls.view_function = views.TransfersView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+
+class TestTransfersYearArchiveView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:transfers_year_archive', kwargs={'year': 2022})
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'heeb']
+        cls.template = 'main/group_table_paginator.html'
+        cls.view_function = views.TransfersYearArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
