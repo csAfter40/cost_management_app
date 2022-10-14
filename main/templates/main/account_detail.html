@@ -51,7 +51,7 @@
                 {% include 'main/table_transactions.html' %}
             </div>
             <div id="paginator-div" class="d-flex justify-content-center my-3">
-                {% include 'main/paginator.html' %}
+                {% include 'main/paginator.html' with paginator=transactions.paginator page_obj=transactions %}
             </div>
         </div>
         <div class="col-lg-6 text-center bg-light p-3">
