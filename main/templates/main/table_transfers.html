@@ -1,5 +1,5 @@
 {% load static %}
-<div class="container-fluid bg-light w-100 px-3 py-1 animate-table" id="transactions_table_div">
+<div class="container-fluid bg-light w-100 px-3 py-1 animate-table" id="transfers_table_div">
     <table class="table">
         <thead class="thead-dark">
             <tr>
@@ -9,7 +9,7 @@
                 <th class="align-middle col-md-2" scope="col">Amount</th>
                 <th class="align-middle col-md-2" scope="col">To</th>
                 <th class="align-middle col-md-2" scope="col">Amount</th>
-                {% if table_max %}
+                {% if not table_min %}
                     <th class="align-middle col-md-1 text-center" scope="col">Edit</th>
                     <th class="align-middle text-center col-md-1" scope="col">Delete</th>
                 {% endif %}
@@ -30,7 +30,7 @@
                 <td>{{ transfer.to_transaction.content_object }}</td>
                 <td class="text-success">+{{ transfer.to_transaction.amount }}
                     {{ transfer.to_transaction.content_object.currency.symbol }}</td>
-                {% if table_max %}
+                {% if not table_min %}
                     <td style="text-align: center;" class="align-middle">
                         <a href=""><i class="bi bi-pencil-square"></i></a> 
                     </td>
