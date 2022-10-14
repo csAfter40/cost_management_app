@@ -140,6 +140,8 @@ AUTH_USER_MODEL = "main.User"
 
 DEFAULT_CURRENCY_PK = 5  # Primary key value of default currency. It is 5 for "USD".
 
+DEFAULT_PAGINATION_QTY = 10
+
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 TEST_RUNNER = "main.tests.runner.CustomRunner"
