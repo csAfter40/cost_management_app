@@ -1,0 +1,10 @@
+<div id="time-buttons-div" class="col-lg-12 text-center d-grid d-sm-block" data-path="">
+    <button id="all-time" type="button" class="btn btn-primary btn-lg select-time"
+        data-time="all" data-path="/date">All Time</button>
+    <button id="week-time" type="button" class="btn btn-outline-primary btn-lg select-time"
+        data-time="week" data-path="/date/{{date.year}}/week/{{date.isocalendar.1}}">This Week</button>
+    <button id="month-time" type="button" class="btn btn-outline-primary btn-lg select-time"
+        data-time="month" data-path="/date/{{date.year}}/{{date.month}}">This Month</button>
+    <button id="year-time" type="button" class="btn btn-outline-primary btn-lg select-time"
+        data-time="year" data-path="/date/{{date.year}}">This Year</button>
+</div>
