@@ -109,6 +109,11 @@ urlpatterns = [
         views.TransfersMonthArchiveView.as_view(),
         name='transfers_month_archive'
     ),
+    path(
+        'transfers/date/<int:year>/week/<int:week>',
+        views.TransfersWeekArchiveView.as_view(),
+        name='transfers_week_archive'
+    ),
 ]
 
 htmx_urlpatterns = [
