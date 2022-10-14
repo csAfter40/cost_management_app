@@ -37,9 +37,9 @@
             </div>
             <div class="my-3 border-top py-2">
                 <h4>Latest Transfers</h4>
-                {% include 'main/table_transfers.html' %}
+                {% include 'main/table_transfers.html' with table_min=True %}
                 <div class="d-flex px-3">
-                    <a href="{% url 'main:transfers' %}" class="btn btn-outline-primary me-2">See All Transfers</a>
+                    <a href="{% url 'main:transfers' %}" class="btn btn-outline-primary me-2">View All Transfers</a>
                 </div>
             </div>
         </div>
