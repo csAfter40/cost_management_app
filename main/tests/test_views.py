@@ -2073,6 +2073,17 @@ class TestTransfersMonthArchiveView(BaseViewTestMixin, TestCase):
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
+class TestTransfersWeekArchiveView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:transfers_week_archive', kwargs={'year': 2022, 'week': 1})
+        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.template = 'main/group_table_paginator.html'
+        cls.view_function = views.TransfersWeekArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
 class TestTransfersAllArchiveView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
