@@ -259,7 +259,7 @@ class AccountDetailAjaxView(LoginRequiredMixin, DetailView):
             expense_category_stats, income_category_stats
         )
         context = {
-            "transactions": get_paginated_qs(qs, self.request, 10),
+            "transactions": get_paginated_qs(qs, self.request, settings.DEFAULT_PAGINATION_QTY),
             "stats": get_stats(qs, account.balance),
             "account": account,
             "expense_stats": expense_category_stats,
@@ -334,7 +334,7 @@ class AccountDetailView(LoginRequiredMixin, DetailView):
         comparison_stats = get_comparison_stats(
             expense_category_stats, income_category_stats
         )
-        page_obj = get_paginated_qs(transactions, self.request, 10)
+        page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
 
         context = {
             "account": account,
@@ -464,7 +464,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
             content_type__model='loan',
             object_id=loan.id,
         ).order_by('-date', '-created').prefetch_related('content_object__currency')
-        page_obj = get_paginated_qs(transactions, self.request, 10)
+        page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
         extra_context = {
             'progress': get_loan_progress(self.object),
             'transactions': page_obj,
@@ -494,7 +494,7 @@ class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
                 "-date", "-created"
             )
         context = {
-            "transactions": get_paginated_qs(qs, self.request, 10),
+            "transactions": get_paginated_qs(qs, self.request, settings.DEFAULT_PAGINATION_QTY),
         }
         return super().get_context_data(**context)
 
@@ -807,7 +807,7 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
 class TransfersView(LoginRequiredMixin, ArchiveIndexView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transfers'
@@ -821,7 +821,7 @@ class TransfersView(LoginRequiredMixin, ArchiveIndexView):
 class TransfersAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
@@ -835,7 +835,7 @@ class TransfersAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
 class TransfersYearArchiveView(LoginRequiredMixin, YearArchiveView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
@@ -850,7 +850,7 @@ class TransfersYearArchiveView(LoginRequiredMixin, YearArchiveView):
 class TransfersMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
@@ -864,7 +864,7 @@ class TransfersMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
 class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
@@ -876,7 +876,7 @@ class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
 class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
     model = Transfer
     date_field = 'date'
-    paginate_by = 10
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
