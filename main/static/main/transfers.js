@@ -1,6 +1,5 @@
 const timeButtons = document.querySelectorAll('.select-time');
 const pgButtons = document.querySelectorAll('.pg-btn');
-const csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
 const tableDiv = document.querySelector('#object-list-table');
 const paginatorDiv = document.querySelector('#paginator-div');
 const tablePaginatorGroup = document.querySelector('#table-paginator-group');
@@ -13,7 +12,6 @@ timeButtons.forEach(function (timeButton) {
 function handleTimeButtonEvent(event) {
     let currentButton = event.target;
     let path = currentButton.dataset.path;
-    console.log(path)
     getData(path)
     setSelectedButton(currentButton);
     setupPgButtons();
@@ -57,21 +55,8 @@ function getData(path, page = 1) {
     }).then(response => {
         return response.text();
     }).then(data => {
-        tablePaginatorGroup.innerHTML = data
+        tablePaginatorGroup.innerHTML = data;
+        timeButtonsDiv.dataset.path = path;
+        setupPgButtons();
     });
 };
-
-// set transfer delete button events
-const deleteTransferButtons = document.querySelectorAll('.delete-transfer-button');
-const deleteTransferIdInput = document.querySelector('#modal-transfer-id');
-const deleteTransferModalForm = document.querySelector('#deleteTransferModalForm');
-
-deleteTransferButtons.forEach(function (deleteTransferButton) {
-    deleteTransferButton.addEventListener('click', function () {
-        let transferId = deleteTransferButton.dataset.id;
-        deleteTransferIdInput.setAttribute('value', transferId);
-        let url = deleteTransferButton.dataset.url;
-        deleteTransferModalForm.setAttribute('action', url);
-    });
-    
-});
