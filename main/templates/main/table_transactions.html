@@ -13,8 +13,10 @@
                 {% if show_account %}
                 <th class="align-middle col-md-2" scope="col">Account</th>
                 {% endif %}
-                <th class="align-middle col-md-1 text-center" scope="col">Edit</th>
-                <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+                {% if not table_min %}
+                    <th class="align-middle col-md-1 text-center" scope="col">Edit</th>
+                    <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -23,32 +25,30 @@
                 <td colspan="5" class="table-info">No transactions available.</td>
             </tr>
             {% endif %}
-            {% for transaction in transactions %}
+            {% for object in transactions %}
             <tr>
                 <!-- <th scope="row">{{forloop.counter}}</th> -->
-                <td>{{ transaction.date|date:"d.m.y" }}</td>
+                <td>{{ object.date|date:"d.m.y" }}</td>
                 {% if show_type %}
-                <td>{{ transaction.get_type_display }}</td>
+                <td>{{ object.get_type_display }}</td>
                 {% endif %}
-                <td>{{ transaction.name }}</td>
-                {% if transaction.type == 'E' or transaction.type == 'TO' %}
-                <td class="text-danger">-{{ transaction.amount }}{{ transaction.content_object.currency.symbol }}</td>
+                <td>{{ object.name }}</td>
+                {% if object.type == 'E' or object.type == 'TO' %}
+                <td class="text-danger">-{{ object.amount }}{{ object.content_object.currency.symbol }}</td>
                 {% else %}
-                <td class="text-success">+{{ transaction.amount }}{{ transaction.content_object.currency.symbol }}</td>
+                <td class="text-success">+{{ object.amount }}{{ object.content_object.currency.symbol }}</td>
                 {% endif %}
                 {% if show_account %}
-                <td>{{ transaction.content_object }}</td>
+                <td>{{ object.content_object }}</td>
                 {% endif %}
-                <td style="text-align: center;" class="align-middle">
-                    <a href="{% url 'main:edit_transaction' pk=transaction.id %}"><i class="bi bi-pencil-square"></i></a>
-                </td>
-                <td style="text-align: center;" class="align-middle">
-                    <button type="button" class="btn px-0 delete-transaction-button" data-bs-toggle="modal"
-                        data-bs-target="#deleteTransactionModal" data-id="{{transaction.id}}"
-                        data-url="{% url 'main:delete_transaction' pk=transaction.id %}">   
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
+                {% if not table_min %}
+                    <td style="text-align: center;" class="align-middle">
+                        <a href="{% url 'main:edit_transaction' pk=object.id %}"><i class="bi bi-pencil-square"></i></a>
+                    </td>
+                    <td style="text-align: center;" class="align-middle">
+                        {% include 'main/button_delete.html' %}
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
