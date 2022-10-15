@@ -94,66 +94,34 @@ function validateAccounts(e) {
 var transferForm = document.querySelector('#form-transfer');
 transferForm.addEventListener('submit', validateAccounts, true);
 
+const accountTableDiv = document.querySelector('#account-table-div');
+const loanTableDiv = document.querySelector('#loan-table-div');
+const accountDeleteButtons = accountTableDiv.querySelectorAll('.delete-button');
+const loanDeleteButtons = loanTableDiv.querySelectorAll('.delete-button');
+const accountDeleteModal = document.querySelector('#deleteAccountModal');
+const loanDeleteModal = document.querySelector('#deleteLoanModal');
+
+
 // set account delete button events
-const deleteAccountButtons = document.querySelectorAll('.delete-account-button');
-const deleteAccountMessageDiv = document.querySelector('#modal-account-delete-message');
-const deleteAccountIdInput = document.querySelector('#modal-account-id');
-const deleteAccountModalForm = document.querySelector('#deleteAccountModalForm');
-
-deleteAccountButtons.forEach(function (deleteAccountButton) {
-    deleteAccountButton.addEventListener('click', function () {
-        let accountId = deleteAccountButton.dataset.id;
-        deleteAccountIdInput.setAttribute('value', accountId);
-        let balance = parseFloat(deleteAccountButton.dataset.balance).toFixed(2);
-        
-        let currency = deleteAccountButton.dataset.currency;
+accountDeleteButtons.forEach(function(button) {
+    button.addEventListener('click', function(){
+        const balance = parseFloat(button.parentElement.dataset.balance).toFixed(2);
+        const currency = button.parentElement.dataset.currency;
         if (balance > 0) {
-            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;
-        } else {
-            deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this account?';
+            const messageDiv = accountDeleteModal.querySelector('#modal-delete-message')
+            messageDiv.innerHTML = `You have ${balance} ${currency} in your account. Do you really want to delete this account anyway?`;
         };
-        let url = deleteAccountButton.dataset.url;
-        deleteAccountModalForm.setAttribute('action', url);
-    });
-    
-});
-
-// set transaction delete button events
-const deleteTransactionButtons = document.querySelectorAll('.delete-transaction-button');
-const deleteTransactionMessageDiv = document.querySelector('#modal-transaction-delete-message');
-const deleteTransactionIdInput = document.querySelector('#modal-transaction-id');
-const deleteTransactionModalForm = document.querySelector('#deleteTransactionModalForm');
-
-deleteTransactionButtons.forEach(function (deleteTransactionButton) {
-    deleteTransactionButton.addEventListener('click', function () {
-        let transactionId = deleteTransactionButton.dataset.id;
-        deleteTransactionIdInput.setAttribute('value', transactionId);
-        let url = deleteTransactionButton.dataset.url;
-        deleteTransactionModalForm.setAttribute('action', url);
-    });
-    
+    })
 });
 
 // set loan delete button events
-const deleteLoanButtons = document.querySelectorAll('.delete-loan-button');
-const deleteLoanMessageDiv = document.querySelector('#modal-loan-delete-message');
-const deleteLoanIdInput = document.querySelector('#modal-loan-id');
-const deleteLoanModalForm = document.querySelector('#deleteLoanModalForm');
-
-deleteLoanButtons.forEach(function (deleteLoanButton) {
-    deleteLoanButton.addEventListener('click', function () {
-        let loanId = deleteLoanButton.dataset.id;
-        deleteLoanIdInput.setAttribute('value', loanId);
-        let balance = parseFloat(deleteLoanButton.dataset.balance).toFixed(2);
-        let currency = deleteLoanButton.dataset.currency;
+loanDeleteButtons.forEach(function(button) {
+    button.addEventListener('click', function(){
+        const balance = parseFloat(button.parentElement.dataset.balance).toFixed(2);
+        const currency = button.parentElement.dataset.currency;
         if (balance < 0) {
-            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency} loan to pay. Do you really want to delete this loan anyway?`;
-        } else if (balance > 0) {
-            deleteAccountMessageDiv.innerHTML = `You have ${balance} ${currency}. Do you really want to delete this loan anyway?`;
-        } else {
-            deleteAccountMessageDiv.innerHTML = 'Do you really want to delete this loan?';
+            const messageDiv = loanDeleteModal.querySelector('#modal-delete-message')
+            messageDiv.innerHTML = `You have ${balance} ${currency} loan to pay. Do you really want to delete this loan anyway?`;
         };
-        let url = deleteLoanButton.dataset.url;
-        deleteLoanModalForm.setAttribute('action', url);
-    });
+    })
 });
