@@ -12,7 +12,7 @@
 <div class="container-lg bg-light py-3 my-2">
     <div class="row">
         <div class="col-lg-6 text-center border-end border-muted">
-            <div class="mb-3 pb-2">
+            <div id="account-table-div" class="mb-3 pb-2">
                 <h4>Accounts</h4>
                 {% include 'main/table_accounts.html' %}
                 <div class="d-flex px-3">
@@ -20,7 +20,7 @@
                     <a href="{% url 'main:accounts' %}" class="btn btn-outline-primary me-2">View Accounts</a>
                 </div>
             </div>
-            <div class="my-3 border-top py-2">
+            <div id="loan-table-div" class="my-3 border-top py-2">
                 <h4>Loans</h4>
                 {% include 'main/table_loans.html'%}
                 <div class="d-flex px-3">
@@ -33,7 +33,7 @@
 
             <div class="my-3 border-top py-2">
                 <h4>Latest Transactions</h4>
-                {% include 'main/table_transactions.html' %}
+                {% include 'main/table_transactions.html' with table_min=True %}
             </div>
             <div class="my-3 border-top py-2">
                 <h4>Latest Transfers</h4>
@@ -103,9 +103,27 @@
         </div>
     </div>
 </div>
-{% include 'main/main_modals.html' %}
+
+{% with modal_title='Delete Loan' %}
+{% with modal_message='Do you really want to delete this loan?' %}
+{% with object_class='Loan' %}
+    {% include 'main/modal_delete_button.html'%}
+{% endwith %}   
+{% endwith %}   
+{% endwith %}
+
+{% with modal_title='Delete Account' %}
+{% with modal_message='Do you really want to delete this account?' %}
+{% with object_class='Account' %}
+    {% include 'main/modal_delete_button.html'%}
+{% endwith %}   
+{% endwith %}   
+{% endwith %}
+
+<!-- {% include 'main/main_modals.html' %} -->
 {% endblock %}
 {% block script %}
 {{ account_data|json_script:'account-data' }}
 <script src="{% static 'main/main.js' %}"></script>
+<script src="{% static 'main/delete_button_handler.js' %}"></script>
 {% endblock %}
