@@ -33,7 +33,7 @@
 
             <div class="my-3 border-top py-2">
                 <h4>Latest Transactions</h4>
-                {% include 'main/table_transactions.html' with table_min=True %}
+                {% include 'main/table_transactions.html' with table_min=False %}
             </div>
             <div class="my-3 border-top py-2">
                 <h4>Latest Transfers</h4>
@@ -86,18 +86,7 @@
             <div class="row border-top py-2 my-2">
                 <div class="col-12">
                     <h4 class="text-dark">Transfer</h4>
-                    <form action="{% url 'main:main' %}" method="POST" id="form-transfer">
-                        {% csrf_token %}
-                        {{ transfer_form.from_account|as_crispy_field }}
-                        {{ transfer_form.to_account|as_crispy_field }}
-                        <!-- Added prepend feature to from_amount and to_amount fields -->
-                        {% crispy_addon transfer_form.from_amount prepend='-' %}
-                        {% crispy_addon transfer_form.to_amount prepend='-' %}
-                        {{ transfer_form.date|as_crispy_field }}
-                        <div class="d-grid gap-2 my-4">
-                            <input type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary">
-                        </div>
-                    </form>
+                    {% include 'main/form_transfer.html' %}
                 </div>
             </div>
         </div>
@@ -120,7 +109,6 @@
 {% endwith %}   
 {% endwith %}
 
-<!-- {% include 'main/main_modals.html' %} -->
 {% endblock %}
 {% block script %}
 {{ account_data|json_script:'account-data' }}
