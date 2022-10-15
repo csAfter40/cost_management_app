@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
 from wallet.settings import DEFAULT_CURRENCY_PK
+from django.urls import reverse
 
 
 class User(AbstractUser):
@@ -58,6 +59,10 @@ class Category(MPTTModel):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def class_name(self):
+        return self.__class__.__name__
+
 
 class Transaction(models.Model):
 
@@ -102,6 +107,10 @@ class Transaction(models.Model):
         self.amount = abs(self.amount)
         super().save(*args, **kwargs)
 
+    @property
+    def class_name(self):
+        return self.__class__.__name__
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -119,6 +128,10 @@ class Assets(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def class_name(self):
+        return self.__class__.__name__
+
     class Meta:
         abstract = True
     
@@ -132,6 +145,10 @@ class Account(Assets):
                 name='unique account name and user when active'
             )
         ]
+    
+    @property
+    def delete_url(self):
+        return reverse('main:delete_account', kwargs={'pk':self.id})
 
 
 class Loan(Assets):
@@ -160,6 +177,9 @@ class Transfer(models.Model):
     def __str__(self):
         return f"On {self.date} from {self.from_transaction.content_object} to {self.to_transaction.content_object} {self.from_transaction.amount}"
 
+    @property
+    def class_name(self):
+        return self.__class__.__name__
 
 class Rate(models.Model):
     currency = models.OneToOneField(Currency, on_delete=models.CASCADE, related_name='rate')
