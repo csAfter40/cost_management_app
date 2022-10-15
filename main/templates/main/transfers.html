@@ -10,8 +10,15 @@
         
         {% include 'main/group_table_time_paginator.html' with table_template='main/table_transfers.html' %}
     </div>
-    {% include 'main/transfer_delete_modal.html' %}   
+    {% with modal_title='Delete Transfer' %}
+    {% with modal_message='Do you really want to delete this transfer? All transactions related to this transfer will be undoned.' %}
+    {% with object_class='Transfer' %}
+        {% include 'main/modal_delete_button.html'%}
+    {% endwith %}   
+    {% endwith %}   
+    {% endwith %}   
 {% endblock body %}
 {% block script %}
     <script src="{% static 'main/transfers.js' %}"></script>
+    <script src="{% static 'main/delete_button_handler.js' %}"></script>
 {% endblock %}
