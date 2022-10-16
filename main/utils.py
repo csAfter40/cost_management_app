@@ -540,6 +540,12 @@ def handle_transfer_delete(transfer):
     '''
     handle_transaction_delete(transfer.from_transaction)
 
+def edit_transaction(transaction, data):
+    for key, value in data.items():
+        setattr(transaction, key, value)
+    transaction.save()
+
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
