@@ -545,6 +545,22 @@ def edit_transaction(transaction, data):
         setattr(transaction, key, value)
     transaction.save()
 
+def handle_transfer_edit(object, data):
+    from_transaction_data = {
+        'content_object': data['from_account'],
+        'amount': data['from_amount'],
+        'date': data['date']
+    }
+    to_transaction_data = {
+        'content_object': data['to_account'],
+        'amount': data  ['to_amount'],
+        'date': data['date']
+    }
+    with transaction.atomic():
+        edit_transaction(object.from_transaction, from_transaction_data)
+        edit_transaction(object.to_transaction, to_transaction_data)
+        object.date = data['date']
+        object.save()
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
