@@ -175,6 +175,9 @@ class TestUrls(SimpleTestCase):
 
     def test_delete_transfer_url(self):
         self.assert_path_resolves_to_CBV('/transfers/1/delete', views.DeleteTransferView, 'delete_transfer', pk=1)
+    
+    def test_edit_transfer_url(self):
+        self.assert_path_resolves_to_CBV('/transfers/1/edit', views.EditTransferView, 'edit_transfer', pk=1)
 
     def test_transfers_url(self):
         self.assert_path_resolves_to_CBV('/transfers', views.TransfersView, 'transfers')
