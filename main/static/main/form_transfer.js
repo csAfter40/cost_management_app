@@ -3,9 +3,6 @@ $(function () {
     $("#transfer-datepicker").datepicker();
 });
 
-// transfer form validation. from_account and to_account fields can't have the same value
-// transfer form amount input manipulation. There will be single amount input if the currencies of accounts are same.
-
 // get json file from script tag
 var accountData = JSON.parse(document.querySelector('#account-data').textContent);
 const toAmountField = document.querySelector('#div_id_to_amount');
@@ -18,7 +15,9 @@ const toAmountPrepend = toAmountField.querySelector('.input-group-text');
 const fromAccountField = document.querySelector('#from-account-field');
 const toAccountField = document.querySelector('#to-account-field');
 
-fromAccountField.addEventListener("change", function () {
+// callback functions for account field change event
+// transfer form amount input manipulation. There will be single amount input if the currencies of accounts are same.
+function fromAccountChange(){
     fromAmountPrepend.innerHTML = accountData[fromAccountField.value] || '-'
     if (fromAccountField.value == toAccountField.value && fromAccountField.value != '') {
         alert("'From account' and 'To account' can't have the same values.")
@@ -29,9 +28,9 @@ fromAccountField.addEventListener("change", function () {
         toAmountField.style.display = 'block';
         fromAmountTitle.innerHTML = 'From amount<span class="asteriskField">*</span>'
     };
-});
+};
 
-toAccountField.addEventListener("change", function () {
+function toAccountChange(){
     toAmountPrepend.innerHTML = accountData[toAccountField.value] || '-'
     if (fromAccountField.value == toAccountField.value && toAccountField.value != '') {
         alert("'From account' and 'To account' can't have the same values.")
@@ -42,7 +41,15 @@ toAccountField.addEventListener("change", function () {
         toAmountField.style.display = 'block';
         fromAmountTitle.innerHTML = 'From amount<span class="asteriskField">*</span>'
     };
-});
+};
+
+// setup account field events
+fromAccountField.addEventListener("change", fromAccountChange);
+toAccountField.addEventListener("change", toAccountChange);
+
+//setup fields with existing values(edit view)
+fromAccountChange();
+toAccountChange();
 
 // sets to_amount input field value when it is not visible
 fromAmountInput.addEventListener("change", function () {
@@ -51,6 +58,7 @@ fromAmountInput.addEventListener("change", function () {
     };
 });
 
+// transfer form validation. from_account and to_account fields can't have the same value
 function validateAccounts(e) {
     if (fromAccountField.value == toAccountField.value) {
         alert("'From account' and 'To account' can't have the same values.");
