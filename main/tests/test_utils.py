@@ -28,6 +28,7 @@ from main.utils import (
     handle_asset_delete,
     handle_loan_payment,
     handle_transfer_delete,
+    handle_transfer_edit,
     sort_balance_data,
     is_owner,
     validate_main_category_uniqueness,
@@ -639,4 +640,18 @@ class TestUtilityFunctions(TestCase):
         edit_transaction(object, data)
         self.assertEquals(object.content_object.name, 'new account')
         self.assertEquals(object.amount, 10)
+        self.assertEquals(object.date, datetime.date(2001,1,1))
+
+    @patch('main.utils.edit_transaction')
+    def test_handle_transfer_edit(self, mock):
+        object = TransferFactory(date=datetime.date(1999,1,1))
+        data = {
+            'from_account': 'from_account',
+            'from_amount': 'from_amount',
+            'to_account': 'to_account',
+            'to_amount': 'to_amount',
+            'date': datetime.date(2001,1,1)
+        }
+        handle_transfer_edit(object, data)
+        self.assertEquals(mock.call_count, 2)
         self.assertEquals(object.date, datetime.date(2001,1,1))
