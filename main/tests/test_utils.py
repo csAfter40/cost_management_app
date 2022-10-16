@@ -49,6 +49,7 @@ from main.utils import (
     edit_asset_balance,
     get_from_transaction,
     get_to_transaction,
+    edit_transaction,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -627,3 +628,15 @@ class TestUtilityFunctions(TestCase):
         transfer = TransferFactory(from_transaction=from_transaction)
         handle_transfer_delete(transfer)
         mock.assert_called_once_with(from_transaction)
+
+    def test_edit_transaction(self):
+        object = AccountTransactionFactory()
+        data = {
+            'content_object': AccountFactory(name='new account'),
+            'amount': 10,
+            'date': datetime.date(2001,1,1)
+        }
+        edit_transaction(object, data)
+        self.assertEquals(object.content_object.name, 'new account')
+        self.assertEquals(object.amount, 10)
+        self.assertEquals(object.date, datetime.date(2001,1,1))
