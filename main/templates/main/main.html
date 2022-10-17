@@ -34,7 +34,11 @@
             <div class="my-3 border-top py-2">
                 <h4>Latest Transactions</h4>
                 {% include 'main/table_transactions.html' with table_min=True %}
+                <div class="d-flex px-3">
+                    <a href="{% url 'main:transactions' %}" class="btn btn-outline-primary me-2">View All Transactions</a>
+                </div>
             </div>
+            
             <div class="my-3 border-top py-2">
                 <h4>Latest Transfers</h4>
                 {% include 'main/table_transfers.html' with table_min=True %}
