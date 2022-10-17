@@ -172,6 +172,9 @@ class TestUrls(SimpleTestCase):
     
     def test_transactions_all_archive_url(self):
         self.assert_path_resolves_to_CBV('/transactions/date', views.TransactionsAllArchiveView, 'transactions_all_archive')
+    
+    def test_transactions_year_archive_url(self):
+        self.assert_path_resolves_to_CBV('/transactions/date/2001', views.TransactionsYearArchiveView, 'transactions_year_archive', year=2001)
 
     def test_edit_transaction_url(self):
         self.assert_path_resolves_to_CBV("/transactions/1/edit", views.EditTransactionView, "edit_transaction", pk=1)
