@@ -1,9 +1,6 @@
-from cgi import print_directory
 import decimal
 import datetime
-from locale import currency
-from unicodedata import category
-from unittest.mock import Mock, MagicMock, patch, call
+from unittest.mock import Mock, MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
     create_categories,
@@ -630,7 +627,9 @@ class TestUtilityFunctions(TestCase):
         handle_transfer_delete(transfer)
         mock.assert_called_once_with(from_transaction)
 
-    def test_edit_transaction(self):
+    @patch('main.utils.withdraw_asset_balance')
+    @patch('main.utils.edit_asset_balance')
+    def test_edit_transaction(self,edit_mock, withdraw_mock):
         object = AccountTransactionFactory()
         data = {
             'content_object': AccountFactory(name='new account'),
@@ -641,6 +640,8 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(object.content_object.name, 'new account')
         self.assertEquals(object.amount, 10)
         self.assertEquals(object.date, datetime.date(2001,1,1))
+        withdraw_mock.assert_called_once()
+        edit_mock.assert_called_once()
 
     @patch('main.utils.edit_transaction')
     def test_handle_transfer_edit(self, mock):
