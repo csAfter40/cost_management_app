@@ -48,7 +48,8 @@ from .utils import (
     create_transfer,
     handle_loan_payment,
     handle_asset_delete,
-    handle_transfer_delete
+    handle_transfer_delete,
+    handle_transfer_edit
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -873,6 +874,7 @@ class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
 
+
 class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
     model = Transfer
     date_field = 'date'
@@ -885,6 +887,7 @@ class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+
 
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
     model = Transfer
@@ -900,3 +903,43 @@ class DeleteTransferView(LoginRequiredMixin, DeleteView):
             messages.error(self.request, 'Error during deleting transfer')
         finally:
             return HttpResponseRedirect(self.get_success_url())
+
+
+class EditTransferView(LoginRequiredMixin, UpdateView):
+    model = Transfer
+    success_url = reverse_lazy('main:transfers')
+    form_class = TransferForm
+    template_name = 'main/transfer_edit.html'
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs.update({
+            'account_data': get_account_data(self.request.user),
+        })
+        return kwargs
+        
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        data = {
+            'from_account': self.object.from_transaction.content_object,
+            'from_amount': self.object.from_transaction.amount,
+            'to_account': self.object.to_transaction.content_object,
+            'to_amount': self.object.to_transaction.amount,
+            'date': self.object.date,
+            'user': self.request.user
+        }
+        kwargs.update({'user': self.request.user})
+        kwargs['data'] = kwargs.get('data', data)
+        del kwargs['instance']
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            handle_transfer_edit(self.object, form.cleaned_data)
+        except IntegrityError:
+            messages.error(self.request, 'Error during editing transfer')
+            return self.render_to_response(self.get_context_data(form=form))
+        return HttpResponseRedirect(reverse("main:main"))
