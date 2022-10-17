@@ -86,7 +86,8 @@
             <div class="row border-top py-2 my-2">
                 <div class="col-12">
                     <h4 class="text-dark">Transfer</h4>
-                    {% include 'main/form_transfer.html' %}
+                    {% url 'main:main' as url_main %}
+                    {% include 'main/form_transfer.html' with post_url=url_main %}
                 </div>
             </div>
         </div>
