@@ -774,6 +774,21 @@ class TransactionsView(LoginRequiredMixin, ArchiveIndexView):
         return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
 
 
+class TransactionsAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    extra_context = {'table_template': 'main/table_transactions.html'}
+    context_object_name = 'transactions'
+    template_name = 'main/group_table_paginator.html'
+
+    def get_queryset(self):
+        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
+        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+
+
 class EditTransactionView(LoginRequiredMixin, UpdateView):
     model = Transaction
     form_class = EditTransactionForm
