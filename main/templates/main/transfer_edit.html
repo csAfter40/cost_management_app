@@ -19,7 +19,8 @@
             </div>
             {% endfor %}
         {% endif %}
-        {% include 'main/form_transfer.html' with transfer_form=form %}
+        {% url 'main:edit_transfer' pk=object.id as url_form %}
+        {% include 'main/form_transfer.html' with transfer_form=form post_url=url_form %}
     </div>
 </div>
 {% endblock %}
