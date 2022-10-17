@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 
-<form action="{% url 'main:main' %}" method="POST" id="form-transfer">
+<form action={{post_url}} method="POST" id="form-transfer">
     {% csrf_token %}
     {{ transfer_form.from_account|as_crispy_field }}
     {{ transfer_form.to_account|as_crispy_field }}
