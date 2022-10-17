@@ -2105,3 +2105,54 @@ class TestTransfersAllArchiveView(BaseViewTestMixin, TestCase):
         cls.view_function = views.TransfersAllArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+
+class TestEditTransferView(TestUpdateViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/transfers/<pk>/edit' 
+        cls.success_url = reverse('main:main')
+        cls.model = Transfer
+        
+        cls.model_factory = TransferFactory
+        cls.user_factory = UserFactoryNoSignal
+        cls.context_list = ['form']
+        cls.template = 'main/transfer_edit.html'
+        cls.view_function = views.EditTransferView.as_view()
+        cls.login_required = True
+    
+    def setUp(self) -> None:
+        super().setUp()
+        self.test_account1 = AccountFactory(user=self.user)
+        self.test_account2 = AccountFactory(user=self.user)
+        self.valid_data = [{
+            'from_account': self.test_account1.id,
+            'to_account': self.test_account2.id,
+            'from_amount': 10,
+            'to_amount': 20,
+            'date': date(2001,1,1)
+        }]
+        self.invalid_data = [{
+            'from_account': 'invalid value',
+            'to_account': self.test_account2.id,
+            'from_amount': 'invalid value',
+            'to_amount': 20,
+            'date': date(2001,1,1)
+        }]
+
+    def set_object(self):
+        self.object = self.model_factory.create(user=self.user)
+
+    def subtest_post_success(self, data):
+        response = self.client.post(self.test_url, data=data)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.object.refresh_from_db()
+        self.assertEquals(Transfer.objects.count(), 1)
+        self.assertEquals(self.object.from_transaction.content_object, self.test_account1)
+        self.assertEquals(self.object.to_transaction.content_object, self.test_account2)
+
+    def test_post_success(self):
+        for data in self.valid_data:
+            with self.subTest(data=data):
+                self.subtest_post_success(data)
+
