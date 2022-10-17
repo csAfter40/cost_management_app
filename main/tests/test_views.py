@@ -1830,6 +1830,18 @@ class TestWorthView(BaseViewTestMixin, TestCase):
         self.user.user_preferences = UserPreferencesFactory(user=self.user)
 
 
+class TestTransactionsView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:transactions')
+        cls.context_list = ['transactions', 'paginator']
+        cls.template = 'main/transactions.html'
+        cls.view_function = views.TransactionsView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+
 class TestEditTransactionView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
