@@ -391,13 +391,13 @@ def get_users_grand_total(user, data):
     return {'currency': user_currency, 'total': round(grand_total, 2)}
 
 def withdraw_asset_balance(transaction):
-    account = transaction.content_object
+    asset = transaction.content_object
     amount = transaction.amount
     if transaction.type == 'E':
-        account.balance += amount
+        asset.balance += amount
     else:
-        account.balance -= amount
-    account.save()
+        asset.balance -= amount
+    asset.save()
 
 def handle_transaction_delete(transaction_obj):
     with transaction.atomic():
@@ -541,9 +541,13 @@ def handle_transfer_delete(transfer):
     handle_transaction_delete(transfer.from_transaction)
 
 def edit_transaction(transaction, data):
+    withdraw_asset_balance(transaction)
     for key, value in data.items():
         setattr(transaction, key, value)
     transaction.save()
+    transaction.refresh_from_db()
+    transaction.content_object.refresh_from_db()
+    edit_asset_balance(transaction)
 
 def handle_transfer_edit(object, data):
     from_transaction_data = {
@@ -561,6 +565,7 @@ def handle_transfer_edit(object, data):
         edit_transaction(object.to_transaction, to_transaction_data)
         object.date = data['date']
         object.save()
+
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
