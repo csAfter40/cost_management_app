@@ -75,6 +75,11 @@ urlpatterns = [
     ),
     path("worth", views.WorthView.as_view(), name="worth"),
     path(
+        'transactions',
+        views.TransactionsView.as_view(),
+        name='transactions'
+    ),
+    path(
         "transactions/<int:pk>/edit",
         views.EditTransactionView.as_view(),
         name="edit_transaction",
