@@ -8,7 +8,7 @@
 {% block body %}
     <div class="container py-5">
         
-        {% include 'main/group_table_time_paginator.html' with table_template='main/table_transfers.html' %}
+        {% include 'main/group_table_time_paginator.html' with table_template='main/table_transfers.html' table_title='Transfers' %}
     </div>
     {% with modal_title='Delete Transfer' %}
     {% with modal_message='Do you really want to delete this transfer? All transactions related to this transfer will be undoned.' %}
