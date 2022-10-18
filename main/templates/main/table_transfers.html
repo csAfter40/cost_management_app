@@ -32,7 +32,7 @@
                     {{ object.to_transaction.content_object.currency.symbol }}</td>
                 {% if not table_min %}
                     <td style="text-align: center;" class="align-middle">
-                        <a href="{% url 'main:edit_transfer' pk=object.id %}"><i class="bi bi-pencil-square"></i></a> 
+                        <a href="{% url 'main:edit_transfer' pk=object.id %}" title="Edit"><i class="bi bi-pencil-square"></i></a> 
                     </td>
                     <td style="text-align: center;" class="align-middle">
                         {% include 'main/button_delete.html' %}

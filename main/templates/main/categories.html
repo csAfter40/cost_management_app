@@ -35,17 +35,17 @@
                     {{ node.name }}
                     &nbsp&nbsp&nbsp
                     <!-- spaces -->
-                    <button type="button" class="btn px-0 edit-expense-button" data-bs-toggle="modal"
+                    <button type="button" title="Edit" class="btn px-0 edit-expense-button" data-bs-toggle="modal"
                         data-bs-target="#editExpenseCategoryModal" data-node-id="{{node.id}}"
                         data-node-name="{{node.name}}">
                         <i class="bi bi-pencil-square"></i>
                     </button>
-                    <button type="button" class="btn px-0 delete-expense-button" data-bs-toggle="modal"
+                    <button type="button" title="Delete" class="btn px-0 delete-expense-button" data-bs-toggle="modal"
                         data-bs-target="#deleteExpenseCategoryModal" data-node-id="{{node.id}}" 
                         data-url="{% url 'main:delete_expense_category' pk=node.id %}">
                         <i class="bi bi-trash"></i>
                     </button>
-                    <button type="button" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal"
+                    <button type="button" title="Create Subcategory" class="btn px-0 create-expense-subcategory-button" data-bs-toggle="modal"
                         data-bs-target="#createExpenseSubcategoryModal" data-node-id="{{node.id}}"
                         data-node-name="{{node.name}}">
                         <i class="bi bi-diagram-2"></i>
