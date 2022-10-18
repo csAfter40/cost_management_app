@@ -1866,6 +1866,18 @@ class TestTransactionsYearArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
 
+class TestTransactionsMonthArchiveView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:transactions_month_archive', kwargs={'year': 2022, 'month': 1})
+        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.template = 'main/group_table_paginator.html'
+        cls.view_function = views.TransactionsMonthArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+
 class TestEditTransactionView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
