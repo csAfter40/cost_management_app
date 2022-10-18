@@ -178,7 +178,10 @@ class TestUrls(SimpleTestCase):
 
     def test_transactions_month_archive_url(self):
         self.assert_path_resolves_to_CBV('/transactions/date/2001/1', views.TransactionsMonthArchiveView, 'transactions_month_archive', year=2001, month=1)   
-
+    
+    def test_transactions_week_archive_url(self):
+        self.assert_path_resolves_to_CBV('/transactions/date/2001/week/1', views.TransactionsWeekArchiveView, 'transactions_week_archive', year=2001, week=1)
+    
     def test_edit_transaction_url(self):
         self.assert_path_resolves_to_CBV("/transactions/1/edit", views.EditTransactionView, "edit_transaction", pk=1)
 
