@@ -812,6 +812,7 @@ class TransactionsMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transactions.html'}
+    context_object_name = 'transactions'
     template_name = 'main/group_table_paginator.html'
     month_format='%m'
 
@@ -827,6 +828,7 @@ class TransactionsWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transactions.html'}
+    context_object_name = 'transactions'
     template_name = 'main/group_table_paginator.html'
 
     def get_queryset(self):
@@ -841,6 +843,7 @@ class TransactionsDayArchiveView(LoginRequiredMixin, DayArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transactions.html'}
+    context_object_name = 'transactions'
     template_name = 'main/group_table_paginator.html'
     month_format='%m'
 
@@ -945,6 +948,7 @@ class TransfersMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
+    context_object_name = 'transfers'
     template_name = 'main/group_table_paginator.html'
     month_format='%m'
 
@@ -959,6 +963,7 @@ class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
+    context_object_name = 'transfers'
     template_name = 'main/group_table_paginator.html'
 
     def get_queryset(self):
@@ -972,6 +977,7 @@ class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
     allow_future = True
     allow_empty = True
     extra_context = {'table_template': 'main/table_transfers.html'}
+    context_object_name = 'transfers'
     template_name = 'main/group_table_paginator.html'
     month_format='%m'
 

@@ -1847,7 +1847,7 @@ class TestTransactionsAllArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transactions_all_archive')
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transactions']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransactionsAllArchiveView.as_view()
         cls.login_required = True
@@ -1859,7 +1859,7 @@ class TestTransactionsYearArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transactions_year_archive', kwargs={'year': 2022})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transactions']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransactionsYearArchiveView.as_view()
         cls.login_required = True
@@ -1871,7 +1871,7 @@ class TestTransactionsMonthArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transactions_month_archive', kwargs={'year': 2022, 'month': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transactions']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransactionsMonthArchiveView.as_view()
         cls.login_required = True
@@ -1883,7 +1883,7 @@ class TestTransactionsWeekArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transactions_week_archive', kwargs={'year': 2022, 'week': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transactions']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransactionsWeekArchiveView.as_view()
         cls.login_required = True
@@ -1895,7 +1895,7 @@ class TestTransactionsDayArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transactions_day_archive', kwargs={'year': 2022, 'month': 1, 'day': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transactions']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransactionsDayArchiveView.as_view()
         cls.login_required = True
@@ -2128,7 +2128,7 @@ class TestTransfersYearArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transfers_year_archive', kwargs={'year': 2022})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transfers']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransfersYearArchiveView.as_view()
         cls.login_required = True
@@ -2139,7 +2139,7 @@ class TestTransfersMonthArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transfers_month_archive', kwargs={'year': 2022, 'month': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transfers']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransfersMonthArchiveView.as_view()
         cls.login_required = True
@@ -2150,7 +2150,7 @@ class TestTransfersWeekArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transfers_week_archive', kwargs={'year': 2022, 'week': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transfers']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransfersWeekArchiveView.as_view()
         cls.login_required = True
@@ -2161,7 +2161,7 @@ class TestTransfersDayArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transfers_day_archive', kwargs={'year': 2022, 'month': 1, 'day': 1})
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transfers']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransfersDayArchiveView.as_view()
         cls.login_required = True
@@ -2172,7 +2172,7 @@ class TestTransfersAllArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:transfers_all_archive')
-        cls.context_list = ['object_list', 'date_list', 'table_template']
+        cls.context_list = ['object_list', 'date_list', 'table_template', 'transfers']
         cls.template = 'main/group_table_paginator.html'
         cls.view_function = views.TransfersAllArchiveView.as_view()
         cls.login_required = True
