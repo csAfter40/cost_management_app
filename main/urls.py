@@ -100,6 +100,11 @@ urlpatterns = [
         name='transactions_week_archive'
     ),
     path(
+        'transactions/date/<int:year>/<int:month>/<int:day>',
+        views.TransactionsDayArchiveView.as_view(),
+        name='transactions_day_archive'
+    ),
+    path(
         "transactions/<int:pk>/edit",
         views.EditTransactionView.as_view(),
         name="edit_transaction",
