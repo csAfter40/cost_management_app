@@ -2228,3 +2228,14 @@ class TestEditTransferView(TestUpdateViewMixin, TestCase):
             with self.subTest(data=data):
                 self.subtest_post_success(data)
 
+
+class TestInsOutsView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:ins_outs')
+        cls.context_list = ["date", "expense_stats", "income_stats", "comparison_stats"]
+        cls.template = 'main/ins_outs.html'
+        cls.view_function = views.InsOutsView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
