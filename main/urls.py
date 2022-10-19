@@ -154,6 +154,11 @@ urlpatterns = [
         views.TransfersDayArchiveView.as_view(),
         name='transfers_day_archive'
     ),
+    path(
+        'ins_outs',
+        views.InsOutsView.as_view(),
+        name='ins_outs'
+    ),
 ]
 
 htmx_urlpatterns = [
