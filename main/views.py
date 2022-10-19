@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import (
@@ -1039,3 +1039,30 @@ class EditTransferView(LoginRequiredMixin, UpdateView):
             messages.error(self.request, 'Error during editing transfer')
             return self.render_to_response(self.get_context_data(form=form))
         return HttpResponseRedirect(reverse("main:main"))
+
+
+class InsOutsView(LoginRequiredMixin, TemplateView):
+    template_name = 'main/ins_outs.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
+        transactions = Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list).prefetch_related('content_object__currency')
+        expense_category_stats = get_category_stats(
+            transactions, "E", None, self.request.user
+        )
+        income_category_stats = get_category_stats(
+            transactions, "I", None, self.request.user
+        )
+        comparison_stats = get_comparison_stats(
+            expense_category_stats, income_category_stats
+        )
+
+        extra_context = {
+            "date": date.today(),
+            "expense_stats": expense_category_stats,
+            "income_stats": income_category_stats,
+            "comparison_stats": comparison_stats,
+        }
+        context.update(extra_context)
+        return context
