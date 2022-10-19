@@ -1,0 +1,53 @@
+{% extends 'main/user_layout.html' %}
+{% load static %}
+{% block title %}
+    <title>Ins / Outs</title>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center my-3">
+        {% include 'main/time_select_buttons.html' %}
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-4 text-center bg-light p-3 mx-2">
+            <h4> Report Table </h4>
+            <div id="report-table" data-time="all">
+                {% include 'main/table_report.html' %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center bg-light p-3 mx-2">
+            <h4> Stats & Graphs</h4>
+
+            <div class="row my-4">
+                <div class="col-6">
+                    <h4>Expenses</h4>
+                    <div>
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4>Incomes</h4>
+                    <div>
+                        <canvas id="incomesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row my-4">
+                <div class="col-12">
+                    <h4>Comparison</h4>
+                    <div>
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% include 'main/chart_modal.html' %}
+
+{% endblock %}
+{% block script %}
+<script src="{% static 'main/ins_outs.js' %}"></script>
+<!-- Include chart script here -->
+{% endblock %}
