@@ -1,0 +1,30 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Currency</th>
+            <th scope="col">Expenses</th>
+            <th scope="col">Incomes</th>
+            <th scope="col">Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for currency, details in currency_details.items %}
+            {% for data in report %}
+                <tr>
+                    <td>{{data.currency}}</td>
+                    <td>{{data.expense}}</td>
+                    <td>{{data.income}}</td>
+                    <td>{{data.balance}}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        <tfoot>
+            <tr class="table-active" style="font-weight:bold;">
+                <td>Total in {{total.currency}}</td>
+                <td>{{total.expense}}</td>
+                <td>{{total.income}}</td>
+                <td>{{total.balance}}</td>
+            </tr>
+        </tfoot>
+    </tbody>
+</table>
