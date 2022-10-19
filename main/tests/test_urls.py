@@ -215,3 +215,5 @@ class TestUrls(SimpleTestCase):
     def test_transfers_day_archive_url(self):
         self.assert_path_resolves_to_CBV('/transfers/date/2001/1/1', views.TransfersDayArchiveView, 'transfers_day_archive', year=2001, month=1, day=1)
     
+    def test_ins_outs_url(self):
+        self.assert_path_resolves_to_CBV('/ins_outs', views.InsOutsView, 'ins_outs')
