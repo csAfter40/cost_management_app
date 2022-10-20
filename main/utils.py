@@ -570,6 +570,25 @@ def handle_transfer_edit(object, data):
         object.date = data['date']
         object.save()
 
+def get_currency_ins_outs(currency, qs, user):
+    currency_accounts_list = Account.objects.filter(user=user, currency=currency).values_list('id', flat=True)
+    expense = qs.filter(
+        content_type__model='account', 
+        object_id__in=currency_accounts_list,
+        type='E'
+    ).aggregate(Sum('amount'))['amount__sum'] #aggregate returns a dictionary with 'amount__sum' key
+    income = qs.filter(
+        content_type__model='account', 
+        object_id__in=currency_accounts_list,
+        type='I'
+    ).aggregate(Sum('amount'))['amount__sum'] #aggregate returns a dictionary with 'amount__sum' key
+    currency_ins_outs = {
+        'currency': currency,
+        'expense': expense,
+        'income': income,
+        'balance': income-expense
+    }
+    return currency_ins_outs
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
