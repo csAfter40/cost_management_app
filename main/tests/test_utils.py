@@ -345,14 +345,13 @@ class TestUtilityFunctions(TestCase):
         expected = 18
         self.assertEquals(result, expected)
 
-    def test_convert_money(self):
-        from_currency = CurrencyFactory(code='USD')
-        to_currency = CurrencyFactory(code='TRY')
-        from_rate = RateFactory(currency=from_currency, rate=1)
-        to_rate = RateFactory(currency=to_currency, rate=18)
-        result = convert_money(from_currency=from_currency, to_currency=to_currency, amount=100)
+    @patch('main.utils.get_conversion_rate')
+    def test_convert_money(self, mock):
+        mock.return_value = 18
+        result = convert_money(from_currency='from_currency', to_currency='to_currency', amount=100)
         expected = 1800
         self.assertEquals(result, expected)
+        self.assertTrue(mock.called)
 
     def test_get_net_worth_by_currency(self):
         currency = CurrencyFactory()
