@@ -50,7 +50,8 @@ from main.utils import (
     get_from_transaction,
     get_to_transaction,
     edit_transaction,
-    get_currency_ins_outs
+    get_currency_ins_outs,
+    get_ins_outs_report
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -69,7 +70,7 @@ from main.tests.factories import (
 import datetime
 from datetime import timedelta
 from main.categories import categories
-from main.models import Category, Transaction, Account, User, UserPreferences, Transfer
+from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency
 from freezegun import freeze_time
 
 
@@ -681,3 +682,14 @@ class TestUtilityFunctions(TestCase):
             'balance': 10
         }
         self.assertEquals(data, expected)
+
+    @patch('main.utils.get_user_currencies')
+    @patch('main.utils.get_currency_ins_outs')
+    def test_get_ins_outs_report(self, mock_ins_outs, mock_currencies):
+        mock_currencies.return_value = ['currency1', 'currency2']
+        mock_ins_outs.return_value = 'data'
+        result = get_ins_outs_report('user', 'qs')
+        expected =  ['data', 'data']
+        self.assertEquals(result, expected)
+        self.assertTrue(mock_currencies.called)
+        self.assertTrue(mock_ins_outs.called)
