@@ -1,5 +1,4 @@
 from decimal import Decimal
-from unicodedata import category
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -302,15 +301,20 @@ def get_worth_stats(user):
         stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
 
+def get_conversion_rate(from_currency, to_currency):
+    """
+    Calculates rate between currencies. Takes 2 currencies and returns a float. 
+    """
+    from_currency_rate = Rate.objects.get(currency=from_currency)
+    to_currency_rate = Rate.objects.get(currency=to_currency)
+    return to_currency_rate.rate / from_currency_rate.rate
 
 def convert_money(from_currency, to_currency, amount):
     """
     A basic currency converter. Takes from currency, to currency and an amount.
     Returns converted amount.
     """
-    from_currency_rate = Rate.objects.get(currency=from_currency)
-    to_currency_rate = Rate.objects.get(currency=to_currency)
-    conversion_rate = to_currency_rate.rate / from_currency_rate.rate
+    conversion_rate = get_conversion_rate(from_currency, to_currency)
     return amount * conversion_rate
 
 
