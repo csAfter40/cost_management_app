@@ -13,6 +13,10 @@ class User(AbstractUser):
     def __str__(self) -> str:
         return self.username
 
+    @property
+    def primary_currency(self):
+        return self.user_preferences.primary_currency
+
 
 class Currency(models.Model):
     code = models.CharField(max_length=3)
