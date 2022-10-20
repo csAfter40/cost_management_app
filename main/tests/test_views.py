@@ -2234,8 +2234,12 @@ class TestInsOutsView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:ins_outs')
-        cls.context_list = ["date", "expense_stats", "income_stats", "comparison_stats"]
+        cls.context_list = ["date", "expense_stats", "income_stats", "comparison_stats", 'report', 'total']
         cls.template = 'main/ins_outs.html'
         cls.view_function = views.InsOutsView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+
+    def test_get(self):
+        UserPreferencesFactory(user=self.user)
+        super().test_get()

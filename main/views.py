@@ -49,7 +49,9 @@ from .utils import (
     handle_loan_payment,
     handle_asset_delete,
     handle_transfer_delete,
-    handle_transfer_edit
+    handle_transfer_edit,
+    get_ins_outs_report,
+    get_report_total,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -1057,12 +1059,16 @@ class InsOutsView(LoginRequiredMixin, TemplateView):
         comparison_stats = get_comparison_stats(
             expense_category_stats, income_category_stats
         )
+        report = get_ins_outs_report(self.request.user, transactions)
+        total = get_report_total(report, self.request.user.primary_currency)
 
         extra_context = {
             "date": date.today(),
             "expense_stats": expense_category_stats,
             "income_stats": income_category_stats,
             "comparison_stats": comparison_stats,
+            "report": report,
+            "total": total
         }
         context.update(extra_context)
         return context
