@@ -159,6 +159,11 @@ urlpatterns = [
         views.InsOutsView.as_view(),
         name='ins_outs'
     ),
+    path(
+        'ins_outs/date',
+        views.InsOutsAllArchiveView.as_view(),
+        name='ins_outs_all_archive'
+    ),
 ]
 
 htmx_urlpatterns = [
