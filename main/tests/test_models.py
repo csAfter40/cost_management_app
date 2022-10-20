@@ -1,3 +1,4 @@
+from locale import currency
 from main.models import (
     User,
     Currency,
@@ -33,6 +34,12 @@ class TestUser(TestCase):
         with self.assertRaises(IntegrityError):
             user1 = UserFactoryNoSignal(username="testuser")
             user2 = UserFactoryNoSignal(username="testuser")
+
+    def test_primary_currency_property(self):
+        user = UserFactoryNoSignal()
+        currency = CurrencyFactory()
+        UserPreferencesFactory(user=user, primary_currency=currency)
+        self.assertEquals(user.primary_currency, currency)
 
 
 class TestCurrency(TestCase):
