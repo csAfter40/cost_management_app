@@ -8,22 +8,28 @@
         </tr>
     </thead>
     <tbody>
-        {% for currency, details in currency_details.items %}
-            {% for data in report %}
-                <tr>
-                    <td>{{data.currency}}</td>
-                    <td>{{data.expense}}</td>
-                    <td>{{data.income}}</td>
-                    <td>{{data.balance}}</td>
-                </tr>
-            {% endfor %}
+        {% for data in report %}
+            <tr>
+                <td>{{data.currency}}</td>
+                <td class="text-danger">-{{data.expense}}</td>
+                <td class="text-success">+{{data.income}}</td>
+                {% if data.balance < 0 %}
+                    <td class="text-danger">{{data.balance}}</td>
+                {% else %}    
+                    <td class="text-success">+{{data.balance}}</td>
+                {% endif %}
+            </tr>
         {% endfor %}
         <tfoot>
             <tr class="table-active" style="font-weight:bold;">
                 <td>Total in {{total.currency}}</td>
-                <td>{{total.expense}}</td>
-                <td>{{total.income}}</td>
-                <td>{{total.balance}}</td>
+                <td class="text-danger">-{{total.expense}}</td>
+                <td class="text-success">+{{total.income}}</td>
+                {% if total.balance < 0 %}
+                    <td class="text-danger">{{total.balance}}</td>
+                {% else %}
+                    <td class="text-success">+{{total.balance}}</td>
+                {% endif %}
             </tr>
         </tfoot>
     </tbody>
