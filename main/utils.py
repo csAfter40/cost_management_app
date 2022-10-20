@@ -590,6 +590,14 @@ def get_currency_ins_outs(currency, qs, user):
     }
     return currency_ins_outs
 
+def get_ins_outs_report(user, qs):
+    report = []
+    currencies = get_user_currencies(user)
+    for currency in currencies:
+        data = get_currency_ins_outs(currency, qs, user)
+        report.append(data)
+    return report
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
