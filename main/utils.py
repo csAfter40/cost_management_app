@@ -598,6 +598,21 @@ def get_ins_outs_report(user, qs):
         report.append(data)
     return report
 
+def get_report_total(report, currency):
+    total = {
+        'currency': currency,
+        'expense': 0,
+        'income': 0,
+        'balance': 0
+    }
+    for data in report:
+        rate = get_conversion_rate(data['currency'], currency)
+        total['expense'] += round(data['expense'] * rate, 2)
+        total['income'] += round(data['income'] * rate, 2)
+        total['balance'] += round(data['balance'] * rate, 2)
+    return total
+
+
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
