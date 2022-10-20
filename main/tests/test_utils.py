@@ -51,7 +51,8 @@ from main.utils import (
     get_to_transaction,
     edit_transaction,
     get_currency_ins_outs,
-    get_ins_outs_report
+    get_ins_outs_report,
+    get_report_total
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -693,3 +694,20 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(result, expected)
         self.assertTrue(mock_currencies.called)
         self.assertTrue(mock_ins_outs.called)
+
+    @patch('main.utils.get_conversion_rate')
+    def test_get_report_total(self, mock):
+        mock.return_value = 2
+        report = [{
+            'currency': 'currency1',
+            'expense': 1,
+            'income': 2,
+            'balance': 1
+        }]
+        result = get_report_total(report, 'currency2')
+        expected = {
+            'currency': 'currency2',
+            'expense': 2,
+            'income': 4,
+            'balance': 2
+        }
