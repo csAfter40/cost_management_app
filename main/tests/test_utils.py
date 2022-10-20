@@ -1,5 +1,6 @@
 import decimal
 import datetime
+from locale import currency
 from unittest.mock import Mock, MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
@@ -49,6 +50,7 @@ from main.utils import (
     get_from_transaction,
     get_to_transaction,
     edit_transaction,
+    get_currency_ins_outs
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -664,3 +666,18 @@ class TestUtilityFunctions(TestCase):
         handle_transfer_edit(object, data)
         self.assertEquals(mock.call_count, 2)
         self.assertEquals(object.date, datetime.date(2001,1,1))
+
+    def test_get_currency_ins_outs(self):
+        currency = CurrencyFactory()
+        account = AccountFactory(currency=currency, user=self.user)
+        AccountTransactionFactory(content_object=account, type='E', amount=10)
+        AccountTransactionFactory(content_object=account, type='I', amount=20)
+        qs = Transaction.objects.all()
+        data = get_currency_ins_outs(currency, qs, self.user)
+        expected = {
+            'currency': currency,
+            'expense': 10,
+            'income': 20,
+            'balance': 10
+        }
+        self.assertEquals(data, expected)
