@@ -8,6 +8,7 @@ from main.utils import (
     create_transfer,
     get_account_data,
     get_category_stats,
+    get_conversion_rate,
     get_dates,
     get_loan_data,
     get_latest_transactions,
@@ -335,6 +336,14 @@ class TestUtilityFunctions(TestCase):
         expected = {'2022-02':1, '2022-01':5, '2022-03':1, '2022-04':9}
         self.assertEquals(result, expected)
 
+    def test_get_conversion_rate(self):
+        from_currency = CurrencyFactory(code='USD')
+        to_currency = CurrencyFactory(code='TRY')
+        from_rate = RateFactory(currency=from_currency, rate=1)
+        to_rate = RateFactory(currency=to_currency, rate=18)
+        result = get_conversion_rate(from_currency=from_currency, to_currency=to_currency)
+        expected = 18
+        self.assertEquals(result, expected)
 
     def test_convert_money(self):
         from_currency = CurrencyFactory(code='USD')
