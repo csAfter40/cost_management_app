@@ -1107,3 +1107,14 @@ class InsOutsMonthArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, Month
     context_object_name = 'transactions'
     template_name = 'main/group_report_chart_script.html'
     month_format='%m'
+
+
+class InsOutsWeekArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, WeekArchiveView):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    extra_context = {'table_template': 'main/table_transactions.html'}
+    context_object_name = 'transactions'
+    template_name = 'main/group_report_chart_script.html'
