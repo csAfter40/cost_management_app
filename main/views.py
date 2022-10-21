@@ -22,6 +22,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
+from .view_mixins import InsOutsDateArchiveMixin
 from .utils import (
     create_transaction,
     edit_asset_balance,
@@ -1074,7 +1075,7 @@ class InsOutsView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class InsOutsAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
+class InsOutsAllArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
@@ -1083,36 +1084,8 @@ class InsOutsAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
     context_object_name = 'transactions'
     template_name = 'main/group_report_chart_script.html'
 
-    def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transactions = self.get_dated_items()[1]
-        expense_category_stats = get_category_stats(
-            transactions, "E", None, self.request.user
-        )
-        income_category_stats = get_category_stats(
-            transactions, "I", None, self.request.user
-        )
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        report = get_ins_outs_report(self.request.user, transactions)
-        total = get_report_total(report, self.request.user.primary_currency)
-
-        extra_context = {
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-            "report": report,
-            "total": total
-        }
-        context.update(extra_context)
-        return context
-
-class InsOutsYearArchiveView(LoginRequiredMixin, YearArchiveView):
+class InsOutsYearArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, YearArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
@@ -1123,37 +1096,8 @@ class InsOutsYearArchiveView(LoginRequiredMixin, YearArchiveView):
     template_name = 'main/group_report_chart_script.html'
     make_object_list = True
 
-    def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transactions = self.get_dated_items()[1]
-        expense_category_stats = get_category_stats(
-            transactions, "E", None, self.request.user
-        )
-        income_category_stats = get_category_stats(
-            transactions, "I", None, self.request.user
-        )
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        report = get_ins_outs_report(self.request.user, transactions)
-        total = get_report_total(report, self.request.user.primary_currency)
-
-        extra_context = {
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-            "report": report,
-            "total": total
-        }
-        context.update(extra_context)
-        return context
-
-
-class InsOutsMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
+class InsOutsMonthArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, MonthArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
@@ -1163,32 +1107,3 @@ class InsOutsMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     context_object_name = 'transactions'
     template_name = 'main/group_report_chart_script.html'
     month_format='%m'
-
-    def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transactions = self.get_dated_items()[1]
-        expense_category_stats = get_category_stats(
-            transactions, "E", None, self.request.user
-        )
-        income_category_stats = get_category_stats(
-            transactions, "I", None, self.request.user
-        )
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        report = get_ins_outs_report(self.request.user, transactions)
-        total = get_report_total(report, self.request.user.primary_currency)
-
-        extra_context = {
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-            "report": report,
-            "total": total
-        }
-        context.update(extra_context)
-        return context
