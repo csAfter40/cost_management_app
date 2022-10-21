@@ -2305,3 +2305,19 @@ class TestInsOutsWeekArchiveView(BaseViewTestMixin, TestCase):
     def test_get(self):
         UserPreferencesFactory(user=self.user)
         super().test_get()
+
+
+class TestInsOutsDayArchiveView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:ins_outs_day_archive', kwargs={'year': 2001, 'month': 1, 'day': 1})
+        cls.context_list = ["expense_stats", "income_stats", "comparison_stats", 'report', 'total']
+        cls.template = 'main/group_report_chart_script.html'
+        cls.view_function = views.InsOutsDayArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_get(self):
+        UserPreferencesFactory(user=self.user)
+        super().test_get()
