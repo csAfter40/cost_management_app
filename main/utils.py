@@ -576,12 +576,12 @@ def get_currency_ins_outs(currency, qs, user):
         content_type__model='account', 
         object_id__in=currency_accounts_list,
         type='E'
-    ).aggregate(Sum('amount'))['amount__sum'] #aggregate returns a dictionary with 'amount__sum' key
+    ).aggregate(Sum('amount'))['amount__sum'] or 0 #aggregate returns a dictionary with 'amount__sum' key
     income = qs.filter(
         content_type__model='account', 
         object_id__in=currency_accounts_list,
         type='I'
-    ).aggregate(Sum('amount'))['amount__sum'] #aggregate returns a dictionary with 'amount__sum' key
+    ).aggregate(Sum('amount'))['amount__sum'] or 0 #aggregate returns a dictionary with 'amount__sum' key
     currency_ins_outs = {
         'currency': currency,
         'expense': expense,
