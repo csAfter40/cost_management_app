@@ -220,3 +220,6 @@ class TestUrls(SimpleTestCase):
     
     def test_ins_outs_all_archive_url(self):
         self.assert_path_resolves_to_CBV('/ins_outs/date', views.InsOutsAllArchiveView, 'ins_outs_all_archive')
+
+    def test_ins_outs_year_archive_url(self):
+        self.assert_path_resolves_to_CBV('/ins_outs/date/2001', views.InsOutsYearArchiveView, 'ins_outs_year_archive', year=2001)
