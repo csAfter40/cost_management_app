@@ -1,10 +1,14 @@
-from .models import Account
+from .models import Account, Category
 from .utils import get_category_stats, get_comparison_stats, get_ins_outs_report, get_report_total
 
 class InsOutsDateArchiveMixin():
     def get_queryset(self):
         user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+        user_transfer_categories = Category.objects.filter(user=self.request.user, is_transfer=True)
+        return super().get_queryset().filter(
+            content_type__model='account', 
+            object_id__in=user_accounts_list
+            ).exclude(category__in=user_transfer_categories)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
