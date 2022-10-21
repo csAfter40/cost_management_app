@@ -174,6 +174,11 @@ urlpatterns = [
         views.InsOutsMonthArchiveView.as_view(),
         name='ins_outs_month_archive'
     ),
+    path(
+        'ins_outs/date/<int:year>/week/<int:week>',
+        views.InsOutsWeekArchiveView.as_view(),
+        name='ins_outs_week_archive'
+    ),
 ]
 
 htmx_urlpatterns = [
