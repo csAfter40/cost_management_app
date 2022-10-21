@@ -115,6 +115,10 @@ class Transaction(models.Model):
     def class_name(self):
         return self.__class__.__name__
 
+    @property
+    def delete_url(self):
+        return reverse('main:delete_transaction', kwargs={'pk': self.id})
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -184,6 +188,10 @@ class Transfer(models.Model):
     @property
     def class_name(self):
         return self.__class__.__name__
+
+    @property
+    def delete_url(self):
+        return reverse('main:delete_transfer', kwargs={'pk': self.id})
 
 class Rate(models.Model):
     currency = models.OneToOneField(Currency, on_delete=models.CASCADE, related_name='rate')
