@@ -107,8 +107,8 @@
 
   function getSubcategoryChartData(categoryIndex) {
     const transactionsDiv = document.querySelector('#transactions-table');
-    const time = transactionsDiv.dataset.time;
-    let url = window.location.pathname + '/ajax' + `/${categoryIndex}` + `?time=${time}`;
+    // const time = transactionsDiv.dataset.time;
+    let url = `/categories/${categoryIndex}/date?ajax=1`;
     return fetch(url, {
       method: 'GET',
       headers: {},
