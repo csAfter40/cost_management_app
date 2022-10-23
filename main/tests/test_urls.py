@@ -110,6 +110,11 @@ class TestUrls(SimpleTestCase):
             "/categories", views.CategoriesView, "categories"
         )
 
+    def test_category_all_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/categories/1/date", views.CategoryAllArchiveView, "category_all_archive", pk=1
+        )
+
     def test_expense_category_create_url(self):
         self.assert_path_resolves_to_CBV(
             "/categories/expense/create",
@@ -230,5 +235,5 @@ class TestUrls(SimpleTestCase):
     def test_ins_outs_week_archive_url(self):
         self.assert_path_resolves_to_CBV('/ins_outs/date/2001/week/1', views.InsOutsWeekArchiveView, 'ins_outs_week_archive', year=2001, week=1)
 
-    def test_ins_outs_week_archive_url(self):
+    def test_ins_outs_day_archive_url(self):
         self.assert_path_resolves_to_CBV('/ins_outs/date/2001/1/1', views.InsOutsDayArchiveView, 'ins_outs_day_archive', year=2001, month=1, day=1)
