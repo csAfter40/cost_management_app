@@ -22,7 +22,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
-from .view_mixins import InsOutsDateArchiveMixin
+from .view_mixins import InsOutsDateArchiveMixin, CategoryDateArchiveMixin
 from .utils import (
     create_transaction,
     edit_asset_balance,
@@ -1050,7 +1050,8 @@ class InsOutsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
-        transactions = Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list).prefetch_related('content_object__currency')
+        transfer_categories = Category.objects.filter(user=self.request.user, is_transfer=True)
+        transactions = Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list).exclude(category__in=transfer_categories).prefetch_related('content_object__currency')
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
         )
@@ -1130,3 +1131,13 @@ class InsOutsDayArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, DayArch
     context_object_name = 'transactions'
     template_name = 'main/group_report_chart_script.html'
     month_format='%m'
+
+
+class CategoryAllArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+    template_name = 'main/category_detail.html'
