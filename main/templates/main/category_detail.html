@@ -1,0 +1,60 @@
+{% extends 'main/user_layout.html' %}
+{% load static %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'main/account.css' %}">
+
+{% endblock %}
+{% block title %}
+    <title>Category Details</title>
+{% endblock %}
+{% block body %}
+{% csrf_token %}
+<div class="container">
+    <div class="row justify-content-center mb-3">
+        {% include 'main/time_select_buttons.html' %}
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div id="transactions-table" data-time="all">
+                {% include 'main/table_transactions.html' %}
+            </div>
+            <div id="paginator-div" class="d-flex justify-content-center my-3">
+                {% include 'main/paginator.html' with paginator=transactions.paginator page_obj=transactions %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center bg-light p-3">
+            <h3> Stats & Graphs</h3>
+
+            <div class="row my-4">
+                <div class="col-6">
+                    <h4>Expenses</h4>
+                    <div>
+                        <canvas id="expensesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4>Incomes</h4>
+                    <div>
+                        <canvas id="incomesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row my-4">
+                <div class="col-12">
+                    <h4>Comparison</h4>
+                    <div>
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% include 'main/chart_modal.html' %}
+
+{% endblock %}
+{% block script %}
+<script src="{% static 'main/category_detail.js' %}"></script>
+{% include 'main/category_detail_chart_script.html' %}
+{% endblock %}
