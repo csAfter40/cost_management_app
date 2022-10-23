@@ -2422,3 +2422,30 @@ class TestCategoryWeekArchiveView(BaseViewTestMixin, TestCase):
         response = self.client.get(test_url)      
         self.assertEquals(response.status_code, 200)
         self.assertEqual(response['content-type'], 'application/json')
+
+
+class TestCategoryDayArchiveView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.context_list = ['transactions']
+        cls.template = 'main/category_detail.html'
+        cls.view_function = views.CategoryDayArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        self.user = self.get_user()
+        self.object = CategoryFactory(user=self.user, parent=None)
+        self.test_url = reverse(
+            'main:category_day_archive', 
+            kwargs={'pk': self.object.id, 'year': 2001, 'month': 1, 'day': 1}
+        )
+        if self.login_required:
+            self.client.force_login(self.user)
+
+    def test_get_ajax(self):
+        test_url = self.test_url + '?ajax=1'
+        response = self.client.get(test_url)      
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response['content-type'], 'application/json')
