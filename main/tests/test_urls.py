@@ -114,6 +114,11 @@ class TestUrls(SimpleTestCase):
         self.assert_path_resolves_to_CBV(
             "/categories/1/date", views.CategoryAllArchiveView, "category_all_archive", pk=1
         )
+    
+    def test_category_year_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/categories/1/date/2001", views.CategoryYearArchiveView, "category_year_archive", pk=1, year=2001
+        )
 
     def test_expense_category_create_url(self):
         self.assert_path_resolves_to_CBV(
