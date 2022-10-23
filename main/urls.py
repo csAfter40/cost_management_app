@@ -88,6 +88,11 @@ urlpatterns = [
         views.CategoryMonthArchiveView.as_view(),
         name='category_month_archive'
     ),
+    path(
+        'categories/<int:pk>/date/<int:year>/week/<int:week>',
+        views.CategoryWeekArchiveView.as_view(),
+        name='category_week_archive'
+    ),
     path("worth", views.WorthView.as_view(), name="worth"),
     path(
         'transactions',
