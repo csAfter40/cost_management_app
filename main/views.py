@@ -1173,3 +1173,14 @@ class CategoryWeekArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, Arch
     allow_empty = True
     context_object_name = 'transactions'
     template_name = 'main/category_detail.html'
+
+
+class CategoryDayArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+    template_name = 'main/category_detail.html'
+    month_format='%m'
