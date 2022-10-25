@@ -74,6 +74,11 @@ urlpatterns = [
         name="delete_income_category",
     ),
     path(
+        "categories/<int:pk>",
+        views.CategoryDetailView.as_view(),
+        name="category_detail",
+    ),
+    path(
         "categories/<int:pk>/date",
         views.CategoryAllArchiveView.as_view(),
         name="category_all_archive",
