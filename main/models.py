@@ -67,6 +67,9 @@ class Category(MPTTModel):
     def class_name(self):
         return self.__class__.__name__
 
+    def is_expense_category(self):
+        return True if self.type=='E' else False
+
 
 class Transaction(models.Model):
 
