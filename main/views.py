@@ -1132,6 +1132,27 @@ class InsOutsDayArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, DayArch
     template_name = 'main/group_report_chart_script.html'
     month_format='%m'
 
+class CategoryDetailView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+    template_name = 'main/category_detail.html'
+
+    def get_context_data(self, **kwargs):
+        category = self.get_category()
+        transactions = self.get_queryset()
+        category_stats = get_category_stats(
+            transactions, category.type, category, self.request.user
+        )
+        kwargs.update({
+            'category': self.get_category(),
+            'category_stats': category_stats   
+        })
+        return super().get_context_data(**kwargs)
+
 
 class CategoryAllArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
