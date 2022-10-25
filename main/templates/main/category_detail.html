@@ -10,6 +10,9 @@
 {% block body %}
 {% csrf_token %}
 <div class="container">
+    <div class="row text-center m-3">
+        <h3>{{category}} Category Details</h3>
+    </div>
     <div class="row justify-content-center mb-3">
         {% include 'main/time_select_buttons.html' %}
     </div>
@@ -25,28 +28,7 @@
         <div class="col-lg-6 text-center bg-light p-3">
             <h3> Stats & Graphs</h3>
 
-            <div class="row my-4">
-                <div class="col-6">
-                    <h4>Expenses</h4>
-                    <div>
-                        <canvas id="expensesChart"></canvas>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <h4>Incomes</h4>
-                    <div>
-                        <canvas id="incomesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="row my-4">
-                <div class="col-12">
-                    <h4>Comparison</h4>
-                    <div>
-                        <canvas id="comparisonChart"></canvas>
-                    </div>
-                </div>
-            </div>
+            {% include 'main/category_detail_chart.html' %}
 
         </div>
     </div>
