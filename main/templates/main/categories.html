@@ -32,7 +32,7 @@
                     {% else %}
                 <li class="list-group-item bg-light">
                     {% endif %}
-                    {{ node.name }}
+                    <a href="{% url 'main:category_detail' pk=node.id %}">{{ node.name }}</a>
                     &nbsp&nbsp&nbsp
                     <!-- spaces -->
                     <button type="button" title="Edit" class="btn px-0 edit-expense-button" data-bs-toggle="modal"
@@ -74,7 +74,7 @@
                     {% else %}
                 <li class="list-group-item bg-light">
                     {% endif %}
-                    {{ node.name }}
+                    <a href="{% url 'main:category_detail' pk=node.id %}">{{ node.name }}</a>
                     &nbsp&nbsp&nbsp
                     <!-- spaces -->
                     <button type="button" class="btn px-0 edit-income-button" data-bs-toggle="modal"
