@@ -110,6 +110,11 @@ class TestUrls(SimpleTestCase):
             "/categories", views.CategoriesView, "categories"
         )
 
+    def test_category_detail_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/categories/1", views.CategoryDetailView, "category_detail", pk=1
+        )
+
     def test_category_all_archive_url(self):
         self.assert_path_resolves_to_CBV(
             "/categories/1/date", views.CategoryAllArchiveView, "category_all_archive", pk=1
