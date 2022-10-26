@@ -1056,30 +1056,7 @@ class InsOutsView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
-        transfer_categories = Category.objects.filter(user=self.request.user, is_transfer=True)
-        transactions = Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list).exclude(category__in=transfer_categories).prefetch_related('content_object__currency')
-        expense_category_stats = get_multi_currency_category_stats(
-            transactions, "E", None, self.request.user
-        )
-        income_category_stats = get_multi_currency_category_stats(
-            transactions, "I", None, self.request.user
-        )
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        report = get_ins_outs_report(self.request.user, transactions)
-        total = get_report_total(report, self.request.user.primary_currency)
-
-        extra_context = {
-            "date": date.today(),
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-            "report": report,
-            "total": total
-        }
-        context.update(extra_context)
+        context.update({"date": date.today()})
         return context
 
 
