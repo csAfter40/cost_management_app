@@ -131,7 +131,6 @@ class Assets(models.Model):
         Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
     )
     is_active = models.BooleanField(default=True)
-    transactions = GenericRelation(Transaction)
     initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -148,6 +147,8 @@ class Assets(models.Model):
     
 
 class Account(Assets):
+    transactions = GenericRelation(Transaction, related_query_name='account')
+
     class Meta:
         constraints = [
             UniqueConstraint(
@@ -163,6 +164,8 @@ class Account(Assets):
 
 
 class Loan(Assets):
+    transactions = GenericRelation(Transaction, related_query_name='loan')
+    
     class Meta:
         constraints = [
             UniqueConstraint(
