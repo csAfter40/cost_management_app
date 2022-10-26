@@ -1,7 +1,11 @@
-<div class="col-lg-4 text-center bg-light p-3 mx-2">
+<div class="col-6 text-center bg-light p-3 border-end">
     <h4> Report Table </h4>
     <div id="report-table" data-time="all">
         {% include 'main/table_report.html' %}
+    </div>
+    <div id="table-paginator-group" data-time="all" class="py-2">
+        <h4>Transactions</h4>
+        {% include 'main/group_table_paginator.html' with table_template='main/table_transactions.html' %}
     </div>
 </div>
 <div class="col-lg-6 text-center bg-light p-3 mx-2">
