@@ -52,7 +52,8 @@ from main.utils import (
     edit_transaction,
     get_currency_ins_outs,
     get_ins_outs_report,
-    get_report_total
+    get_report_total,
+    get_transactions_currencies
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -172,11 +173,11 @@ class TestUtilityFunctions(TestCase):
         AccountTransactionFactory(content_object=account, amount=1, category=subcategory)
         qs = Transaction.objects.all()
         category_stats = get_category_stats(qs, 'E', parent_category, self.user)
-        self.assertEquals(len(category_stats), 4)
+        self.assertEquals(len(category_stats), 5)
         amount_sum = 0
         for key, value in category_stats.items():
             amount_sum += value['sum']
-        self.assertEquals(amount_sum, 5)
+        self.assertEquals(amount_sum, 10)
 
     @patch('main.utils.create_categories')    
     def test_create_user_categories_unittest(self, func_mock):
@@ -711,3 +712,10 @@ class TestUtilityFunctions(TestCase):
             'income': 4,
             'balance': 2
         }
+
+
+    def test_get_transactions_currencies(self):
+        AccountTransactionFactory.create_batch(2)
+        qs = Transaction.objects.all()
+        currencies = get_transactions_currencies(qs)
+        self.assertEquals(len(currencies), 2)
