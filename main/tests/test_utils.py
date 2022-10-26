@@ -53,7 +53,8 @@ from main.utils import (
     get_currency_ins_outs,
     get_ins_outs_report,
     get_report_total,
-    get_transactions_currencies
+    get_transactions_currencies,
+    get_multi_currency_category_stats
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -719,3 +720,17 @@ class TestUtilityFunctions(TestCase):
         qs = Transaction.objects.all()
         currencies = get_transactions_currencies(qs)
         self.assertEquals(len(currencies), 2)
+
+    def test_get_multi_currency_category_stats(self):
+        currency = CurrencyFactory()
+        target_currency = CurrencyFactory()
+        account1 = AccountFactory(user=self.user, currency=currency)
+        account2 = AccountFactory(user=self.user, currency=target_currency)
+        RateFactory(currency=currency, rate=1)
+        RateFactory(currency=target_currency, rate=2)
+        category = CategoryFactory(user=self.user, type='E', parent=None)
+        transaction1 = AccountTransactionFactory(content_object=account1, amount=10, type='E', category=category)
+        transaction2 = AccountTransactionFactory(content_object=account2, amount=15, type='E', category=category)
+        qs = Transaction.objects.all()
+        stats = get_multi_currency_category_stats(qs, 'E', None, self.user, target_currency=target_currency)
+        self.assertEqual(stats[category.name]['sum'], 35)
