@@ -9,13 +9,20 @@
         {% include 'main/time_select_buttons.html' %}
     </div>
     <div class="row justify-content-center">
-        {% include 'main/group_report_chart.html' %}
+        {% include 'main/group_report_table_paginator_chart.html' with show_category=True %}
     </div>
 </div>
 {% include 'main/chart_modal.html' %}
+{% with modal_title='Delete Transaction' %}
+{% with modal_message='Do you really want to delete this transaction? Account balance will be withdrawn.' %}
+{% with object_class='Transaction' %}
+    {% include 'main/modal_delete_button.html'%}
+{% endwith %}   
+{% endwith %}   
+{% endwith %}
 
 {% endblock %}
 {% block script %}
-    <script src="{% static 'main/ins_outs.js' %}"></script>
+    <script src="{% static 'main/ins_outs.js' %}" type="module"></script>
     {% include 'main/ins_outs_chart_script.html' %}
 {% endblock %}
