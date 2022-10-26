@@ -37,6 +37,7 @@ from .utils import (
     get_stats,
     is_owner,
     get_category_stats,
+    get_multi_currency_category_stats,
     get_paginated_qs,
     get_comparison_stats,
     get_subcategory_stats,
@@ -1044,18 +1045,24 @@ class EditTransferView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("main:main"))
 
 
-class InsOutsView(LoginRequiredMixin, TemplateView):
+class InsOutsView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
     template_name = 'main/ins_outs.html'
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
         transfer_categories = Category.objects.filter(user=self.request.user, is_transfer=True)
         transactions = Transaction.objects.filter(content_type__model='account', object_id__in=accounts_list).exclude(category__in=transfer_categories).prefetch_related('content_object__currency')
-        expense_category_stats = get_category_stats(
+        expense_category_stats = get_multi_currency_category_stats(
             transactions, "E", None, self.request.user
         )
-        income_category_stats = get_category_stats(
+        income_category_stats = get_multi_currency_category_stats(
             transactions, "I", None, self.request.user
         )
         comparison_stats = get_comparison_stats(
