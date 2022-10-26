@@ -8,6 +8,9 @@
                 {% if show_type %}
                 <th class="align-middle col-md-2" scope="col">Type</th>
                 {% endif %}
+                {% if show_category %}
+                <th class="align-middle col-md-2" scope="col">Category</th>
+                {% endif %}
                 <th class="align-middle col-md-2" scope="col">Description</th>
                 <th class="align-middle col-md-2" scope="col">Amount</th>
                 {% if show_account %}
@@ -31,6 +34,9 @@
                 <td>{{ object.date|date:"d.m.y" }}</td>
                 {% if show_type %}
                 <td>{{ object.get_type_display }}</td>
+                {% endif %}
+                {% if show_category %}
+                <td>{{ object.category }}</td>
                 {% endif %}
                 <td>{{ object.name }}</td>
                 {% if object.type == 'E' or object.type == 'TO' %}
