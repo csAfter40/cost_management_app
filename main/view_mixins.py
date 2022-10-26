@@ -4,7 +4,8 @@ from .utils import (
     get_comparison_stats, 
     get_ins_outs_report, 
     get_report_total,
-    get_subcategory_stats
+    get_subcategory_stats,
+    get_multi_currency_category_stats
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -22,10 +23,10 @@ class InsOutsDateArchiveMixin():
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         transactions = self.get_dated_items()[1]
-        expense_category_stats = get_category_stats(
+        expense_category_stats = get_multi_currency_category_stats(
             transactions, "E", None, self.request.user
         )
-        income_category_stats = get_category_stats(
+        income_category_stats = get_multi_currency_category_stats(
             transactions, "I", None, self.request.user
         )
         comparison_stats = get_comparison_stats(
