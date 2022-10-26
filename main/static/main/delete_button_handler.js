@@ -21,6 +21,8 @@ function setupDeleteButtons(){
             setFormActions(deleteButton.dataset.url);
         });
     });
-};
+}
 
 setupDeleteButtons();
+
+export {setupDeleteButtons};
