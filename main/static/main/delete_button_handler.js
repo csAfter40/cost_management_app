@@ -6,7 +6,6 @@ function setFormActions(url) {
 };
 
 function setFormInputs(id) {
-    console.log('called')
     const modalIdInputs = document.querySelectorAll('.modal-input-id');
     modalIdInputs.forEach(function (modalIdInput){
         modalIdInput.setAttribute('value', id);
@@ -23,6 +22,5 @@ function setupDeleteButtons(){
     });
 }
 
-setupDeleteButtons();
 
 export {setupDeleteButtons};
