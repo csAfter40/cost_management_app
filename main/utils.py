@@ -127,7 +127,7 @@ def is_owner(user, model, id):
 
 
 def get_category_stats(qs, category_type, parent, user):
-    categories = Category.objects.filter(user=user, parent=parent, type=category_type)
+    categories = Category.objects.filter(Q(user=user, parent=parent, type=category_type)|Q(id=getattr(parent, 'id', None)))
     category_stats = {}
     for category in categories:
         descendant_categories = category.get_descendants(include_self=True)
@@ -138,6 +138,30 @@ def get_category_stats(qs, category_type, parent, user):
     if not category_stats:
         category_stats["No data available"] = {"sum": 0, "id": 0}
     return category_stats
+
+def get_conversion_rate(from_currency, to_currency):
+    """
+    Calculates rate between currencies. Takes 2 currencies and returns a float. 
+    """
+    from_currency_rate = Rate.objects.get(currency=from_currency)
+    to_currency_rate = Rate.objects.get(currency=to_currency)
+    return to_currency_rate.rate / from_currency_rate.rate
+
+def convert_money(from_currency, to_currency, amount):
+    """
+    A basic currency converter. Takes from currency, to currency and an amount.
+    Returns converted amount.
+    """
+    conversion_rate = get_conversion_rate(from_currency, to_currency)
+    return amount * conversion_rate
+
+def get_transactions_currencies(qs):
+    """
+    Accepts a queryset of transactions and returns a set of currencies 
+    which are of the accounts which transansactions made from.
+    """
+    currencies = qs.values_list('account__currency', flat=True)
+    return set(currencies)
 
 
 def get_subcategory_stats(qs, category):
@@ -300,22 +324,6 @@ def get_worth_stats(user):
     for currency in currencies:
         stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
-
-def get_conversion_rate(from_currency, to_currency):
-    """
-    Calculates rate between currencies. Takes 2 currencies and returns a float. 
-    """
-    from_currency_rate = Rate.objects.get(currency=from_currency)
-    to_currency_rate = Rate.objects.get(currency=to_currency)
-    return to_currency_rate.rate / from_currency_rate.rate
-
-def convert_money(from_currency, to_currency, amount):
-    """
-    A basic currency converter. Takes from currency, to currency and an amount.
-    Returns converted amount.
-    """
-    conversion_rate = get_conversion_rate(from_currency, to_currency)
-    return amount * conversion_rate
 
 
 def get_net_worth_by_currency(user, currency):
