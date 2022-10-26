@@ -7,6 +7,7 @@ const timeButtonsDiv = document.querySelector('#time-buttons-div')
 
 setupTimeButtons(getData);
 setupPgButtons(getData);
+setupDeleteButtons();
 
 function getData(page = 1) {
     const path = timeButtonsDiv.dataset.path;
