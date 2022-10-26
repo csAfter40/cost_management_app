@@ -1,33 +1,18 @@
-const timeButtons = document.querySelectorAll('.select-time');
+import {setupDeleteButtons} from "./delete_button_handler.js";
+import { setupTimeButtons } from "./time_button_handler.js";
+import {setupPgButtons} from "./paginator_buttons_handler.js";
+
 const reportTableDiv = document.querySelector('#report-table');
+const tablePaginatorGroup = document.querySelector('#table-paginator-group');
 const timeButtonsDiv = document.querySelector('#time-buttons-div')
 
-timeButtons.forEach(function (timeButton) {
-    timeButton.addEventListener('click', handleTimeButtonEvent)
-});
+setupDeleteButtons();
+setupTimeButtons(getData);
+setupPgButtons(getData);
 
-function handleTimeButtonEvent(event) {
-    let currentButton = event.target;
-    let path = currentButton.dataset.path;
-    getData(path)
-    setSelectedButton(currentButton);
-};
-
-function setSelectedButton(currentButton) {
-    deselectAllButtons();
-    currentButton.classList.remove("btn-outline-primary");
-    currentButton.classList.add("btn-primary");
-};
-
-function deselectAllButtons() {
-    timeButtons.forEach(function (timeButton) {
-        timeButton.classList.remove("btn-primary");
-        timeButton.classList.add("btn-outline-primary");
-    });
-};
-
-function getData(path) {
-    const url = window.location.pathname + path
+function getData(page=1) {
+    const path = timeButtonsDiv.dataset.path;
+    const url = window.location.pathname + path + `?page=${page}`
     fetch(url, {
         method: "GET",
         headers: {}
@@ -39,7 +24,10 @@ function getData(path) {
         let reportTableHtml = htmlDocument.documentElement.querySelector('#report-table').innerHTML;
         const chartScriptHtml = htmlDocument.documentElement.querySelector('#chart-script').innerHTML;
         reportTableDiv.innerHTML = reportTableHtml;
-        timeButtonsDiv.dataset.path = path;
+        const tablePaginatorHtml = htmlDocument.documentElement.querySelector('#table-paginator-group').innerHTML;
+        tablePaginatorGroup.innerHTML = tablePaginatorHtml
+        setupDeleteButtons();
+        setupPgButtons(getData);
         eval(chartScriptHtml);
     });
 };
