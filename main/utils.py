@@ -163,6 +163,26 @@ def get_transactions_currencies(qs):
     currencies = qs.values_list('account__currency', flat=True)
     return set(currencies)
 
+def get_multi_currency_category_stats(qs, category_type, parent, user, target_currency=None):
+    """
+    Gets a qs of transactions, a category type, a parent category, a user and target currency. 
+    Extracts and returns data to be used in ins outs page.
+    """
+    category_stats = {}
+    if not target_currency:
+        target_currency = user.primary_currency
+    currencies = get_transactions_currencies(qs)
+    for currency in currencies:
+        currency_account_list = Account.objects.filter(user=user, currency=currency).values_list('id', flat=True)
+        currency_qs = qs.filter(content_type__model='account', object_id__in=currency_account_list)
+        currency_category_stats = get_category_stats(currency_qs, category_type, parent, user)
+        for key, value in currency_category_stats.items():
+            converted_amount = convert_money(currency, target_currency, value['sum'])
+            try:
+                category_stats[key]['sum'] += converted_amount
+            except KeyError:
+                category_stats[key] = {'sum':converted_amount, 'id':value['id']}
+    return category_stats
 
 def get_subcategory_stats(qs, category):
     sum_data = []
