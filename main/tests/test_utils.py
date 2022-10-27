@@ -54,7 +54,8 @@ from main.utils import (
     get_ins_outs_report,
     get_report_total,
     get_transactions_currencies,
-    get_multi_currency_category_stats
+    get_multi_currency_category_stats,
+    get_category_detail_stats
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -734,3 +735,26 @@ class TestUtilityFunctions(TestCase):
         qs = Transaction.objects.all()
         stats = get_multi_currency_category_stats(qs, 'E', None, self.user, target_currency=target_currency)
         self.assertEqual(stats[category.name]['sum'], 35)
+
+    def test_get_category_detail_stats(self):
+        parent_category = CategoryFactory(parent=None, name='parent')
+        category1 = CategoryFactory(parent=parent_category, name='cat1')
+        category2 = CategoryFactory(parent=parent_category, name='cat2')
+        category3 = CategoryFactory(parent=parent_category, name='cat3') #category with no transactions
+        AccountTransactionFactory(name='qs', category=parent_category, amount=1)
+        AccountTransactionFactory(name='qs', category=parent_category, amount=1)
+        AccountTransactionFactory(category=parent_category, amount=1) #transaction not in the qs
+        AccountTransactionFactory(name='qs', category=category1, amount=2)
+        AccountTransactionFactory(name='qs', category=category1, amount=2)
+        AccountTransactionFactory(category=category1, amount=2) #transaction not in the qs
+        AccountTransactionFactory(name='qs', category=category2, amount=4)
+        AccountTransactionFactory(name='qs', category=category2, amount=4)
+        AccountTransactionFactory(category=category2, amount=4) #transaction not in the qs
+        qs = Transaction.objects.filter(name='qs')
+        result = get_category_detail_stats(qs, parent_category)
+        expected = {
+            'parent': {'sum': 2, 'id':parent_category.id},
+            'cat1': {'sum': 4, 'id':category1.id},
+            'cat2': {'sum': 8, 'id':category2.id},
+        }
+        self.assertEquals(result, expected)
