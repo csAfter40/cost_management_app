@@ -184,6 +184,18 @@ def get_multi_currency_category_stats(qs, category_type, parent, user, target_cu
                 category_stats[key] = {'sum':converted_amount, 'id':value['id']}
     return category_stats
 
+def get_category_detail_stats(qs, parent):
+    categories = Category.objects.filter(id=parent.id) | parent.get_children()
+    category_stats = {}
+    category_sums = categories.annotate(sum=Sum('transactions__amount', filter=Q(transactions__in=qs)))
+    for category in category_sums:
+        if not category.sum:
+            continue
+        category_stats[category.name] = {'sum': category.sum, "id": category.id}
+    if not category_stats:
+        category_stats["No data available"] = {"sum": 0, "id": 0}
+    return category_stats
+
 def get_subcategory_stats(qs, category):
     sum_data = []
     labels = []
