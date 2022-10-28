@@ -163,6 +163,11 @@ def get_transactions_currencies(qs):
     currencies = qs.values_list('account__currency', flat=True)
     return set(currencies)
 
+def convert_category_stats(stats, from_currency, to_currency):
+    for key, value in stats.items():
+        value['sum'] = convert_money(from_currency, to_currency, value['sum'])
+    return stats
+
 def get_multi_currency_category_stats(qs, category_type, parent, user, target_currency=None):
     """
     Gets a qs of transactions, a category type, a parent category, a user and target currency. 
@@ -195,7 +200,7 @@ def get_category_detail_stats(qs, parent):
     if not category_stats:
         category_stats["No data available"] = {"sum": 0, "id": 0}
     return category_stats
-
+        
 def get_subcategory_stats(qs, category):
     sum_data = []
     labels = []
