@@ -206,7 +206,17 @@ def add_category_stats(main_stats, added_stats):
         try:
             main_stats[key]['sum'] += value['sum']
         except KeyError:
-            main_stats[key] = value 
+            main_stats[key] = value
+
+def get_multi_currency_category_detail_stats(qs, parent, to_currency):
+    stats = {}
+    currencies = get_transactions_currencies(qs)
+    for currency in currencies:
+        currency_transactions = qs.filter(account__currency=currency)
+        category_stats = get_category_detail_stats(currency_transactions, parent)
+        convert_category_stats(category_stats, currency, to_currency)
+        add_category_stats(stats, category_stats)
+    return stats 
         
 def get_subcategory_stats(qs, category):
     sum_data = []
