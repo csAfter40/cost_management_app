@@ -56,7 +56,8 @@ from main.utils import (
     get_transactions_currencies,
     get_multi_currency_category_stats,
     get_category_detail_stats,
-    convert_category_stats
+    convert_category_stats,
+    add_category_stats,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -766,3 +767,20 @@ class TestUtilityFunctions(TestCase):
         stats = {'category': {'sum':10, 'id':1}}
         convert_category_stats(stats, 'from_currency', 'to_currency')
         self.assertEquals(stats['category']['sum'], 20)
+
+    def test_add_category_stats(self):
+        main_stats = {
+            'category1': {'sum':10, id:1},
+            'category3': {'sum':20, id:3},
+        }
+        added_stats = {
+            'category1': {'sum':10, id:1},
+            'category2': {'sum':30, id:2}
+        }
+        add_category_stats(main_stats, added_stats)
+        expected_stats = {
+            'category1': {'sum':20, id:1},
+            'category2': {'sum':30, id:2},
+            'category3': {'sum':20, id:3}
+        }
+        self.assertEquals(main_stats, expected_stats)
