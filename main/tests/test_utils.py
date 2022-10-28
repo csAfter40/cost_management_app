@@ -55,7 +55,8 @@ from main.utils import (
     get_report_total,
     get_transactions_currencies,
     get_multi_currency_category_stats,
-    get_category_detail_stats
+    get_category_detail_stats,
+    convert_category_stats
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -758,3 +759,10 @@ class TestUtilityFunctions(TestCase):
             'cat2': {'sum': 8, 'id':category2.id},
         }
         self.assertEquals(result, expected)
+
+    @patch('main.utils.convert_money')
+    def test_convert_category_stats(self, mock):
+        mock.return_value = 20
+        stats = {'category': {'sum':10, 'id':1}}
+        convert_category_stats(stats, 'from_currency', 'to_currency')
+        self.assertEquals(stats['category']['sum'], 20)
