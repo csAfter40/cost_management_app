@@ -200,6 +200,13 @@ def get_category_detail_stats(qs, parent):
     if not category_stats:
         category_stats["No data available"] = {"sum": 0, "id": 0}
     return category_stats
+
+def add_category_stats(main_stats, added_stats):
+    for key, value in added_stats.items():
+        try:
+            main_stats[key]['sum'] += value['sum']
+        except KeyError:
+            main_stats[key] = value 
         
 def get_subcategory_stats(qs, category):
     sum_data = []
