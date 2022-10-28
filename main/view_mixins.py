@@ -5,7 +5,8 @@ from .utils import (
     get_ins_outs_report, 
     get_report_total,
     get_subcategory_stats,
-    get_multi_currency_category_stats
+    get_multi_currency_category_stats,
+    get_multi_currency_category_detail_stats
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -75,3 +76,15 @@ class CategoryDateArchiveMixin():
             data = get_subcategory_stats(qs, category)
             return JsonResponse(data)
         return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        category = self.get_category()
+        transactions = self.get_queryset()
+        category_stats = get_multi_currency_category_detail_stats(
+            transactions, category, self.request.user.primary_currency
+        )
+        kwargs.update({
+            'category': self.get_category(),
+            'category_stats': category_stats   
+        })
+        return super().get_context_data(**kwargs)
