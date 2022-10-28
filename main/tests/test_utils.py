@@ -1,6 +1,5 @@
 import decimal
 import datetime
-from locale import currency
 from unittest.mock import Mock, MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
@@ -16,6 +15,7 @@ from main.utils import (
     get_latest_transfers,
     get_loan_payment_transaction_data,
     get_loan_progress,
+    get_multi_currency_category_detail_stats,
     get_stats,
     get_payment_stats,
     get_worth_stats,
@@ -784,3 +784,28 @@ class TestUtilityFunctions(TestCase):
             'category3': {'sum':20, id:3}
         }
         self.assertEquals(main_stats, expected_stats)
+
+    def test_get_multi_currency_category_detail_stats(self):
+        parent_category = CategoryFactory(parent=None, name='parent')
+        category1 = CategoryFactory(parent=parent_category, name='cat1')
+        category2 = CategoryFactory(parent=parent_category, name='cat2')
+        currency1 = CurrencyFactory()
+        currency2 = CurrencyFactory()
+        rate1 = RateFactory(currency=currency1, rate=1)
+        rate2 = RateFactory(currency=currency2, rate=2)
+        account1 = AccountFactory(currency=currency1)
+        account2 = AccountFactory(currency=currency2)
+        AccountTransactionFactory(content_object=account1, category=parent_category, amount=1)
+        AccountTransactionFactory(content_object=account2, category=parent_category, amount=5)
+        AccountTransactionFactory(content_object=account1, category=category1, amount=2)
+        AccountTransactionFactory(content_object=account2, category=category1, amount=5)
+        AccountTransactionFactory(content_object=account1, category=category2, amount=3)
+        AccountTransactionFactory(content_object=account2, category=category2, amount=5)
+        qs = Transaction.objects.all()
+        result = get_multi_currency_category_detail_stats(qs, parent_category, currency2)
+        expected = {
+            'parent': {'sum': 7, 'id':parent_category.id},
+            'cat1': {'sum': 9, 'id':category1.id},
+            'cat2': {'sum': 11, 'id':category2.id},
+        }
+        self.assertEquals(result, expected)
