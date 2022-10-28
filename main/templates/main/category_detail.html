@@ -19,7 +19,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-6 text-center">
             <div id="transactions-table" data-time="all">
-                {% include 'main/table_transactions.html' %}
+                {% include 'main/table_transactions.html' with show_category=True %}
             </div>
             <div id="paginator-div" class="d-flex justify-content-center my-3">
                 {% include 'main/paginator.html' with paginator=transactions.paginator page_obj=transactions %}
