@@ -54,6 +54,7 @@ from .utils import (
     handle_transfer_edit,
     get_ins_outs_report,
     get_report_total,
+    get_multi_currency_category_detail_stats
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -1116,6 +1117,7 @@ class InsOutsDayArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, DayArch
     template_name = 'main/group_report_chart_script.html'
     month_format='%m'
 
+
 class CategoryDetailView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
     date_field = 'date'
@@ -1125,18 +1127,6 @@ class CategoryDetailView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIn
     context_object_name = 'transactions'
     template_name = 'main/category_detail.html'
 
-    def get_context_data(self, **kwargs):
-        category = self.get_category()
-        transactions = self.get_queryset()
-        category_stats = get_category_stats(
-            transactions, category.type, category, self.request.user
-        )
-        kwargs.update({
-            'category': self.get_category(),
-            'category_stats': category_stats   
-        })
-        return super().get_context_data(**kwargs)
-
 
 class CategoryAllArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
@@ -1145,47 +1135,47 @@ class CategoryAllArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, Archi
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
-    template_name = 'main/category_detail.html'
+    template_name = 'main/group_table_paginator_chart.html'
 
 
-class CategoryYearArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+class CategoryYearArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, YearArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
-    template_name = 'main/category_detail.html'
+    template_name = 'main/group_table_paginator_chart.html'
     make_object_list = True
 
 
-class CategoryMonthArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+class CategoryMonthArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, MonthArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
-    template_name = 'main/category_detail.html'
+    template_name = 'main/group_table_paginator_chart.html'
     month_format='%m'
 
 
-class CategoryWeekArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+class CategoryWeekArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, WeekArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
-    template_name = 'main/category_detail.html'
+    template_name = 'main/group_table_paginator_chart.html'
 
 
-class CategoryDayArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
+class CategoryDayArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, DayArchiveView):
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
-    template_name = 'main/category_detail.html'
+    template_name = 'main/group_table_paginator_chart.html'
     month_format='%m'
