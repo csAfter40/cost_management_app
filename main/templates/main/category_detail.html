@@ -17,26 +17,30 @@
         {% include 'main/time_select_buttons.html' %}
     </div>
     <div class="row justify-content-center">
-        <div class="col-lg-6 text-center">
-            <div id="transactions-table" data-time="all">
-                {% include 'main/table_transactions.html' with show_category=True %}
-            </div>
-            <div id="paginator-div" class="d-flex justify-content-center my-3">
-                {% include 'main/paginator.html' with paginator=transactions.paginator page_obj=transactions %}
-            </div>
+        <div class="col-lg-6 text-center" id="table-paginator-group">
+            {% with table_title='Transactions' %}
+            {% with table_template='main/table_transactions.html' %}
+                {% include 'main/group_table_paginator.html' %}
+            {% endwith %}
+            {% endwith %}
         </div>
         <div class="col-lg-6 text-center bg-light p-3">
-            <h3> Stats & Graphs</h3>
-
             {% include 'main/category_detail_chart.html' %}
-
         </div>
     </div>
 </div>
 {% include 'main/chart_modal.html' %}
 
+{% with modal_title='Delete Transaction' %}
+{% with modal_message='Do you really want to delete this transaction? Account balance will be withdrawn.' %}
+{% with object_class='Transaction' %}
+    {% include 'main/modal_delete_button.html'%}
+{% endwith %}   
+{% endwith %}   
+{% endwith %}
+
 {% endblock %}
 {% block script %}
-<script src="{% static 'main/category_detail.js' %}"></script>
+<script src="{% static 'main/category_detail.js' %}" type="module"></script>
 {% include 'main/category_detail_chart_script.html' %}
 {% endblock %}
