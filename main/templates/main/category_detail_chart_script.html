@@ -49,34 +49,34 @@
   const chart = categoryChart;
   const canvas = document.querySelector('canvas');
 
-  canvas.addEventListener('click', canvasEventHandler);
+  // canvas.addEventListener('click', canvasEventHandler);
 
-  function canvasEventHandler(event) {
-    let activePoints = categoryChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
-    const pointIndex = activePoints[0].index;
-    let categoryIndex = categoryChart.config.data.datasets[0].ids[pointIndex];
-    let categoryLabel = categoryChart.config.data.labels[pointIndex]
-    getSubcategoryChartData(categoryIndex).then(data => {
-      modalChart.data.labels = data.labels;
-      modalChart.data.datasets[0].data = data.data;
-      modalChart.options.plugins.title.text = categoryLabel + ' & subcategories';
-      modalChart.update();
-      $('#chartModal').modal('toggle');
-    });
-  };
+  // function canvasEventHandler(event) {
+  //   let activePoints = categoryChart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+  //   const pointIndex = activePoints[0].index;
+  //   let categoryIndex = categoryChart.config.data.datasets[0].ids[pointIndex];
+  //   let categoryLabel = categoryChart.config.data.labels[pointIndex]
+  //   getSubcategoryChartData(categoryIndex).then(data => {
+  //     modalChart.data.labels = data.labels;
+  //     modalChart.data.datasets[0].data = data.data;
+  //     modalChart.options.plugins.title.text = categoryLabel + ' & subcategories';
+  //     modalChart.update();
+  //     $('#chartModal').modal('toggle');
+  //   });
+  // };
 
-  function getSubcategoryChartData(categoryIndex) {
-    const timeButtonsDiv = document.querySelector('#time-buttons-div')
-    const path = timeButtonsDiv.dataset.path;
-    let url = `/categories/${categoryIndex}${path}?ajax=1`;
-    return fetch(url, {
-      method: 'GET',
-      headers: {},
-    }).then(response => {
-      return response.json()
-    }).then(data => {
-      return data;
-    });
-  };
+  // function getSubcategoryChartData(categoryIndex) {
+  //   const timeButtonsDiv = document.querySelector('#time-buttons-div')
+  //   const path = timeButtonsDiv.dataset.path;
+  //   let url = `/categories/${categoryIndex}${path}?ajax=1`;
+  //   return fetch(url, {
+  //     method: 'GET',
+  //     headers: {},
+  //   }).then(response => {
+  //     return response.json()
+  //   }).then(data => {
+  //     return data;
+  //   });
+  // };
 </script>
 </script>
