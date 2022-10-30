@@ -1,9 +1,9 @@
 <div class="row my-4">
     <div class="col">
         {% if category.is_expense_category %}
-            <h4>Expenses in {{user.primary_currency}}</h4>
+            <h4>{{category.name}} Expenses in {{user.primary_currency}}</h4>
         {% else %}
-            <h4>Incomes in {{user.primary_currency}}</h4>
+            <h4>{{category.name}} Incomes in {{user.primary_currency}}</h4>
         {% endif %}
         <div>
             <canvas id="categoryChart"></canvas>
