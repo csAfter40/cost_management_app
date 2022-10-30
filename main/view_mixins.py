@@ -1,3 +1,4 @@
+import datetime
 from .models import Account, Category
 from .utils import (
     get_category_stats, 
@@ -69,22 +70,17 @@ class CategoryDateArchiveMixin():
         category = self.get_category()
         return category.get_descendants(include_self=True)
 
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('ajax', None):
-            qs = self.get_dated_items()[1]
-            category = self.get_category()
-            data = get_subcategory_stats(qs, category)
-            return JsonResponse(data)
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
         category = self.get_category()
-        transactions = self.get_queryset()
+        transactions = self.get_dated_items()[1]
         category_stats = get_multi_currency_category_detail_stats(
             transactions, category, self.request.user.primary_currency
         )
         kwargs.update({
             'category': self.get_category(),
-            'category_stats': category_stats   
+            'category_stats': category_stats,
+            'date': datetime.date.today(),
+            'table_template': 'main/table_transactions.html',
+            'show_category': True,
         })
         return super().get_context_data(**kwargs)
