@@ -2328,46 +2328,37 @@ class TestCategoryAllArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.context_list = ['transactions']
-        cls.template = 'main/category_detail.html'
+        cls.template = 'main/group_table_paginator_chart.html'
         cls.view_function = views.CategoryAllArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse('main:category_all_archive', kwargs={'pk': self.object.id})
         if self.login_required:
             self.client.force_login(self.user)
 
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
 
 class TestCategoryYearArchiveView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.context_list = ['transactions']
-        cls.template = 'main/category_detail.html'
+        cls.template = 'main/group_table_paginator_chart.html'
         cls.view_function = views.CategoryYearArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse('main:category_year_archive', kwargs={'pk': self.object.id, 'year': 2001})
         if self.login_required:
             self.client.force_login(self.user)
-
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
 
 
 class TestCategoryMonthArchiveView(BaseViewTestMixin, TestCase):
@@ -2375,13 +2366,14 @@ class TestCategoryMonthArchiveView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.context_list = ['transactions']
-        cls.template = 'main/category_detail.html'
+        cls.template = 'main/group_table_paginator_chart.html'
         cls.view_function = views.CategoryMonthArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse(
             'main:category_month_archive', 
@@ -2390,25 +2382,20 @@ class TestCategoryMonthArchiveView(BaseViewTestMixin, TestCase):
         if self.login_required:
             self.client.force_login(self.user)
 
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
-
 
 class TestCategoryWeekArchiveView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.context_list = ['transactions']
-        cls.template = 'main/category_detail.html'
+        cls.template = 'main/group_table_paginator_chart.html'
         cls.view_function = views.CategoryMonthArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse(
             'main:category_week_archive', 
@@ -2417,25 +2404,20 @@ class TestCategoryWeekArchiveView(BaseViewTestMixin, TestCase):
         if self.login_required:
             self.client.force_login(self.user)
 
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
-
 
 class TestCategoryDayArchiveView(BaseViewTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.context_list = ['transactions']
-        cls.template = 'main/category_detail.html'
+        cls.template = 'main/group_table_paginator_chart.html'
         cls.view_function = views.CategoryDayArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse(
             'main:category_day_archive', 
@@ -2443,12 +2425,6 @@ class TestCategoryDayArchiveView(BaseViewTestMixin, TestCase):
         )
         if self.login_required:
             self.client.force_login(self.user)
-
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
 
 
 class TestCategoryDetailView(BaseViewTestMixin, TestCase):
@@ -2463,13 +2439,8 @@ class TestCategoryDetailView(BaseViewTestMixin, TestCase):
 
     def setUp(self) -> None:
         self.user = self.get_user()
+        UserPreferencesFactory(user=self.user)
         self.object = CategoryFactory(user=self.user, parent=None)
         self.test_url = reverse('main:category_detail', kwargs={'pk': self.object.id})
         if self.login_required:
             self.client.force_login(self.user)
-
-    def test_get_ajax(self):
-        test_url = self.test_url + '?ajax=1'
-        response = self.client.get(test_url)      
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(response['content-type'], 'application/json')
