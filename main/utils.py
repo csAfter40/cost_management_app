@@ -190,7 +190,7 @@ def get_multi_currency_category_stats(qs, category_type, parent, user, target_cu
     return category_stats
 
 def get_category_detail_stats(qs, parent):
-    categories = Category.objects.filter(id=parent.id) | parent.get_children()
+    categories = parent.get_descendants(include_self=True)
     category_stats = {}
     category_sums = categories.annotate(sum=Sum('transactions__amount', filter=Q(transactions__in=qs)))
     for category in category_sums:
