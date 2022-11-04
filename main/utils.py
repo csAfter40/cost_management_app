@@ -2,11 +2,12 @@ from decimal import Decimal
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F
 from django.db.models.functions import Coalesce, ExtractMonth, ExtractYear
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
 from .models import (
+    Currency,
     User,
     UserPreferences,
     Account,
@@ -161,14 +162,14 @@ def get_transactions_currencies(qs):
     which are of the accounts which transansactions made from.
     """
     currencies = qs.values_list('account__currency', flat=True)
-    return set(currencies)
+    return Currency.objects.filter(id__in=set(currencies)).prefetch_related('rate')
 
 def convert_category_stats(stats, from_currency, to_currency):
     for key, value in stats.items():
         value['sum'] = convert_money(from_currency, to_currency, value['sum'])
     return stats
 
-def get_multi_currency_category_stats(qs, category_type, parent, user, target_currency=None):
+def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
     """
     Gets a qs of transactions, a category type, a parent category, a user and target currency. 
     Extracts and returns data to be used in ins outs page.
@@ -176,17 +177,50 @@ def get_multi_currency_category_stats(qs, category_type, parent, user, target_cu
     category_stats = {}
     if not target_currency:
         target_currency = user.primary_currency
-    currencies = get_transactions_currencies(qs)
-    for currency in currencies:
-        currency_account_list = Account.objects.filter(user=user, currency=currency).values_list('id', flat=True)
-        currency_qs = qs.filter(content_type__model='account', object_id__in=currency_account_list)
-        currency_category_stats = get_category_stats(currency_qs, category_type, parent, user)
-        for key, value in currency_category_stats.items():
-            converted_amount = convert_money(currency, target_currency, value['sum'])
-            try:
-                category_stats[key]['sum'] += converted_amount
-            except KeyError:
-                category_stats[key] = {'sum':converted_amount, 'id':value['id']}
+
+    categories = parent.get_descendants(include_self=True).annotate(
+        sum=Sum(
+            F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
+            filter=Q(transactions__in=qs)
+            )
+    ).exclude(sum=None)
+
+
+    for category in categories:
+        try:
+            category_stats[category.name]['sum'] += category.sum
+        except KeyError:
+            category_stats[category.name] = {'sum':category.sum, 'id':category.id}
+
+    return category_stats
+
+def get_multi_currency_main_category_stats(qs, category_type, user, target_currency=None):
+    """
+    Gets a qs of transactions, a category type, a user and target currency. 
+    Extracts and returns data to be used in ins outs page.
+    """
+    category_stats = {}
+
+    if not target_currency:
+        target_currency = user.primary_currency
+
+    categories = Category.objects.filter(user=user, type=category_type)
+
+    categories_with_sum = categories.annotate(
+        sum=Sum(
+            F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
+            filter=Q(transactions__in=qs)
+            )
+    ).exclude(sum=None)
+    children_categories = Category.objects.filter(type=category_type, user=user, parent=None, is_transfer=False)
+    for category in children_categories:
+        for category_with_sum in categories_with_sum:
+            if category.tree_id == category_with_sum.tree_id:
+                try:
+                    category_stats[category.name]['sum'] += category_with_sum.sum
+                except KeyError:
+                    category_stats[category.name] = {'sum':category_with_sum.sum, 'id':category.id}
+
     return category_stats
 
 def get_category_detail_stats(qs, parent):
@@ -366,7 +400,7 @@ def get_user_currencies(user):
     Takes a user and returns a set of user's active accounts.
     """
     currencies = set()
-    active_user_accounts = Account.objects.filter(user=user, is_active=True)
+    active_user_accounts = Account.objects.filter(user=user, is_active=True).select_related('currency')
     for account in active_user_accounts:
         currencies.add(account.currency)
     return currencies
@@ -652,27 +686,40 @@ def get_currency_ins_outs(currency, qs, user):
     }
     return currency_ins_outs
 
-def get_ins_outs_report(user, qs):
-    report = []
-    currencies = get_user_currencies(user)
-    for currency in currencies:
-        data = get_currency_ins_outs(currency, qs, user)
-        report.append(data)
-    return report
-
-def get_report_total(report, currency):
+def get_report_total(qs, target_currency):
     total = {
-        'currency': currency,
+        'currency': target_currency,
         'expense': 0,
         'income': 0,
         'balance': 0
     }
-    for data in report:
-        rate = get_conversion_rate(data['currency'], currency)
-        total['expense'] += round(data['expense'] * rate, 2)
-        total['income'] += round(data['income'] * rate, 2)
-        total['balance'] += round(data['balance'] * rate, 2)
+    for currency in qs:
+        rate = target_currency.rate.rate / currency.rate.rate
+        total['expense'] += round(currency.expense * rate, 2)
+        total['income'] += round(currency.income * rate, 2)
+        total['balance'] += round(currency.balance * rate, 2)
     return total
+
+def get_ins_outs_report(user, qs, target_currency):
+    report = []
+    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate')
+    currencies = currencies.annotate(
+        expense = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='E')), Decimal(0)),
+        income = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='I')), Decimal(0))
+    ).annotate(
+        balance = F('income') - F('expense')
+    )
+    for currency in currencies:
+        if currency.expense or currency.income:
+            data = {
+                'currency': currency,
+                'expense': currency.expense,
+                'income': currency.income,
+                'balance': currency.balance
+            }
+            report.append(data)
+    total = get_report_total(currencies, target_currency)
+    return report, total
 
 
 @receiver(post_save, sender=User)
