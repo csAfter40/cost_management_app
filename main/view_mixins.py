@@ -6,8 +6,8 @@ from .utils import (
     get_ins_outs_report, 
     get_report_total,
     get_subcategory_stats,
-    get_multi_currency_category_stats,
-    get_multi_currency_category_detail_stats
+    get_multi_currency_main_category_stats,
+    get_multi_currency_category_detail_stats,
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -15,27 +15,24 @@ from django.http import JsonResponse
 
 class InsOutsDateArchiveMixin():
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        user_transfer_categories = Category.objects.filter(user=self.request.user, is_transfer=True)
         return super().get_queryset().filter(
-            content_type__model='account', 
-            object_id__in=user_accounts_list
-            ).exclude(category__in=user_transfer_categories)
+            account__user=self.request.user
+            ).exclude(category__is_transfer=True
+            ).select_related('category').prefetch_related('content_object__currency')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        transactions = self.get_dated_items()[1]
-        expense_category_stats = get_multi_currency_category_stats(
-            transactions, "E", None, self.request.user
+        transactions = self.object_list
+        expense_category_stats = get_multi_currency_main_category_stats(
+            transactions, "E", self.request.user
         )
-        income_category_stats = get_multi_currency_category_stats(
-            transactions, "I", None, self.request.user
+        income_category_stats = get_multi_currency_main_category_stats(
+            transactions, "I", self.request.user
         )
         comparison_stats = get_comparison_stats(
             expense_category_stats, income_category_stats
         )
-        report = get_ins_outs_report(self.request.user, transactions)
-        total = get_report_total(report, self.request.user.primary_currency)
+        report, total = get_ins_outs_report(self.request.user, transactions, self.request.user.primary_currency)
 
         extra_context = {
             "expense_stats": expense_category_stats,
