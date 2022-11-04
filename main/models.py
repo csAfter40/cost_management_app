@@ -26,6 +26,9 @@ class Currency(models.Model):
     def __str__(self):
         return self.code
 
+    def get_rate(self):
+        return self.rate.rate
+
 
 class UserPreferences(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_preferences')
@@ -127,9 +130,6 @@ class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    currency = models.ForeignKey(
-        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK
-    )
     is_active = models.BooleanField(default=True)
     initial = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     created = models.DateTimeField(auto_now_add=True)
@@ -148,6 +148,9 @@ class Assets(models.Model):
 
 class Account(Assets):
     transactions = GenericRelation(Transaction, related_query_name='account')
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK, related_name='accounts'
+    )
 
     class Meta:
         constraints = [
@@ -165,6 +168,9 @@ class Account(Assets):
 
 class Loan(Assets):
     transactions = GenericRelation(Transaction, related_query_name='loan')
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK, related_name='loans'
+    )
     
     class Meta:
         constraints = [
