@@ -14,7 +14,7 @@ from .cbv_test_mixins import (
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
 from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences
 from main.tests.mixins import BaseViewTestMixin, UserFailTestMixin
-from .factories import AccountFactory, CurrencyFactory, LoanFactory
+from .factories import AccountFactory, CurrencyFactory, LoanFactory, RateFactory
 from django.urls import reverse, resolve
 from django.db import models
 from django.db.models import signals
@@ -2241,7 +2241,8 @@ class TestInsOutsView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 class TestInsOutsAllArchiveView(BaseViewTestMixin, TestCase):
@@ -2256,7 +2257,8 @@ class TestInsOutsAllArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 class TestInsOutsYearArchiveView(BaseViewTestMixin, TestCase):
@@ -2271,7 +2273,8 @@ class TestInsOutsYearArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 
@@ -2287,7 +2290,8 @@ class TestInsOutsMonthArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 
@@ -2303,7 +2307,8 @@ class TestInsOutsWeekArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 
@@ -2319,7 +2324,8 @@ class TestInsOutsDayArchiveView(BaseViewTestMixin, TestCase):
         cls.user_factory = UserFactoryNoSignal
 
     def test_get(self):
-        UserPreferencesFactory(user=self.user)
+        rate = RateFactory()
+        UserPreferencesFactory(user=self.user, primary_currency=rate.currency)
         super().test_get()
 
 
