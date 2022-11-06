@@ -760,6 +760,25 @@ class TestUtilityFunctions(TestCase):
         qs = Transaction.objects.all()
         stats = get_multi_currency_main_category_stats(qs, 'E', self.user, target_currency=target_currency)
         self.assertEqual(stats[category.name]['sum'], 35)
+        
+    def test_get_multi_currency_category_json_stats(self):
+        currency = CurrencyFactory()
+        target_currency = CurrencyFactory()
+        account1 = AccountFactory(user=self.user, currency=currency)
+        account2 = AccountFactory(user=self.user, currency=target_currency)
+        RateFactory(currency=currency, rate=1)
+        RateFactory(currency=target_currency, rate=2)
+        parent_category = CategoryFactory(user=self.user, type='E', parent=None)
+        other_category = CategoryFactory(user=self.user, type='E', parent=None)
+        child_category = CategoryFactory(user=self.user, type='E', parent=parent_category)
+        transaction1 = AccountTransactionFactory(content_object=account1, amount=10, type='E', category=parent_category)
+        transaction2 = AccountTransactionFactory(content_object=account2, amount=15, type='E', category=child_category)
+        transaction3 = AccountTransactionFactory(content_object=account2, amount=25, type='E', category=child_category)
+        transaction4 = AccountTransactionFactory(content_object=account2, amount=15, type='E', category=other_category)
+        qs = Transaction.objects.all()
+        stats = get_multi_currency_category_json_stats(qs, parent_category, self.user, target_currency=target_currency)
+        self.assertEqual(stats['data'], [20,40])
+        self.assertEqual(stats['labels'], [parent_category.name, child_category.name])
 
     def test_get_category_detail_stats(self):
         parent_category = CategoryFactory(parent=None, name='parent')
