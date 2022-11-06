@@ -172,7 +172,7 @@ def convert_category_stats(stats, from_currency, to_currency):
 def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
     """
     Gets a qs of transactions, a category type, a parent category, a user and target currency. 
-    Extracts and returns data to be used in ins outs page.
+    Extracts and returns data to be used in category detail page.
     """
     category_stats = {}
     if not target_currency:
@@ -185,7 +185,6 @@ def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
             )
     ).exclude(sum=None)
 
-
     for category in categories:
         try:
             category_stats[category.name]['sum'] += category.sum
@@ -193,6 +192,32 @@ def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
             category_stats[category.name] = {'sum':category.sum, 'id':category.id}
 
     return category_stats
+
+def get_multi_currency_category_json_stats(qs, parent, user, target_currency=None):
+    """
+    Gets a qs of transactions, a category type, a parent category, a user and target currency. 
+    Extracts and returns data to be used in subcategory modal charts.
+    """
+    sum_data = []
+    labels = []
+    if not target_currency:
+        target_currency = user.primary_currency
+
+    categories = parent.get_descendants(include_self=True).annotate(
+        sum=Sum(
+            F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
+            filter=Q(transactions__in=qs)
+            )
+    ).exclude(sum=None)
+
+    for category in categories:
+        labels.append(category.name)
+        sum_data.append(category.sum)
+    data = {
+        "data": sum_data,
+        "labels": labels,
+    }
+    return data
 
 def get_multi_currency_main_category_stats(qs, category_type, user, target_currency=None):
     """
@@ -688,7 +713,7 @@ def get_currency_ins_outs(currency, qs, user):
 
 def get_report_total(qs, target_currency):
     total = {
-        'currency': target_currency,
+        'currency': target_currency.name,
         'expense': 0,
         'income': 0,
         'balance': 0
@@ -700,10 +725,11 @@ def get_report_total(qs, target_currency):
         total['balance'] += round(currency.balance * rate, 2)
     return total
 
-def get_ins_outs_report(user, qs, target_currency):
+def get_ins_outs_report(user, qs, target_currency=None):
     report = []
-    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate')
-    currencies = currencies.annotate(
+    if not target_currency:
+        target_currency = user.primary_currency
+    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate').annotate(
         expense = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='E')), Decimal(0)),
         income = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='I')), Decimal(0))
     ).annotate(
