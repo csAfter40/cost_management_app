@@ -55,6 +55,7 @@ from main.utils import (
     get_report_total,
     get_transactions_currencies,
     get_multi_currency_category_stats,
+    get_multi_currency_category_json_stats,
     get_multi_currency_main_category_stats,
     get_category_detail_stats,
     convert_category_stats,
@@ -690,33 +691,35 @@ class TestUtilityFunctions(TestCase):
         }
         self.assertEquals(data, expected)
 
-    @patch('main.utils.get_user_currencies')
-    @patch('main.utils.get_currency_ins_outs')
-    def test_get_ins_outs_report(self, mock_ins_outs, mock_currencies):
-        mock_currencies.return_value = ['currency1', 'currency2']
-        mock_ins_outs.return_value = 'data'
-        result = get_ins_outs_report('user', 'qs')
-        expected =  ['data', 'data']
-        self.assertEquals(result, expected)
-        self.assertTrue(mock_currencies.called)
-        self.assertTrue(mock_ins_outs.called)
+    @patch('main.utils.Currency.objects.filter')
+    @patch('main.utils.get_report_total')
+    def test_get_ins_outs_report(self, mock_total, mock_Currency):
+        currency1 = Mock()
+        currency2 = Mock()
+        mock_Currency.return_value.prefetch_related.return_value.annotate.return_value.annotate.return_value = [currency1, currency2]
+        mock_total.return_value = 'total'
+        get_ins_outs_report('user', 'qs', 'target_currency')
+        self.assertTrue(mock_Currency.called)
+        self.assertTrue(mock_total.called)
 
-    @patch('main.utils.get_conversion_rate')
-    def test_get_report_total(self, mock):
-        mock.return_value = 2
-        report = [{
-            'currency': 'currency1',
-            'expense': 1,
-            'income': 2,
-            'balance': 1
-        }]
-        result = get_report_total(report, 'currency2')
-        expected = {
-            'currency': 'currency2',
-            'expense': 2,
-            'income': 4,
-            'balance': 2
-        }
+    def test_get_report_total(self):
+        currency1 = Mock()
+        currency1.rate.rate = 1
+        currency1.expense = 10
+        currency1.income = 20
+        currency1.balance = 10
+        currency2 = Mock()
+        currency2.rate.rate = 2
+        currency2.expense = 10
+        currency2.income = 20
+        currency2.balance = 10
+        target_currency = Mock()
+        target_currency.rate.rate = 4
+        target_currency.name = 'target_currency'
+        qs = (currency1, currency2)
+        result = get_report_total(qs, target_currency)
+        expected = {'currency': 'target_currency', 'expense': 60.0, 'income': 120.0, 'balance': 60.0}
+        self.assertEquals(result, expected)
 
 
     def test_get_transactions_currencies(self):
