@@ -109,7 +109,7 @@
     // const transactionsDiv = document.querySelector('#transactions-table');
     const timeButtonsDiv = document.querySelector('#time-buttons-div')
     const path = timeButtonsDiv.dataset.path;
-    let url = `/categories/${categoryIndex}${path}?ajax=1`;
+    let url = `/subcategories/${categoryIndex}${path}`;
     return fetch(url, {
       method: 'GET',
       headers: {},
