@@ -2,6 +2,7 @@ from decimal import Decimal
 import json
 import factory
 import unittest
+from unittest.mock import patch
 from wallet.settings import TESTING_ATOMIC
 from .factories import CategoryFactory, AccountTransactionFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal, UserPreferencesFactory
 from .cbv_test_mixins import (
@@ -2450,3 +2451,30 @@ class TestCategoryDetailView(BaseViewTestMixin, TestCase):
         self.test_url = reverse('main:category_detail', kwargs={'pk': self.object.id})
         if self.login_required:
             self.client.force_login(self.user)
+
+class TestSubcategoryStatsAllArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.SubcategoryStatsAllArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        RateFactory(currency=currency)
+        UserPreferencesFactory(user=self.user, primary_currency=currency)
+        account = AccountFactory(currency=currency)
+        self.object = CategoryFactory(parent=None, user=self.user)
+        AccountTransactionFactory(content_object=account, category=self.object)
+        self.test_url = reverse(
+                            'main:subcategory_all_archive', 
+                            kwargs = {'pk':self.object.id}
+                        )
+    
+    def test_get(self):
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response['content-type'], 'application/json')
