@@ -116,6 +116,6 @@ class SubcategoryDateArchiveMixin():
         return self.category
 
     def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()
+        qs = self.get_dated_items()[1]
         data = get_multi_currency_category_json_stats(qs, self.category, self.request.user)
         return JsonResponse(data)
