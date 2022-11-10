@@ -1186,3 +1186,9 @@ class SubcategoryStatsAllArchiveView(SubcategoryDateArchiveMixin, UserPassesTest
     date_field = 'date'
     allow_future = True
     allow_empty = True
+
+class SubcategoryStatsYearArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, YearArchiveView):
+    model = Transaction
+    date_field = 'date'
+    allow_future = True
+    allow_empty = True
