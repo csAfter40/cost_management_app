@@ -1192,3 +1192,4 @@ class SubcategoryStatsYearArchiveView(SubcategoryDateArchiveMixin, UserPassesTes
     date_field = 'date'
     allow_future = True
     allow_empty = True
+    make_object_list = True
