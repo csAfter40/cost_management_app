@@ -9,9 +9,10 @@ from .utils import (
     get_multi_currency_category_stats,
     get_multi_currency_main_category_stats,
     get_multi_currency_category_detail_stats,
+    get_multi_currency_category_json_stats,
 )
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 
 
 class InsOutsDateArchiveMixin():
@@ -79,3 +80,42 @@ class CategoryDateArchiveMixin():
             'show_category': True,
         })
         return super().get_context_data(**kwargs)
+
+
+class SubcategoryDateArchiveMixin():
+    def test_func(self):
+        '''Tests if parent category belongs to user.'''
+        category = self.get_category()
+        return category.user == self.request.user
+
+    def get_queryset(self):
+        account = self.get_account()
+        if account:
+            return super().get_queryset().filter(
+                account=account
+                ).exclude(category__is_transfer=True
+                ).select_related('category').prefetch_related('content_object__currency')
+        else:
+            return super().get_queryset().filter(
+                account__user=self.request.user
+                ).exclude(category__is_transfer=True
+                ).select_related('category').prefetch_related('content_object__currency')
+
+    def get_account(self):
+        try: 
+            account_id = self.request.GET.get('account')
+            account = Account.objects.get(id=account_id)
+            if not account.is_active:
+                raise Http404
+            return account
+        except:
+            return None
+
+    def get_category(self):
+        self.category = get_object_or_404(Category, pk=self.kwargs.get("pk"))
+        return self.category
+
+    def get(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        data = get_multi_currency_category_json_stats(qs, self.category, self.request.user)
+        return JsonResponse(data)
