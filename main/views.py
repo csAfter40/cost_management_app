@@ -22,7 +22,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http40
 from django.urls import reverse, reverse_lazy
 from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
 from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
-from .view_mixins import InsOutsDateArchiveMixin, CategoryDateArchiveMixin
+from .view_mixins import InsOutsDateArchiveMixin, CategoryDateArchiveMixin, SubcategoryDateArchiveMixin
 from .utils import (
     create_transaction,
     edit_asset_balance,
@@ -1181,36 +1181,8 @@ class CategoryDayArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, DayAr
     template_name = 'main/group_table_paginator_chart.html'
     month_format='%m'
 
-class SubcategoryStatsAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
+class SubcategoryStatsAllArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
     date_field = 'date'
     allow_future = True
     allow_empty = True
-
-    def get_queryset(self):
-        return super().get_queryset().filter(
-            account__user=self.request.user
-            ).exclude(category__is_transfer=True
-            ).select_related('category').prefetch_related('content_object__currency')
-
-    def get_category(self):
-        category_id = self.kwargs.get("pk")
-        self.category = get_object_or_404(Category, pk=category_id)
-        return self.category
-
-    # def get_category_descendants(self):
-    #     '''
-    #     returns a queryset of current category and it's descendants.
-    #     '''
-    #     category = self.get_category()
-    #     return category.get_descendants(include_self=True)
-
-
-    def get(self, request, *args, **kwargs):
-
-        account = self.request.GET.get('account', None)
-        # if not account.is_active:
-        #     raise Http404
-        data = get_multi_currency_category_json_stats(self.get_queryset(), self.get_category(), self.request.user)
-
-        return JsonResponse(data)
