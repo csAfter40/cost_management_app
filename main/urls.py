@@ -108,6 +108,11 @@ urlpatterns = [
         views.SubcategoryStatsAllArchiveView.as_view(),
         name='subcategory_all_archive'
     ),
+    path(
+        'subcategories/<int:pk>/date/<int:year>',
+        views.SubcategoryStatsYearArchiveView.as_view(),
+        name='subcategory_year_archive'
+    ),
     path("worth", views.WorthView.as_view(), name="worth"),
     path(
         'transactions',
