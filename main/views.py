@@ -1193,3 +1193,10 @@ class SubcategoryStatsYearArchiveView(SubcategoryDateArchiveMixin, UserPassesTes
     allow_future = True
     allow_empty = True
     make_object_list = True
+
+class SubcategoryStatsMonthArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, MonthArchiveView):
+    model = Transaction
+    date_field = 'date'
+    allow_future = True
+    allow_empty = True
+    month_format='%m'
