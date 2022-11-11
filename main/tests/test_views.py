@@ -2560,3 +2560,30 @@ class TestSubcategoryStatsWeekArchiveView(UserFailTestMixin, BaseViewTestMixin, 
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response['content-type'], 'application/json')
+
+class TestSubcategoryStatsDayArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.SubcategoryStatsDayArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        RateFactory(currency=currency)
+        UserPreferencesFactory(user=self.user, primary_currency=currency)
+        account = AccountFactory(currency=currency)
+        self.object = CategoryFactory(parent=None, user=self.user)
+        AccountTransactionFactory(content_object=account, category=self.object)
+        self.test_url = reverse(
+                            'main:subcategory_day_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001, 'month':1, 'day':1}
+                        )
+    
+    def test_get(self):
+        response = self.client.get(self.test_url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response['content-type'], 'application/json')
