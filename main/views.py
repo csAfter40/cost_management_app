@@ -1206,3 +1206,10 @@ class SubcategoryStatsWeekArchiveView(SubcategoryDateArchiveMixin, UserPassesTes
     date_field = 'date'
     allow_future = True
     allow_empty = True
+
+class SubcategoryStatsDayArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, DayArchiveView):
+    model = Transaction
+    date_field = 'date'
+    allow_future = True
+    allow_empty = True
+    month_format='%m'
