@@ -155,6 +155,11 @@ class TestUrls(SimpleTestCase):
             "/subcategories/1/date/2001/1", views.SubcategoryStatsMonthArchiveView, "subcategory_month_archive", pk=1, year=2001, month=1
         )
 
+    def test_subcategory_stats_week_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/subcategories/1/date/2001/week/1", views.SubcategoryStatsWeekArchiveView, "subcategory_week_archive", pk=1, year=2001, week=1
+        )
+
     def test_expense_category_create_url(self):
         self.assert_path_resolves_to_CBV(
             "/categories/expense/create",
