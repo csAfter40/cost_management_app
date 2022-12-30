@@ -13,6 +13,8 @@ from .utils import (
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, Http404
+from django.contrib.auth.mixins import UserPassesTestMixin
+
 
 
 class InsOutsDateArchiveMixin():
@@ -47,7 +49,10 @@ class InsOutsDateArchiveMixin():
         return context
 
 
-class CategoryDateArchiveMixin():
+class CategoryDateArchiveMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.get_category().user == self.request.user
+
     def get_queryset(self):
         descendant_categories = self.get_category_descendants()
         return super().get_queryset().filter(
