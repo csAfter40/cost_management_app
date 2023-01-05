@@ -31,6 +31,7 @@ urlpatterns = [
     path("accounts/<int:pk>/date", views.AccountDetailAllArchiveView.as_view(), name="account_all_archive"),
     path("accounts/<int:pk>/date/<int:year>", views.AccountDetailYearArchiveView.as_view(), name="account_year_archive"),
     path("accounts/<int:pk>/date/<int:year>/<int:month>", views.AccountDetailMonthArchiveView.as_view(), name="account_month_archive"),
+    path("accounts/<int:pk>/date/<int:year>/week/<int:week>", views.AccountDetailWeekArchiveView.as_view(), name="account_week_archive"),
     path(
         "accounts/<int:pk>/edit", views.EditAccountView.as_view(), name="edit_account"
     ),
