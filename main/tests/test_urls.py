@@ -88,6 +88,11 @@ class TestUrls(SimpleTestCase):
         self.assert_path_resolves_to_CBV(
             "/accounts/1/date/2001/2", views.AccountDetailMonthArchiveView, "account_month_archive", pk=1, year=2001, month=2
         )
+    
+    def test_account_week_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/accounts/1/date/2001/week/2", views.AccountDetailWeekArchiveView, "account_week_archive", pk=1, year=2001, week=2
+        )
 
     def test_account_edit_url(self):
         self.assert_path_resolves_to_CBV(
