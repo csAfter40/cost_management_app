@@ -74,9 +74,14 @@ class TestUrls(SimpleTestCase):
             "/accounts/1", views.AccountDetailView, "account_detail", pk=1
         )
     
-    def test_account_detail_url(self):
+    def test_account_all_archive_url(self):
         self.assert_path_resolves_to_CBV(
             "/accounts/1/date", views.AccountDetailAllArchiveView, "account_all_archive", pk=1
+        )
+    
+    def test_account_year_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/accounts/1/date/2001", views.AccountDetailYearArchiveView, "account_year_archive", pk=1, year=2001
         )
 
     def test_account_edit_url(self):
