@@ -312,46 +312,46 @@ class AccountDetailSubcategoryAjaxView(LoginRequiredMixin, DetailView):
         return JsonResponse(data)
 
 
-class AccountDetailView(LoginRequiredMixin, DetailView):
+# class AccountDetailView(LoginRequiredMixin, DetailView):
 
-    model = Account
+#     model = Account
 
-    def get(self, request, *args, **kwargs):
-        account = self.get_object()
-        if not account.is_active:
-            raise Http404
-        return super().get(request, *args, **kwargs)
+#     def get(self, request, *args, **kwargs):
+#         account = self.get_object()
+#         if not account.is_active:
+#             raise Http404
+#         return super().get(request, *args, **kwargs)
         
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
+#     def get_queryset(self):
+#         qs = super().get_queryset()
+#         return qs.filter(user=self.request.user)
 
-    def get_context_data(self, **kwargs):
-        account = self.get_object()
-        transactions = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
-            "-date", "-created"
-        ).prefetch_related('content_object__currency')
-        stats = get_stats(transactions, account.balance)
-        expense_category_stats = get_category_stats(
-            transactions, "E", None, self.request.user
-        )
-        income_category_stats = get_category_stats(
-            transactions, "I", None, self.request.user
-        )
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
+#     def get_context_data(self, **kwargs):
+#         account = self.get_object()
+#         transactions = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
+#             "-date", "-created"
+#         ).prefetch_related('content_object__currency')
+#         stats = get_stats(transactions, account.balance)
+#         expense_category_stats = get_category_stats(
+#             transactions, "E", None, self.request.user
+#         )
+#         income_category_stats = get_category_stats(
+#             transactions, "I", None, self.request.user
+#         )
+#         comparison_stats = get_comparison_stats(
+#             expense_category_stats, income_category_stats
+#         )
+#         page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
 
-        context = {
-            "account": account,
-            "transactions": page_obj,
-            "stats": stats,
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-        }
-        return super().get_context_data(**context)
+#         context = {
+#             "account": account,
+#             "transactions": page_obj,
+#             "stats": stats,
+#             "expense_stats": expense_category_stats,
+#             "income_stats": income_category_stats,
+#             "comparison_stats": comparison_stats,
+#         }
+#         return super().get_context_data(**context)
 
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
@@ -1213,3 +1213,49 @@ class SubcategoryStatsDayArchiveView(SubcategoryDateArchiveMixin, UserPassesTest
     allow_future = True
     allow_empty = True
     month_format='%m'
+
+class AccountDetailView(UserPassesTestMixin, LoginRequiredMixin, ArchiveIndexView):
+    template_name = 'main/account_detail.html'
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+
+    def test_func(self):
+        return self.account.user == self.request.user
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.set_account()
+
+    def set_account(self):
+        account_id = self.kwargs.get('pk')
+        self.account = get_object_or_404(Account, id=account_id)
+        if not self.account.is_active:
+            raise Http404
+
+    def get_queryset(self):
+        return super().get_queryset().filter(account=self.account).prefetch_related('content_object__currency')
+
+    def get_context_data(self, **kwargs):
+        transactions = self.get_dated_items()[1]
+        stats = get_stats(transactions, self.account.balance)
+        expense_category_stats = get_category_stats(
+            transactions, "E", None, self.request.user
+        )
+        income_category_stats = get_category_stats(
+            transactions, "I", None, self.request.user
+        )
+        comparison_stats = get_comparison_stats(
+            expense_category_stats, income_category_stats
+        )
+        context = {
+            "account": self.account,
+            "stats": stats,
+            "expense_stats": expense_category_stats,
+            "income_stats": income_category_stats,
+            "comparison_stats": comparison_stats,
+        }
+        return super().get_context_data(**context)
