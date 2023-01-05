@@ -1227,3 +1227,6 @@ class AccountDetailAllArchiveView(AccountDetailDateArchiveMixin, ArchiveIndexVie
 
 class AccountDetailYearArchiveView(AccountDetailDateArchiveMixin, YearArchiveView):
     pass
+
+class AccountDetailMonthArchiveView(AccountDetailDateArchiveMixin, MonthArchiveView):
+    month_format='%m'
