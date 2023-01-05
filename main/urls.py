@@ -28,6 +28,7 @@ urlpatterns = [
         name="account_detail_subcategory_ajax",
     ),
     path("accounts/<int:pk>", views.AccountDetailView.as_view(), name="account_detail"),
+    path("accounts/<int:pk>/date", views.AccountDetailAllArchiveView.as_view(), name="account_all_archive"),
     path(
         "accounts/<int:pk>/edit", views.EditAccountView.as_view(), name="edit_account"
     ),
