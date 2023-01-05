@@ -1,5 +1,5 @@
 import datetime
-from .models import Account, Category
+from .models import Account, Category, Transaction
 from .utils import (
     get_category_stats, 
     get_comparison_stats, 
@@ -10,10 +10,12 @@ from .utils import (
     get_multi_currency_main_category_stats,
     get_multi_currency_category_detail_stats,
     get_multi_currency_category_json_stats,
+    get_stats
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, Http404
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.conf import settings
 
 
 
@@ -85,6 +87,52 @@ class CategoryDateArchiveMixin(UserPassesTestMixin):
             'show_category': True,
         })
         return super().get_context_data(**kwargs)
+
+class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
+    
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+
+    def test_func(self):
+        return self.account.user == self.request.user
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.set_account()
+
+    def set_account(self):
+        account_id = self.kwargs.get('pk')
+        self.account = get_object_or_404(Account, id=account_id)
+        if not self.account.is_active:
+            raise Http404
+
+    def get_queryset(self):
+        return super().get_queryset().filter(account=self.account).prefetch_related('content_object__currency')
+
+    def get_context_data(self, **kwargs):
+        transactions = self.get_dated_items()[1]
+        stats = get_stats(transactions, self.account.balance)
+        expense_category_stats = get_category_stats(
+            transactions, "E", None, self.request.user
+        )
+        income_category_stats = get_category_stats(
+            transactions, "I", None, self.request.user
+        )
+        comparison_stats = get_comparison_stats(
+            expense_category_stats, income_category_stats
+        )
+        context = {
+            "account": self.account,
+            "stats": stats,
+            "expense_stats": expense_category_stats,
+            "income_stats": income_category_stats,
+            "comparison_stats": comparison_stats,
+        }
+        return super().get_context_data(**context)
 
 
 class SubcategoryDateArchiveMixin():
