@@ -90,6 +90,7 @@ class CategoryDateArchiveMixin(UserPassesTestMixin):
 
 class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
     
+    template_name = "main/group_account_bar_table_paginator_chart.html"
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
