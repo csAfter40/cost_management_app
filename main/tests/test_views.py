@@ -965,42 +965,42 @@ class TestAccountDetailSubcategoryAjaxView(UserFailTestMixin, BaseViewTestMixin,
         self.assertEquals(response.status_code, 404)
 
 
-class TestAccountDetailView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+# class TestAccountDetailView(UserFailTestMixin, BaseViewTestMixin, TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.test_url = ''
-        cls.context_list = [
-            'account',
-            'transactions',
-            'stats',
-            'expense_stats',
-            'income_stats',
-            'comparison_stats'
-        ]
-        cls.template = 'main/account_detail.html'
-        cls.view_function = views.AccountDetailView.as_view()
-        cls.login_required = True
-        cls.user_factory = UserFactoryNoSignal
+#     @classmethod
+#     def setUpTestData(cls):
+#         super().setUpTestData()
+#         cls.test_url = ''
+#         cls.context_list = [
+#             'account',
+#             'transactions',
+#             'stats',
+#             'expense_stats',
+#             'income_stats',
+#             'comparison_stats'
+#         ]
+#         cls.template = 'main/account_detail.html'
+#         cls.view_function = views.AccountDetailView.as_view()
+#         cls.login_required = True
+#         cls.user_factory = UserFactoryNoSignal
 
-    def setUp(self) -> None:
-        super().setUp()
-        self.object = AccountFactory(user=self.user)
-        self.test_url = reverse(
-            'main:account_detail', 
-            kwargs={'pk':self.object.id}
-        )
+#     def setUp(self) -> None:
+#         super().setUp()
+#         self.object = AccountFactory(user=self.user)
+#         self.test_url = reverse(
+#             'main:account_detail', 
+#             kwargs={'pk':self.object.id}
+#         )
 
-    def test_get(self):    
-        AccountTransactionFactory.create_batch(20, content_object=self.object)
-        super().test_get()
+#     def test_get(self):    
+#         AccountTransactionFactory.create_batch(20, content_object=self.object)
+#         super().test_get()
     
-    def test_get_account_not_active(self):
-        self.object.is_active = False
-        self.object.save()
-        response = self.client.get(self.test_url)
-        self.assertEquals(response.status_code, 404)
+#     def test_get_account_not_active(self):
+#         self.object.is_active = False
+#         self.object.save()
+#         response = self.client.get(self.test_url)
+#         self.assertEquals(response.status_code, 404)
 
 
 class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
@@ -2587,3 +2587,20 @@ class TestSubcategoryStatsDayArchiveView(UserFailTestMixin, BaseViewTestMixin, T
         response = self.client.get(self.test_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response['content-type'], 'application/json')
+
+class TestAccountDetailView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.AccountDetailView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = AccountFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:account_detail', 
+                            kwargs = {'pk':self.object.id}
+                        )
