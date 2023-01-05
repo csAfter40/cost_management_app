@@ -2638,3 +2638,20 @@ class TestAccountDetailYearArchiveView(UserFailTestMixin, BaseViewTestMixin, Tes
                             'main:account_year_archive', 
                             kwargs = {'pk':self.object.id, 'year': 2001}
                         )
+
+class TestAccountDetailMonthArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.AccountDetailMonthArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = AccountFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:account_month_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001, 'month':2}
+                        )
