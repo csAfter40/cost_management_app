@@ -1223,4 +1223,7 @@ class AccountDetailView(AccountDetailDateArchiveMixin, ArchiveIndexView):
     template_name = 'main/account_detail.html'
 
 class AccountDetailAllArchiveView(AccountDetailDateArchiveMixin, ArchiveIndexView):
-    template_name = "main/group_account_bar_table_paginator_chart.html"
+    pass
+
+class AccountDetailYearArchiveView(AccountDetailDateArchiveMixin, YearArchiveView):
+    pass
