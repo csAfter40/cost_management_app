@@ -140,7 +140,14 @@ class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
         return super().get_context_data(**context)
 
 
-class SubcategoryDateArchiveMixin():
+class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
+    model = Transaction
+    date_field = 'date'
+    allow_future = True
+    allow_empty = True
+    make_object_list = True
+    month_format='%m'
+
     def test_func(self):
         '''Tests if parent category belongs to user.'''
         category = self.get_category()

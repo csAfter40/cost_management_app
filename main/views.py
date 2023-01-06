@@ -1057,38 +1057,20 @@ class CategoryDayArchiveView(CategoryDateArchiveMixin, LoginRequiredMixin, DayAr
     template_name = 'main/group_table_paginator_chart.html'
     month_format='%m'
 
-class SubcategoryStatsAllArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, ArchiveIndexView):
-    model = Transaction
-    date_field = 'date'
-    allow_future = True
-    allow_empty = True
+class SubcategoryStatsAllArchiveView(SubcategoryDateArchiveMixin, ArchiveIndexView):
+    pass
 
 class SubcategoryStatsYearArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, YearArchiveView):
-    model = Transaction
-    date_field = 'date'
-    allow_future = True
-    allow_empty = True
-    make_object_list = True
+    pass
 
 class SubcategoryStatsMonthArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, MonthArchiveView):
-    model = Transaction
-    date_field = 'date'
-    allow_future = True
-    allow_empty = True
-    month_format='%m'
+    pass
 
 class SubcategoryStatsWeekArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, WeekArchiveView):
-    model = Transaction
-    date_field = 'date'
-    allow_future = True
-    allow_empty = True
+    pass
 
 class SubcategoryStatsDayArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, DayArchiveView):
-    model = Transaction
-    date_field = 'date'
-    allow_future = True
-    allow_empty = True
-    month_format='%m'
+    pass
 
 class AccountDetailView(AccountDetailDateArchiveMixin, ArchiveIndexView):
     template_name = 'main/account_detail.html'
