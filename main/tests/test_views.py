@@ -2330,7 +2330,6 @@ class TestSubcategoryStatsAllArchiveView(UserFailTestMixin, BaseViewTestMixin, T
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        RateFactory(currency=currency)
         UserPreferencesFactory(user=self.user, primary_currency=currency)
         account = AccountFactory(currency=currency)
         self.object = CategoryFactory(parent=None, user=self.user)
@@ -2357,7 +2356,6 @@ class TestSubcategoryStatsYearArchiveView(UserFailTestMixin, BaseViewTestMixin, 
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        RateFactory(currency=currency)
         UserPreferencesFactory(user=self.user, primary_currency=currency)
         account = AccountFactory(currency=currency)
         self.object = CategoryFactory(parent=None, user=self.user)
@@ -2384,7 +2382,6 @@ class TestSubcategoryStatsMonthArchiveView(UserFailTestMixin, BaseViewTestMixin,
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        RateFactory(currency=currency)
         UserPreferencesFactory(user=self.user, primary_currency=currency)
         account = AccountFactory(currency=currency)
         self.object = CategoryFactory(parent=None, user=self.user)
@@ -2412,7 +2409,6 @@ class TestSubcategoryStatsWeekArchiveView(UserFailTestMixin, BaseViewTestMixin, 
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        RateFactory(currency=currency)
         UserPreferencesFactory(user=self.user, primary_currency=currency)
         account = AccountFactory(currency=currency)
         self.object = CategoryFactory(parent=None, user=self.user)
@@ -2439,7 +2435,6 @@ class TestSubcategoryStatsDayArchiveView(UserFailTestMixin, BaseViewTestMixin, T
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
-        RateFactory(currency=currency)
         UserPreferencesFactory(user=self.user, primary_currency=currency)
         account = AccountFactory(currency=currency)
         self.object = CategoryFactory(parent=None, user=self.user)

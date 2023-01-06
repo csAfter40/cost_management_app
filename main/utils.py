@@ -209,10 +209,10 @@ def get_multi_currency_category_json_stats(qs, parent, user, target_currency=Non
             filter=Q(transactions__in=qs)
             )
     ).exclude(sum=None)
-
     for category in categories:
         labels.append(category.name)
-        sum_data.append(round(category.sum, 2))
+        if category.sum:
+            sum_data.append(round(category.sum, 2))
     data = {
         "data": sum_data,
         "labels": labels,

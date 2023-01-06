@@ -19,6 +19,13 @@ class UserFactoryNoSignal(UserFactory):
     pass
 
     
+class RateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Rate
+
+    currency = factory.SubFactory('main.tests.factories.CurrencyFactory', rate=None)
+    rate = factory.fuzzy.FuzzyDecimal(0, 10, 2)
+
 class CurrencyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Currency
@@ -26,6 +33,10 @@ class CurrencyFactory(factory.django.DjangoModelFactory):
     code = factory.Faker('currency_code')
     name = factory.Faker('currency_name')
     symbol = factory.Faker('currency_symbol')
+    rate = factory.RelatedFactory(
+        RateFactory,
+        factory_related_name='currency',
+    )
 
 
 class AccountFactory(factory.django.DjangoModelFactory):
@@ -110,11 +121,4 @@ class UserPreferencesFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactoryNoSignal)
     primary_currency = factory.SubFactory(CurrencyFactory)
-
-class RateFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Rate
-
-    currency = factory.SubFactory(CurrencyFactory)
-    rate = factory.fuzzy.FuzzyDecimal(0, 10, 2)
     

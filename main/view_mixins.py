@@ -130,7 +130,6 @@ class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         transactions = self.get_dated_items()[1]
         stats = get_stats(transactions, self.account.balance)
-        print(stats)
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
         )
