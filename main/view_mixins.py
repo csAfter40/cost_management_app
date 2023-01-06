@@ -51,7 +51,18 @@ class InsOutsDateArchiveMixin():
         return context
 
 
-class CategoryDateArchiveMixin(UserPassesTestMixin):
+class CategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+    template_name = 'main/group_table_paginator_chart.html'
+    month_format='%m'
+    make_object_list = True
+
+
     def test_func(self):
         return self.get_category().user == self.request.user
 
