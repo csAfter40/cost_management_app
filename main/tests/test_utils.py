@@ -348,10 +348,8 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(result, expected)
 
     def test_get_conversion_rate(self):
-        from_currency = CurrencyFactory(code='USD')
-        to_currency = CurrencyFactory(code='TRY')
-        from_rate = RateFactory(currency=from_currency, rate=1)
-        to_rate = RateFactory(currency=to_currency, rate=18)
+        from_currency = CurrencyFactory(code='USD', rate__rate=1)
+        to_currency = CurrencyFactory(code='TRY', rate__rate=18)
         result = get_conversion_rate(from_currency=from_currency, to_currency=to_currency)
         expected = 18
         self.assertEquals(result, expected)
@@ -426,11 +424,9 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(result, expected)
 
     def test_get_users_grand_total(self):
-        currency1 = CurrencyFactory()
-        currency2 = CurrencyFactory()
+        currency1 = CurrencyFactory(rate__rate=1)
+        currency2 = CurrencyFactory(rate__rate=2)
         user_profile = UserPreferencesFactory(user=self.user, primary_currency = currency1)
-        rate1 = RateFactory(currency=currency1, rate=1)
-        rate2 = RateFactory(currency=currency2, rate=2)
         user_currency1_account1 = AccountFactory(user=self.user, currency=currency1, balance=100)
         user_currency1_account2 = AccountFactory(user=self.user, currency=currency1, balance=200)
         user_currency2_account1 = AccountFactory(user=self.user, currency=currency2, balance=300)
@@ -729,12 +725,10 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(len(currencies), 2)
 
     def test_get_multi_currency_category_stats(self):
-        currency = CurrencyFactory()
-        target_currency = CurrencyFactory()
+        currency = CurrencyFactory(rate__rate=1)
+        target_currency = CurrencyFactory(rate__rate=2)
         account1 = AccountFactory(user=self.user, currency=currency)
         account2 = AccountFactory(user=self.user, currency=target_currency)
-        RateFactory(currency=currency, rate=1)
-        RateFactory(currency=target_currency, rate=2)
         parent_category = CategoryFactory(user=self.user, type='E', parent=None)
         other_category = CategoryFactory(user=self.user, type='E', parent=None)
         child_category = CategoryFactory(user=self.user, type='E', parent=parent_category)
@@ -748,12 +742,10 @@ class TestUtilityFunctions(TestCase):
         self.assertEqual(stats[child_category.name]['sum'], 40)
     
     def test_get_multi_currency_main_category_stats(self):
-        currency = CurrencyFactory()
-        target_currency = CurrencyFactory()
+        currency = CurrencyFactory(rate__rate=1)
+        target_currency = CurrencyFactory(rate__rate=2)
         account1 = AccountFactory(user=self.user, currency=currency)
         account2 = AccountFactory(user=self.user, currency=target_currency)
-        RateFactory(currency=currency, rate=1)
-        RateFactory(currency=target_currency, rate=2)
         category = CategoryFactory(user=self.user, type='E', parent=None)
         transaction1 = AccountTransactionFactory(content_object=account1, amount=10, type='E', category=category)
         transaction2 = AccountTransactionFactory(content_object=account2, amount=15, type='E', category=category)
@@ -762,12 +754,10 @@ class TestUtilityFunctions(TestCase):
         self.assertEqual(stats[category.name]['sum'], 35)
         
     def test_get_multi_currency_category_json_stats(self):
-        currency = CurrencyFactory()
-        target_currency = CurrencyFactory()
+        currency = CurrencyFactory(rate__rate=1)
+        target_currency = CurrencyFactory(rate__rate=2)
         account1 = AccountFactory(user=self.user, currency=currency)
         account2 = AccountFactory(user=self.user, currency=target_currency)
-        RateFactory(currency=currency, rate=1)
-        RateFactory(currency=target_currency, rate=2)
         parent_category = CategoryFactory(user=self.user, type='E', parent=None)
         other_category = CategoryFactory(user=self.user, type='E', parent=None)
         child_category = CategoryFactory(user=self.user, type='E', parent=parent_category)
@@ -831,10 +821,8 @@ class TestUtilityFunctions(TestCase):
         parent_category = CategoryFactory(parent=None, name='parent')
         category1 = CategoryFactory(parent=parent_category, name='cat1')
         category2 = CategoryFactory(parent=parent_category, name='cat2')
-        currency1 = CurrencyFactory()
-        currency2 = CurrencyFactory()
-        rate1 = RateFactory(currency=currency1, rate=1)
-        rate2 = RateFactory(currency=currency2, rate=2)
+        currency1 = CurrencyFactory(rate__rate=1)
+        currency2 = CurrencyFactory(rate__rate=2)
         account1 = AccountFactory(currency=currency1)
         account2 = AccountFactory(currency=currency2)
         AccountTransactionFactory(content_object=account1, category=parent_category, amount=1)
