@@ -55,20 +55,6 @@ class TestUrls(SimpleTestCase):
             "/accounts/del/1", views.DeleteAccountView, "delete_account", pk=1
         )
 
-    def test_account_detail_ajax_url(self):
-        self.assert_path_resolves_to_CBV(
-            "/accounts/1/ajax", views.AccountDetailAjaxView, "account_detail_ajax", pk=1
-        )
-
-    def test_account_detail_subcategory_ajax_url(self):
-        self.assert_path_resolves_to_CBV(
-            "/accounts/1/ajax/1",
-            views.AccountDetailSubcategoryAjaxView,
-            "account_detail_subcategory_ajax",
-            pk=1,
-            cat_pk=1,
-        )
-
     def test_account_detail_url(self):
         self.assert_path_resolves_to_CBV(
             "/accounts/1", views.AccountDetailView, "account_detail", pk=1
