@@ -90,13 +90,15 @@ class CategoryDateArchiveMixin(UserPassesTestMixin):
 
 class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
     
-    template_name = "main/group_account_bar_table_paginator_chart.html"
+    template_name = "main/group_account_bar_table_chart_script.html"
     model = Transaction
     date_field = 'date'
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = 'transactions'
+    month_format='%m'
+    make_object_list = True
 
     def test_func(self):
         return self.account.user == self.request.user
@@ -117,6 +119,7 @@ class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         transactions = self.get_dated_items()[1]
         stats = get_stats(transactions, self.account.balance)
+        print(stats)
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
         )
@@ -132,6 +135,7 @@ class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
             "expense_stats": expense_category_stats,
             "income_stats": income_category_stats,
             "comparison_stats": comparison_stats,
+            "date": datetime.date.today(),
         }
         return super().get_context_data(**context)
 

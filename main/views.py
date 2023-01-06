@@ -228,136 +228,7 @@ class AccountsView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user, is_active=True).select_related('currency')
-
-
-class AccountDetailAjaxView(LoginRequiredMixin, DetailView):
-
-    model = Account
-    template_name = "main/account_detail_pack.html"
         
-    def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
-
-    def get_object(self, queryset=None):
-        obj = super().get_object(queryset)
-        if not obj.is_active:
-            raise Http404
-        return obj
-
-    def get_context_data(self, **kwargs):
-        account = self.get_object()
-        time = self.request.GET.get("time", "all")
-        dates = get_dates()
-        context = {}
-        if time == "all":
-            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
-                "-date", "-created"
-            )
-        elif time == "week":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
-            ).order_by("-date", "-created")
-        elif time == "month":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
-            ).order_by("-date", "-created")
-        elif time == "year":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
-            ).order_by("-date", "-created")
-        expense_category_stats = get_category_stats(qs, "E", None, self.request.user)
-        income_category_stats = get_category_stats(qs, "I", None, self.request.user)
-        comparison_stats = get_comparison_stats(
-            expense_category_stats, income_category_stats
-        )
-        context = {
-            "transactions": get_paginated_qs(qs, self.request, settings.DEFAULT_PAGINATION_QTY),
-            "stats": get_stats(qs, account.balance),
-            "account": account,
-            "expense_stats": expense_category_stats,
-            "income_stats": income_category_stats,
-            "comparison_stats": comparison_stats,
-        }
-        return super().get_context_data(**context)
-
-
-class AccountDetailSubcategoryAjaxView(LoginRequiredMixin, DetailView):
-    
-    model = Account
-
-    def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).select_related('currency')
-
-    def get(self, request, *args, **kwargs):
-        account = self.get_object()
-        if not account.is_active:
-            raise Http404
-        category_id = kwargs.get("cat_pk")
-        category = get_object_or_404(Category, id=category_id)
-        time = self.request.GET.get("time")
-        dates = get_dates()
-        if time == "all":
-            qs = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
-                "-date", "-created"
-            )
-        elif time == "week":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["week_start"], dates["today"])
-            ).order_by("-date", "-created")
-        elif time == "month":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["month_start"], dates["today"])
-            ).order_by("-date", "-created")
-        elif time == "year":
-            qs = Transaction.objects.filter(
-                content_type__model='account', object_id=account.id, date__range=(dates["year_start"], dates["today"])
-            ).order_by("-date", "-created")
-        data = get_subcategory_stats(qs, category)
-
-        return JsonResponse(data)
-
-
-# class AccountDetailView(LoginRequiredMixin, DetailView):
-
-#     model = Account
-
-#     def get(self, request, *args, **kwargs):
-#         account = self.get_object()
-#         if not account.is_active:
-#             raise Http404
-#         return super().get(request, *args, **kwargs)
-        
-#     def get_queryset(self):
-#         qs = super().get_queryset()
-#         return qs.filter(user=self.request.user)
-
-#     def get_context_data(self, **kwargs):
-#         account = self.get_object()
-#         transactions = Transaction.objects.filter(content_type__model='account', object_id=account.id).order_by(
-#             "-date", "-created"
-#         ).prefetch_related('content_object__currency')
-#         stats = get_stats(transactions, account.balance)
-#         expense_category_stats = get_category_stats(
-#             transactions, "E", None, self.request.user
-#         )
-#         income_category_stats = get_category_stats(
-#             transactions, "I", None, self.request.user
-#         )
-#         comparison_stats = get_comparison_stats(
-#             expense_category_stats, income_category_stats
-#         )
-#         page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
-
-#         context = {
-#             "account": account,
-#             "transactions": page_obj,
-#             "stats": stats,
-#             "expense_stats": expense_category_stats,
-#             "income_stats": income_category_stats,
-#             "comparison_stats": comparison_stats,
-#         }
-#         return super().get_context_data(**context)
-
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
 
@@ -1229,10 +1100,10 @@ class AccountDetailYearArchiveView(AccountDetailDateArchiveMixin, YearArchiveVie
     pass
 
 class AccountDetailMonthArchiveView(AccountDetailDateArchiveMixin, MonthArchiveView):
-    month_format='%m'
+    pass
 
 class AccountDetailWeekArchiveView(AccountDetailDateArchiveMixin, WeekArchiveView):
     pass
 
 class AccountDetailDayArchiveView(AccountDetailDateArchiveMixin, DayArchiveView):
-    month_format='%m'
+    pass

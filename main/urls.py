@@ -17,16 +17,6 @@ urlpatterns = [
         views.DeleteAccountView.as_view(),
         name="delete_account",
     ),
-    path(
-        "accounts/<int:pk>/ajax",
-        views.AccountDetailAjaxView.as_view(),
-        name="account_detail_ajax",
-    ),
-    path(
-        "accounts/<int:pk>/ajax/<int:cat_pk>",
-        views.AccountDetailSubcategoryAjaxView.as_view(),
-        name="account_detail_subcategory_ajax",
-    ),
     path("accounts/<int:pk>", views.AccountDetailView.as_view(), name="account_detail"),
     path("accounts/<int:pk>/date", views.AccountDetailAllArchiveView.as_view(), name="account_all_archive"),
     path("accounts/<int:pk>/date/<int:year>", views.AccountDetailYearArchiveView.as_view(), name="account_year_archive"),

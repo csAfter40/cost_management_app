@@ -1,48 +1,18 @@
-const timeButtons = document.querySelectorAll('.select-time');
-const pgButtons = document.querySelectorAll('.pg-btn');
-const csrf = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-const transactionsDiv = document.querySelector('#transactions-table');
-const accountStats = document.querySelector('#account-stats-div');
-const paginatorDiv = document.querySelector('#paginator-div');
+import {setupDeleteButtons} from "./delete_button_handler.js";
+import { setupTimeButtons } from "./time_button_handler.js";
+import {setupPgButtons} from "./paginator_buttons_handler.js";
 
-timeButtons.forEach(function (timeButton) {
-    timeButton.addEventListener('click', setSelectedButton)
-});
+const accountBarStatsDiv = document.querySelector('#account-stats-div')
+const tablePaginatorGroup = document.querySelector('#table-paginator-group');
+const timeButtonsDiv = document.querySelector('#time-buttons-div')
 
-setupPgButtons();
+setupDeleteButtons();
+setupTimeButtons(getData);
+setupPgButtons(getData);
 
-function setupPgButtons() {
-    const pgButtons = document.querySelectorAll('.pg-btn');
-    pgButtons.forEach(function (pgButton) {
-        pgButton.addEventListener('click', pgEventHandler);
-    });
-};
-
-function pgEventHandler(event) {
-    const currentButton = event.currentTarget;
-    const page = currentButton.dataset.page;
-    const time = transactionsDiv.dataset.time;
-    getData(time, page);
-};
-
-function setSelectedButton(event) {
-    let currentButton = event.currentTarget;
-    let time = currentButton.dataset.time;
-    getData(time);
-    disableAllButtons();
-    currentButton.classList.remove("btn-outline-primary");
-    currentButton.classList.add("btn-primary");
-};
-
-function disableAllButtons() {
-    timeButtons.forEach(function (timeButton) {
-        timeButton.classList.remove("btn-primary");
-        timeButton.classList.add("btn-outline-primary");
-    });
-}
-
-function getData(time, page = 1) {
-    const url = window.location.pathname + '/ajax' + `?time=${time}` + `&page=${page}`
+function getData(page=1) {
+    const path = timeButtonsDiv.dataset.path;
+    const url = window.location.pathname + path + `?page=${page}`
     fetch(url, {
         method: "GET",
         headers: {}
@@ -51,16 +21,13 @@ function getData(time, page = 1) {
     }).then(obj => {
         const parser = new DOMParser();
         const htmlDocument = parser.parseFromString(obj, "text/html");
-        let transactionHtml = htmlDocument.documentElement.querySelector('#transaction-table').innerHTML;
-        let statHtml = htmlDocument.documentElement.querySelector('#account-stats').innerHTML;
-        const paginatorHtml = htmlDocument.documentElement.querySelector('#pagination-buttons').innerHTML;
+        const accountBarStatsHtml = htmlDocument.documentElement.querySelector('#account-stats-div').innerHTML;
         const chartScriptHtml = htmlDocument.documentElement.querySelector('#chart-script').innerHTML;
-        transactionsDiv.innerHTML = transactionHtml;
-        transactionsDiv.dataset.time = time;
-        accountStats.innerHTML = statHtml;
-        paginatorDiv.innerHTML = paginatorHtml;
-        setupPgButtons();
+        const tablePaginatorHtml = htmlDocument.documentElement.querySelector('#table-paginator-group').innerHTML;
+        accountBarStatsDiv.innerHTML = accountBarStatsHtml
+        tablePaginatorGroup.innerHTML = tablePaginatorHtml
+        setupDeleteButtons();
+        setupPgButtons(getData);
         eval(chartScriptHtml);
     });
-
 };

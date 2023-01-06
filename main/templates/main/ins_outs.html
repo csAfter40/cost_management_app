@@ -9,7 +9,24 @@
         {% include 'main/time_select_buttons.html' %}
     </div>
     <div class="row justify-content-center">
-        {% include 'main/group_report_table_paginator_chart.html' with show_category=True %}
+        <div class="col-6 text-center bg-light p-3 border-end">
+            <h4> Report Table </h4>
+            <div id="report-table" data-time="all">
+                {% include 'main/table_report.html' %}
+            </div>
+            <div id="table-paginator-group" data-time="all" class="py-2">
+                <h4>Transactions</h4>
+                {% with show_category=True %}
+                {% with table_template='main/table_transactions.html' %}
+                    {% include 'main/group_table_paginator.html' %}
+                {% endwith %}   
+                {% endwith %}   
+            </div>
+        </div>
+        <div class="col-6 text-center bg-light p-3 ">   
+            <h4> Stats & Graphs</h4>
+            {% include 'main/expense_income_comparison_charts.html' %}
+        </div>
     </div>
 </div>
 {% include 'main/chart_modal.html' %}

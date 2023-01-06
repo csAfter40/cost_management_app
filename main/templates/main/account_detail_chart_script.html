@@ -82,6 +82,7 @@
   const modalChart = new Chart(modalCtx, configModal);
   const charts = [expensesChart, incomesChart];
   const canvases = document.querySelectorAll('canvas');
+  const accountId = {{account.id}}
 
   canvases.forEach(canvas => {
     canvas.addEventListener('click', canvasEventHandler)
@@ -106,9 +107,9 @@
   };
 
   function getSubcategoryChartData(categoryIndex) {
-    const transactionsDiv = document.querySelector('#transactions-table');
-    const time = transactionsDiv.dataset.time;
-    let url = window.location.pathname + '/ajax' + `/${categoryIndex}` + `?time=${time}`;
+    const timeButtonsDiv = document.querySelector('#time-buttons-div')
+    const path = timeButtonsDiv.dataset.path;
+    let url = `/subcategories/${categoryIndex}${path}?account=${accountId}`;
     return fetch(url, {
       method: 'GET',
       headers: {},
