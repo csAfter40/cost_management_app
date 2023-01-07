@@ -48,6 +48,7 @@ from .view_mixins import (
     CategoryDateArchiveMixin,
     SubcategoryDateArchiveMixin,
     AccountDetailDateArchiveMixin,
+    TransfersDateArchiveMixin,
 )
 from .utils import (
     create_transaction,
@@ -879,121 +880,28 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(self.get_success_url())
 
 
-class TransfersView(LoginRequiredMixin, ArchiveIndexView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    context_object_name = "transfers"
+class TransfersView(TransfersDateArchiveMixin, ArchiveIndexView):
     template_name = "main/transfers.html"
-    extra_context = {"date": datetime.today()}
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
 
 
-class TransfersAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {"table_template": "main/table_transfers.html"}
-    context_object_name = "transfers"
-    template_name = "main/group_table_paginator.html"
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
+class TransfersAllArchiveView(TransfersDateArchiveMixin, ArchiveIndexView):
+    pass
 
 
-class TransfersYearArchiveView(LoginRequiredMixin, YearArchiveView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {"table_template": "main/table_transfers.html"}
-    context_object_name = "transfers"
-    template_name = "main/group_table_paginator.html"
-    make_object_list = True
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
+class TransfersYearArchiveView(TransfersDateArchiveMixin, YearArchiveView):
+    pass
 
 
-class TransfersMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {"table_template": "main/table_transfers.html"}
-    context_object_name = "transfers"
-    template_name = "main/group_table_paginator.html"
-    month_format = "%m"
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
+class TransfersMonthArchiveView(TransfersDateArchiveMixin, MonthArchiveView):
+    pass
 
 
-class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {"table_template": "main/table_transfers.html"}
-    context_object_name = "transfers"
-    template_name = "main/group_table_paginator.html"
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
+class TransfersWeekArchiveView(TransfersDateArchiveMixin, WeekArchiveView):
+    pass
 
 
-class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
-    model = Transfer
-    date_field = "date"
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {"table_template": "main/table_transfers.html"}
-    context_object_name = "transfers"
-    template_name = "main/group_table_paginator.html"
-    month_format = "%m"
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
-        )
+class TransfersDayArchiveView(TransfersDateArchiveMixin, DayArchiveView):
+    pass
 
 
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
