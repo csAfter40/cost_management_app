@@ -19,7 +19,19 @@ from django.conf import settings
 
 
 
-class InsOutsDateArchiveMixin():
+class InsOutsDateArchiveMixin(LoginRequiredMixin):
+
+    model = Transaction
+    date_field = 'date'
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = 'transactions'
+    template_name = 'main/group_report_chart_script.html'
+    extra_context = {'table_template': 'main/table_transactions.html'}
+    make_object_list = True
+    month_format='%m'
+
     def get_queryset(self):
         return super().get_queryset().filter(
             account__user=self.request.user

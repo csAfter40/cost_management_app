@@ -2,10 +2,10 @@ from datetime import datetime, date
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic import (
-    CreateView, 
-    UpdateView, 
-    ListView, 
-    DetailView, 
+    CreateView,
+    UpdateView,
+    ListView,
+    DetailView,
     DeleteView,
     FormView,
     TemplateView,
@@ -13,20 +13,41 @@ from django.views.generic import (
     WeekArchiveView,
     YearArchiveView,
     DayArchiveView,
-    ArchiveIndexView
+    ArchiveIndexView,
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+from django.http import (
+    HttpResponseRedirect,
+    HttpResponse,
+    JsonResponse,
+    Http404,
+)
 from django.urls import reverse, reverse_lazy
-from .models import Account, Transfer, User, Transaction, Category, Loan, UserPreferences
-from .forms import ExpenseInputForm, IncomeInputForm, TransferForm, PayLoanForm, LoanDetailPaymentForm, SetupForm, EditTransactionForm
+from .models import (
+    Account,
+    Transfer,
+    User,
+    Transaction,
+    Category,
+    Loan,
+    UserPreferences,
+)
+from .forms import (
+    ExpenseInputForm,
+    IncomeInputForm,
+    TransferForm,
+    PayLoanForm,
+    LoanDetailPaymentForm,
+    SetupForm,
+    EditTransactionForm,
+)
 from .view_mixins import (
-    InsOutsDateArchiveMixin, 
-    CategoryDateArchiveMixin, 
+    InsOutsDateArchiveMixin,
+    CategoryDateArchiveMixin,
     SubcategoryDateArchiveMixin,
-    AccountDetailDateArchiveMixin
+    AccountDetailDateArchiveMixin,
 )
 from .utils import (
     create_transaction,
@@ -60,7 +81,7 @@ from .utils import (
     get_ins_outs_report,
     get_report_total,
     get_multi_currency_category_detail_stats,
-    get_multi_currency_category_json_stats
+    get_multi_currency_category_json_stats,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -71,8 +92,9 @@ from django.conf import settings
 
 def index(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('main:main'))
-    return render(request, 'main/index.html')
+        return HttpResponseRedirect(reverse("main:main"))
+    return render(request, "main/index.html")
+
 
 @login_required(login_url=reverse_lazy("main:login"))
 def main(request):
@@ -89,7 +111,7 @@ def main(request):
                 try:
                     create_transfer(data, request.user)
                 except IntegrityError:
-                    messages.error(request, 'Error during transfer')
+                    messages.error(request, "Error during transfer")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
                 transfer_form = form
@@ -124,6 +146,7 @@ def main(request):
     }
     return render(request, "main/main.html", context)
 
+
 @login_required
 def transaction_name_autocomplete(request):
     name_query = request.GET.get("name", None)
@@ -131,7 +154,9 @@ def transaction_name_autocomplete(request):
     name_list = []
     if name_query:
         user = request.user
-        accounts_list = Account.objects.filter(user=user, is_active=True).values_list('id', flat=True)
+        accounts_list = Account.objects.filter(
+            user=user, is_active=True
+        ).values_list("id", flat=True)
         incomes = Transaction.objects.filter(
             object_id__in=accounts_list, name__icontains=name_query, type=type
         )
@@ -143,7 +168,7 @@ def transaction_name_autocomplete(request):
 class LoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('main:main'))
+            return HttpResponseRedirect(reverse("main:main"))
         return render(request, "main/login.html")
 
     def post(self, request):
@@ -190,11 +215,11 @@ class RegisterView(View):
 
 class SetupView(LoginRequiredMixin, FormView):
     form_class = SetupForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/setup.html'
+    success_url = reverse_lazy("main:main")
+    template_name = "main/setup.html"
 
     def form_valid(self, form):
-        primary_currency = form.cleaned_data['currency']
+        primary_currency = form.cleaned_data["currency"]
         user_preferences = self.request.user.user_preferences
         user_preferences.primary_currency = primary_currency
         user_preferences.save()
@@ -213,11 +238,13 @@ def check_username(request, *args, **kwargs):
                 '<p class="mx-2 text-success" id="username_check_text"><small><i class="bi bi-check2-circle"></i> This username is available</small></p>'
             )
     else:
-        return HttpResponse('<p class="text-muted mx-2" id="username_check_text"></p>')
+        return HttpResponse(
+            '<p class="text-muted mx-2" id="username_check_text"></p>'
+        )
 
 
 def logout_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         logout(request)
     return HttpResponseRedirect(reverse("main:index"))
 
@@ -227,8 +254,13 @@ class AccountsView(LoginRequiredMixin, ListView):
     template_name = "main/accounts.html"
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user, is_active=True).select_related('currency')
-        
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user, is_active=True)
+            .select_related("currency")
+        )
+
 
 class CreateAccountView(LoginRequiredMixin, CreateView):
 
@@ -277,10 +309,14 @@ class EditAccountView(LoginRequiredMixin, UpdateView):
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
 
     model = Account
-    success_url = reverse_lazy('main:main')
+    success_url = reverse_lazy("main:main")
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user, is_active=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user, is_active=True)
+        )
 
     def form_valid(self, form):
         handle_asset_delete(self.object)
@@ -321,10 +357,14 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
 
 class DeleteLoanView(LoginRequiredMixin, DeleteView):
     model = Loan
-    success_url = reverse_lazy('main:main')
+    success_url = reverse_lazy("main:main")
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user, is_active=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user, is_active=True)
+        )
 
     def form_valid(self, form):
         handle_asset_delete(self.object)
@@ -335,7 +375,7 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
 
 class LoanDetailView(LoginRequiredMixin, DetailView):
     model = Loan
-    template_name: str = 'main/loan_detail.html'
+    template_name: str = "main/loan_detail.html"
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -343,16 +383,22 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         loan = self.get_object()
         form = LoanDetailPaymentForm(user=self.request.user, loan=loan)
-        transactions = Transaction.objects.filter(
-            content_type__model='loan',
-            object_id=loan.id,
-        ).order_by('-date', '-created').prefetch_related('content_object__currency')
-        page_obj = get_paginated_qs(transactions, self.request, settings.DEFAULT_PAGINATION_QTY)
+        transactions = (
+            Transaction.objects.filter(
+                content_type__model="loan",
+                object_id=loan.id,
+            )
+            .order_by("-date", "-created")
+            .prefetch_related("content_object__currency")
+        )
+        page_obj = get_paginated_qs(
+            transactions, self.request, settings.DEFAULT_PAGINATION_QTY
+        )
         extra_context = {
-            'progress': get_loan_progress(self.object),
-            'transactions': page_obj,
-            'payment_stats': get_payment_stats(self.object),
-            'form': form,
+            "progress": get_loan_progress(self.object),
+            "transactions": page_obj,
+            "payment_stats": get_payment_stats(self.object),
+            "form": form,
         }
         return super().get_context_data(**extra_context)
 
@@ -361,7 +407,7 @@ class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
 
     model = Loan
     template_name = "main/loan_detail_pack.html"
-        
+
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
@@ -373,11 +419,13 @@ class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         loan = self.get_object()
-        qs = Transaction.objects.filter(content_type__model='loan', object_id=loan.id).order_by(
-                "-date", "-created"
-            )
+        qs = Transaction.objects.filter(
+            content_type__model="loan", object_id=loan.id
+        ).order_by("-date", "-created")
         context = {
-            "transactions": get_paginated_qs(qs, self.request, settings.DEFAULT_PAGINATION_QTY),
+            "transactions": get_paginated_qs(
+                qs, self.request, settings.DEFAULT_PAGINATION_QTY
+            ),
         }
         return super().get_context_data(**context)
 
@@ -408,31 +456,31 @@ class EditLoanView(LoginRequiredMixin, UpdateView):
 class PayLoanView(LoginRequiredMixin, FormView):
 
     form_class = PayLoanForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/loan_pay.html'
+    success_url = reverse_lazy("main:main")
+    template_name = "main/loan_pay.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs    
+        kwargs.update({"user": self.request.user})
+        return kwargs
 
     def form_valid(self, form):
         try:
             handle_loan_payment(form)
         except IntegrityError:
-            messages.error(self.request, 'Error during loan payment')
+            messages.error(self.request, "Error during loan payment")
             context = self.get_context_data(form=form)
-            return render(self.request, 'main/loan_pay.html', context)
+            return render(self.request, "main/loan_pay.html", context)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        if 'form' not in kwargs:
-            kwargs['form'] = self.form_class(user=self.request.user)
+        if "form" not in kwargs:
+            kwargs["form"] = self.form_class(user=self.request.user)
         account_data = get_account_data(self.request.user)
         loan_data = get_loan_data(self.request.user)
         context = {
-            'account_data': account_data,
-            'loan_data': loan_data,
+            "account_data": account_data,
+            "loan_data": loan_data,
         }
         context.update(kwargs)
         return context
@@ -453,9 +501,8 @@ class CategoriesView(LoginRequiredMixin, View):
 
 
 class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
-    
     def test_func(self):
-        '''Tests if parent category belongs to user.'''
+        """Tests if parent category belongs to user."""
         id = self.request.POST.get("category_id", None)
         if id:
             return is_owner(self.request.user, Category, id)
@@ -465,10 +512,8 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         name = request.POST["category_name"]
-        if name == '':
-            messages.error(
-                request, f"Category name can not be blank."
-            )
+        if name == "":
+            messages.error(request, f"Category name can not be blank.")
             return HttpResponseRedirect(reverse("main:categories"))
         parent_id = request.POST.get("category_id", None)
         if parent_id:
@@ -478,7 +523,8 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
                 parent = None
             else:
                 messages.error(
-                    request, f"There is already a {name} category in main categories."
+                    request,
+                    f"There is already a {name} category in main categories.",
                 )
                 return HttpResponseRedirect(reverse("main:categories"))
 
@@ -495,7 +541,7 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
 class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def test_func(self):
-        '''Tests if parent category belongs to user.'''
+        """Tests if parent category belongs to user."""
         id = self.request.POST.get("category_id", None)
         if id:
             return is_owner(self.request.user, Category, id)
@@ -505,10 +551,8 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         name = request.POST["category_name"]
-        if name == '':
-            messages.error(
-                request, f"Category name can not be blank."
-            )
+        if name == "":
+            messages.error(request, f"Category name can not be blank.")
             return HttpResponseRedirect(reverse("main:categories"))
         parent_id = request.POST.get("category_id", None)
         if parent_id:
@@ -518,7 +562,8 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
                 parent = None
             else:
                 messages.error(
-                    request, f"There is already a {name} category in main categories."
+                    request,
+                    f"There is already a {name} category in main categories.",
                 )
                 return HttpResponseRedirect(reverse("main:categories"))
 
@@ -534,23 +579,22 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
 
 
 class EditExpenseCategory(LoginRequiredMixin, View):
-        
     def get_queryset(self):
         return Category.objects.filter(user=self.request.user)
 
     def post(self, request):
         id = request.POST["category_id"]
         name = request.POST["category_name"]
-        if name == '':
-            messages.error(
-                request, f"Category name can not be blank."
-            )
+        if name == "":
+            messages.error(request, f"Category name can not be blank.")
             return HttpResponseRedirect(reverse("main:categories"))
         category_obj = get_object_or_404(self.get_queryset(), id=id)
         if category_obj.is_protected:
             raise Http404
         category_obj.name = name
-        if Category.objects.filter(parent=category_obj.parent, name=name).exists():
+        if Category.objects.filter(
+            parent=category_obj.parent, name=name
+        ).exists():
             if category_obj.parent:
                 messages.error(
                     request,
@@ -558,7 +602,8 @@ class EditExpenseCategory(LoginRequiredMixin, View):
                 )
             else:
                 messages.error(
-                    request, f"There is already a {name} category in main categories."
+                    request,
+                    f"There is already a {name} category in main categories.",
                 )
         else:
             category_obj.save()
@@ -572,16 +617,16 @@ class EditIncomeCategory(LoginRequiredMixin, View):
     def post(self, request):
         id = request.POST["category_id"]
         name = request.POST["category_name"]
-        if name == '':
-            messages.error(
-                request, f"Category name can not be blank."
-            )
+        if name == "":
+            messages.error(request, f"Category name can not be blank.")
             return HttpResponseRedirect(reverse("main:categories"))
         category_obj = get_object_or_404(self.get_queryset(), id=id)
         if category_obj.is_protected:
             raise Http404
         category_obj.name = name
-        if Category.objects.filter(parent=category_obj.parent, name=name).exists():
+        if Category.objects.filter(
+            parent=category_obj.parent, name=name
+        ).exists():
             if category_obj.parent:
                 messages.error(
                     request,
@@ -589,18 +634,19 @@ class EditIncomeCategory(LoginRequiredMixin, View):
                 )
             else:
                 messages.error(
-                    request, f"There is already a {name} category in main categories."
+                    request,
+                    f"There is already a {name} category in main categories.",
                 )
         else:
             category_obj.save()
         return HttpResponseRedirect(reverse("main:categories"))
 
 
-class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):        
-    
+class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):
+
     model = Category
-    success_url = reverse_lazy('main:categories')
-    
+    success_url = reverse_lazy("main:categories")
+
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
@@ -612,7 +658,7 @@ class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):
 
 class DeleteIncomeCategory(LoginRequiredMixin, DeleteView):
     model = Category
-    success_url = reverse_lazy('main:categories')
+    success_url = reverse_lazy("main:categories")
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -624,18 +670,17 @@ class DeleteIncomeCategory(LoginRequiredMixin, DeleteView):
 
 
 class WorthView(LoginRequiredMixin, TemplateView):
-    
-    template_name = 'main/worth.html'
+
+    template_name = "main/worth.html"
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
         extra_context = {
-                'stats': get_worth_stats(self.request.user),
-                'currency_details': get_currency_details(self.request.user)
+            "stats": get_worth_stats(self.request.user),
+            "currency_details": get_currency_details(self.request.user),
         }
-        extra_context['grand_total'] = get_users_grand_total( 
-            user=self.request.user, 
-            data=extra_context['currency_details']
+        extra_context["grand_total"] = get_users_grand_total(
+            user=self.request.user, data=extra_context["currency_details"]
         )
         kwargs.update(extra_context)
         return kwargs
@@ -643,120 +688,172 @@ class WorthView(LoginRequiredMixin, TemplateView):
 
 class TransactionsView(LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    context_object_name = 'transactions'
-    template_name = 'main/transactions.html'
-    extra_context = {'date': datetime.today()}
+    context_object_name = "transactions"
+    template_name = "main/transactions.html"
+    extra_context = {"date": datetime.today()}
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class TransactionsAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transactions.html"}
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class TransactionsYearArchiveView(LoginRequiredMixin, YearArchiveView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transactions.html"}
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
     make_object_list = True
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class TransactionsMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_table_paginator.html'
-    month_format='%m'
+    extra_context = {"table_template": "main/table_transactions.html"}
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
+    month_format = "%m"
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)    
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class TransactionsWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transactions.html"}
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)    
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class TransactionsDayArchiveView(LoginRequiredMixin, DayArchiveView):
     model = Transaction
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_table_paginator.html'
-    month_format='%m'
+    extra_context = {"table_template": "main/table_transactions.html"}
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
+    month_format = "%m"
 
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('pk', flat=True)
-        return super().get_queryset().filter(content_type__model='account', object_id__in=user_accounts_list)
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
 
 
 class EditTransactionView(LoginRequiredMixin, UpdateView):
     model = Transaction
     form_class = EditTransactionForm
-    success_url = reverse_lazy('main:main')
-    template_name = 'main/transaction_edit.html'
-    
+    success_url = reverse_lazy("main:main")
+    template_name = "main/transaction_edit.html"
+
     def get_queryset(self):
-        user_accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("id", flat=True)
         return super().get_queryset().filter(object_id__in=user_accounts_list)
-    
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs.update({'user': self.request.user})
-        return kwargs   
+        kwargs.update({"user": self.request.user})
+        return kwargs
 
     def form_valid(self, form):
         try:
             with transaction.atomic():
-                withdraw_asset_balance(self.get_object()) # get initial object from get_object method
+                withdraw_asset_balance(
+                    self.get_object()
+                )  # get initial object from get_object method
                 self.object = form.save()
                 edit_asset_balance(self.object)
         except IntegrityError:
-            messages.error(self.request, 'Error during transaction update')
+            messages.error(self.request, "Error during transaction update")
             context = self.get_context_data(form=form)
             return render(self.request, self.template_name, context)
         return HttpResponseRedirect(self.get_success_url())
@@ -764,112 +861,144 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
 
 class DeleteTransactionView(LoginRequiredMixin, DeleteView):
     model = Transaction
-    success_url = reverse_lazy('main:main')
+    success_url = reverse_lazy("main:main")
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        accounts_list = Account.objects.filter(user=self.request.user).values_list('id', flat=True)
+        accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("id", flat=True)
         return queryset.filter(object_id__in=accounts_list)
-    
+
     def form_valid(self, form):
         try:
             handle_transaction_delete(self.object)
         except IntegrityError:
-            messages.error(self.request, 'Error during transaction update')
+            messages.error(self.request, "Error during transaction update")
         finally:
             return HttpResponseRedirect(self.get_success_url())
 
 
 class TransfersView(LoginRequiredMixin, ArchiveIndexView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    context_object_name = 'transfers'
-    template_name = 'main/transfers.html'
-    extra_context = {'date': datetime.today()}
+    context_object_name = "transfers"
+    template_name = "main/transfers.html"
+    extra_context = {"date": datetime.today()}
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class TransfersAllArchiveView(LoginRequiredMixin, ArchiveIndexView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transfers.html'}
-    context_object_name = 'transfers'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transfers.html"}
+    context_object_name = "transfers"
+    template_name = "main/group_table_paginator.html"
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class TransfersYearArchiveView(LoginRequiredMixin, YearArchiveView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transfers.html'}
-    context_object_name = 'transfers'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transfers.html"}
+    context_object_name = "transfers"
+    template_name = "main/group_table_paginator.html"
     make_object_list = True
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class TransfersMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transfers.html'}
-    context_object_name = 'transfers'
-    template_name = 'main/group_table_paginator.html'
-    month_format='%m'
+    extra_context = {"table_template": "main/table_transfers.html"}
+    context_object_name = "transfers"
+    template_name = "main/group_table_paginator.html"
+    month_format = "%m"
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class TransfersWeekArchiveView(LoginRequiredMixin, WeekArchiveView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transfers.html'}
-    context_object_name = 'transfers'
-    template_name = 'main/group_table_paginator.html'
+    extra_context = {"table_template": "main/table_transfers.html"}
+    context_object_name = "transfers"
+    template_name = "main/group_table_paginator.html"
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class TransfersDayArchiveView(LoginRequiredMixin, DayArchiveView):
     model = Transfer
-    date_field = 'date'
+    date_field = "date"
     paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
-    extra_context = {'table_template': 'main/table_transfers.html'}
-    context_object_name = 'transfers'
-    template_name = 'main/group_table_paginator.html'
-    month_format='%m'
+    extra_context = {"table_template": "main/table_transfers.html"}
+    context_object_name = "transfers"
+    template_name = "main/group_table_paginator.html"
+    month_format = "%m"
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user).exclude(from_transaction__name='Pay Loan')
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user)
+            .exclude(from_transaction__name="Pay Loan")
+        )
 
 
 class DeleteTransferView(LoginRequiredMixin, DeleteView):
     model = Transfer
-    success_url = reverse_lazy('main:transfers')
+    success_url = reverse_lazy("main:transfers")
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -878,59 +1007,55 @@ class DeleteTransferView(LoginRequiredMixin, DeleteView):
         try:
             handle_transfer_delete(self.object)
         except IntegrityError:
-            messages.error(self.request, 'Error during deleting transfer')
+            messages.error(self.request, "Error during deleting transfer")
         finally:
             return HttpResponseRedirect(self.get_success_url())
 
 
 class EditTransferView(LoginRequiredMixin, UpdateView):
     model = Transfer
-    success_url = reverse_lazy('main:transfers')
+    success_url = reverse_lazy("main:transfers")
     form_class = TransferForm
-    template_name = 'main/transfer_edit.html'
+    template_name = "main/transfer_edit.html"
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
-        kwargs.update({
-            'account_data': get_account_data(self.request.user),
-        })
+        kwargs.update(
+            {
+                "account_data": get_account_data(self.request.user),
+            }
+        )
         return kwargs
-        
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         data = {
-            'from_account': self.object.from_transaction.content_object,
-            'from_amount': self.object.from_transaction.amount,
-            'to_account': self.object.to_transaction.content_object,
-            'to_amount': self.object.to_transaction.amount,
-            'date': self.object.date,
-            'user': self.request.user
+            "from_account": self.object.from_transaction.content_object,
+            "from_amount": self.object.from_transaction.amount,
+            "to_account": self.object.to_transaction.content_object,
+            "to_amount": self.object.to_transaction.amount,
+            "date": self.object.date,
+            "user": self.request.user,
         }
-        kwargs.update({'user': self.request.user})
-        kwargs['data'] = kwargs.get('data', data)
-        del kwargs['instance']
+        kwargs.update({"user": self.request.user})
+        kwargs["data"] = kwargs.get("data", data)
+        del kwargs["instance"]
         return kwargs
 
     def form_valid(self, form):
         try:
             handle_transfer_edit(self.object, form.cleaned_data)
         except IntegrityError:
-            messages.error(self.request, 'Error during editing transfer')
+            messages.error(self.request, "Error during editing transfer")
             return self.render_to_response(self.get_context_data(form=form))
         return HttpResponseRedirect(reverse("main:main"))
 
 
-class InsOutsView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
-    template_name = 'main/ins_outs.html'
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    context_object_name = 'transactions'
+class InsOutsView(InsOutsDateArchiveMixin, ArchiveIndexView):
+    template_name = "main/ins_outs.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -938,110 +1063,121 @@ class InsOutsView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView)
         return context
 
 
-class InsOutsAllArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, ArchiveIndexView):
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    context_object_name = 'transactions'
-    template_name = 'main/group_report_chart_script.html'
+class InsOutsAllArchiveView(InsOutsDateArchiveMixin, ArchiveIndexView):
+    pass
 
 
-class InsOutsYearArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, YearArchiveView):
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_report_chart_script.html'
-    make_object_list = True
+class InsOutsYearArchiveView(InsOutsDateArchiveMixin, YearArchiveView):
+    pass
 
 
-class InsOutsMonthArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, MonthArchiveView):
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_report_chart_script.html'
-    month_format='%m'
+class InsOutsMonthArchiveView(InsOutsDateArchiveMixin, MonthArchiveView):
+    pass
 
 
-class InsOutsWeekArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, WeekArchiveView):
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_report_chart_script.html'
+class InsOutsWeekArchiveView(InsOutsDateArchiveMixin, WeekArchiveView):
+    pass
 
 
-class InsOutsDayArchiveView(InsOutsDateArchiveMixin, LoginRequiredMixin, DayArchiveView):
-    model = Transaction
-    date_field = 'date'
-    paginate_by = settings.DEFAULT_PAGINATION_QTY
-    allow_future = True
-    allow_empty = True
-    extra_context = {'table_template': 'main/table_transactions.html'}
-    context_object_name = 'transactions'
-    template_name = 'main/group_report_chart_script.html'
-    month_format='%m'
+class InsOutsDayArchiveView(InsOutsDateArchiveMixin, DayArchiveView):
+    pass
 
 
 class CategoryDetailView(CategoryDateArchiveMixin, ArchiveIndexView):
-    template_name = 'main/category_detail.html'
+    template_name = "main/category_detail.html"
+
 
 class CategoryAllArchiveView(CategoryDateArchiveMixin, ArchiveIndexView):
     pass
 
+
 class CategoryYearArchiveView(CategoryDateArchiveMixin, YearArchiveView):
     pass
+
 
 class CategoryMonthArchiveView(CategoryDateArchiveMixin, MonthArchiveView):
     pass
 
+
 class CategoryWeekArchiveView(CategoryDateArchiveMixin, WeekArchiveView):
     pass
+
 
 class CategoryDayArchiveView(CategoryDateArchiveMixin, DayArchiveView):
     pass
 
-class SubcategoryStatsAllArchiveView(SubcategoryDateArchiveMixin, ArchiveIndexView):
+
+class SubcategoryStatsAllArchiveView(
+    SubcategoryDateArchiveMixin, ArchiveIndexView
+):
     pass
 
-class SubcategoryStatsYearArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, YearArchiveView):
+
+class SubcategoryStatsYearArchiveView(
+    SubcategoryDateArchiveMixin,
+    UserPassesTestMixin,
+    LoginRequiredMixin,
+    YearArchiveView,
+):
     pass
 
-class SubcategoryStatsMonthArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, MonthArchiveView):
+
+class SubcategoryStatsMonthArchiveView(
+    SubcategoryDateArchiveMixin,
+    UserPassesTestMixin,
+    LoginRequiredMixin,
+    MonthArchiveView,
+):
     pass
 
-class SubcategoryStatsWeekArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, WeekArchiveView):
+
+class SubcategoryStatsWeekArchiveView(
+    SubcategoryDateArchiveMixin,
+    UserPassesTestMixin,
+    LoginRequiredMixin,
+    WeekArchiveView,
+):
     pass
 
-class SubcategoryStatsDayArchiveView(SubcategoryDateArchiveMixin, UserPassesTestMixin, LoginRequiredMixin, DayArchiveView):
+
+class SubcategoryStatsDayArchiveView(
+    SubcategoryDateArchiveMixin,
+    UserPassesTestMixin,
+    LoginRequiredMixin,
+    DayArchiveView,
+):
     pass
+
 
 class AccountDetailView(AccountDetailDateArchiveMixin, ArchiveIndexView):
-    template_name = 'main/account_detail.html'
+    template_name = "main/account_detail.html"
 
-class AccountDetailAllArchiveView(AccountDetailDateArchiveMixin, ArchiveIndexView):
+
+class AccountDetailAllArchiveView(
+    AccountDetailDateArchiveMixin, ArchiveIndexView
+):
     pass
 
-class AccountDetailYearArchiveView(AccountDetailDateArchiveMixin, YearArchiveView):
+
+class AccountDetailYearArchiveView(
+    AccountDetailDateArchiveMixin, YearArchiveView
+):
     pass
 
-class AccountDetailMonthArchiveView(AccountDetailDateArchiveMixin, MonthArchiveView):
+
+class AccountDetailMonthArchiveView(
+    AccountDetailDateArchiveMixin, MonthArchiveView
+):
     pass
 
-class AccountDetailWeekArchiveView(AccountDetailDateArchiveMixin, WeekArchiveView):
+
+class AccountDetailWeekArchiveView(
+    AccountDetailDateArchiveMixin, WeekArchiveView
+):
     pass
 
-class AccountDetailDayArchiveView(AccountDetailDateArchiveMixin, DayArchiveView):
+
+class AccountDetailDayArchiveView(
+    AccountDetailDateArchiveMixin, DayArchiveView
+):
     pass
