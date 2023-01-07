@@ -18,6 +18,34 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.conf import settings
 
 
+class TransactionsDateArchiveMixin(LoginRequiredMixin):
+    model = Transaction
+    date_field = "date"
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    extra_context = {
+        "table_template": "main/table_transactions.html",
+        "date": datetime.date.today()
+    }
+    context_object_name = "transactions"
+    template_name = "main/group_table_paginator.html"
+    make_object_list = True
+    month_format = "%m"
+
+    def get_queryset(self):
+        user_accounts_list = Account.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                content_type__model="account", object_id__in=user_accounts_list
+            )
+        )
+
+
 class TransfersDateArchiveMixin(LoginRequiredMixin):
     model = Transfer
     date_field = "date"
