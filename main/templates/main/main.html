@@ -64,7 +64,7 @@
                         {{ expense_form.date|as_crispy_field }}
                         {{ expense_form.type|as_crispy_field }}
                         <div class="d-grid gap-2 my-4">
-                            <input type="submit" name="submit-expense" value="Submit" class="btn btn-outline-primary">
+                            <input id="expense-submit" type="submit" name="submit-expense" value="Submit" class="btn btn-outline-primary">
                         </div>
                     </form>
                 </div>
@@ -117,5 +117,6 @@
 {% endblock %}
 {% block script %}
 {{ account_data|json_script:'account-data' }}
+{{ account_balance_data|json_script:'account-balance-data' }}
 <script src="{% static 'main/main.js' %}" type="module"></script>
 {% endblock %}

@@ -57,6 +57,7 @@ from .utils import (
     get_latest_transactions,
     get_latest_transfers,
     get_account_data,
+    get_account_balance_data,
     get_loan_data,
     get_subcategory_stats,
     handle_transaction_delete,
@@ -144,6 +145,7 @@ def main(request):
         "transactions": get_latest_transactions(request.user, 5),
         "transfers": get_latest_transfers(request.user, 5),
         "account_data": get_account_data(request.user),
+        "account_balance_data": get_account_balance_data(request.user),
         "show_account": True,
     }
     return render(request, "main/main.html", context)

@@ -31,3 +31,25 @@ $(function () {
 $(function () {
     $("#income-datepicker").datepicker();
 });
+
+// handle expense input form submit button
+let expenseFormSubmit = document.querySelector("#expense-submit")
+expenseFormSubmit.addEventListener("click", validateNegativeAccountBalance);
+
+function validateNegativeAccountBalance(event) {
+    console.log("function called")
+    const balanceData = JSON.parse(document.querySelector("#account-balance-data").textContent)
+    var account = document.querySelector("#id_content_object").value;
+    console.log(account)
+    var balance = parseFloat(balanceData[account]);
+    console.log(balance)
+    var amount = Math.abs(parseFloat(document.querySelector("#id_amount").value));
+    console.log(amount)
+    if (balance > 0 && amount > balance) {
+        if (!confirm("Account balance will be negative. Do you really want to proceed?")) {
+            event.preventDefault();
+            return false;
+        };
+    };
+    return true;
+};
