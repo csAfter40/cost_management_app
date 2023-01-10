@@ -385,13 +385,14 @@ def get_next_month(date: str) -> str:
     new_date = datetime_obj + relativedelta(months=+1)
     return convert_date_to_str(new_date)
 
-
 def fill_missing_monthly_data(data):
+    today = date.today()
+    this_month = f"{today.year}-{today.month:02d}"
     start_date = min(data)
-    end_date = max(data)
+    end_date = max(max(data), this_month)
     current_date = start_date
     current_value = data[current_date]
-    while current_date < end_date:
+    while current_date <= end_date:
         if current_date in data:
             current_value = data[current_date]
         else:
@@ -424,11 +425,10 @@ def get_monthly_currency_balance(user, currency):
     data = {}
     for account in accounts:
         monthly_balance = get_monthly_asset_balance(account)
+        monthly_balance = fill_missing_monthly_data(monthly_balance)
         for key, value in monthly_balance.items():
             data[key] = data.get(key, 0) + value
-    data = fill_missing_monthly_data(data)
     return sort_balance_data(data)
-
 
 def get_user_currencies(user):
     """
