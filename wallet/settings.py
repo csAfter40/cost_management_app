@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "main",
     "mptt",
     "crispy_forms",
+    "cbv_inspect",
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "cbv_inspect.middleware.DjCbvInspectMiddleware",
 ]
 
 ROOT_URLCONF = "wallet.urls"
