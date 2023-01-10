@@ -7,6 +7,7 @@ from main.utils import (
     create_transaction,
     create_transfer,
     get_account_data,
+    get_account_balance_data,
     get_category_stats,
     get_conversion_rate,
     get_dates,
@@ -213,6 +214,16 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(mock.objects.filter.called)
         for obj in qs:
             self.assertEquals(data[obj.id], obj.currency.code)
+
+    @patch('main.utils.Account')
+    def test_get_account_balance_data(self, mock):
+        qs = AccountFactory.build_batch(5)
+        mock.objects.filter.return_value = qs
+        user = UserFactory.build()
+        data = get_account_balance_data(user)
+        self.assertTrue(mock.objects.filter.called)
+        for obj in qs:
+            self.assertEquals(data[obj.id], obj.balance)
 
     @patch('main.utils.Loan')
     def test_get_loan_data(self, mock):
