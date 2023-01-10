@@ -129,6 +129,8 @@ class PayLoanForm(forms.Form):
                 queryset=qs_loan, widget=Select(attrs={"id": "loan-field"})
             )
             self.user = user
+        self.fields["account"].label_from_instance = self.label_from_instance
+        self.fields["loan"].label_from_instance = self.label_from_instance
 
     def clean(self):
         cleaned_data = super().clean()
@@ -140,6 +142,14 @@ class PayLoanForm(forms.Form):
         else:
             raise ValidationError("Invalid account or loan data.")
         return cleaned_data
+
+    @staticmethod
+    def label_from_instance(obj):
+        """
+        Method for overriding label_from_instance method of ModelChoiceField. 
+        Edits text of choice field.
+        """
+        return f"{obj.name}  ({obj.balance} {obj.currency})"
 
 
 class LoanDetailPaymentForm(forms.Form):
