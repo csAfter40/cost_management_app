@@ -117,6 +117,5 @@
 {% endblock %}
 {% block script %}
 {{ account_data|json_script:'account-data' }}
-<script src="{% static 'main/main.js' %}"></script>
-<script src="{% static 'main/delete_button_handler.js' %}"></script>
+<script src="{% static 'main/main.js' %}" type="module"></script>
 {% endblock %}
