@@ -800,10 +800,16 @@ class DeleteTransferView(LoginRequiredMixin, DeleteView):
     model = Transfer
     success_url = reverse_lazy("main:transfers")
 
+    def get(self, request, *args, **kwargs):
+        raise Http404()
+
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
     def form_valid(self, form):
+        if not self.object.is_editable:
+            messages.error(self.request, "This transfer has deleted account(s) and is not editable.")
+            return HttpResponseRedirect(self.get_success_url())
         try:
             handle_transfer_delete(self.object)
         except IntegrityError:
@@ -817,6 +823,13 @@ class EditTransferView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("main:transfers")
     form_class = TransferForm
     template_name = "main/transfer_edit.html"
+
+    def get(self, request, *args, **kwargs):
+        transfer_obj = self.get_object()
+        if not transfer_obj.is_editable:
+            messages.error(request, "This transfer has deleted account(s) and is not editable.")
+            return HttpResponseRedirect(reverse('main:transfers'))
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)

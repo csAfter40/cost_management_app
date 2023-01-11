@@ -125,6 +125,10 @@ class Transaction(models.Model):
     def delete_url(self):
         return reverse('main:delete_transaction', kwargs={'pk': self.id})
 
+    @property
+    def is_editable(self):
+        return self.content_object.is_active
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -207,6 +211,10 @@ class Transfer(models.Model):
     @property
     def delete_url(self):
         return reverse('main:delete_transfer', kwargs={'pk': self.id})
+
+    @property
+    def is_editable(self):
+        return self.from_transaction.is_editable and self.to_transaction.is_editable
 
 class Rate(models.Model):
     currency = models.OneToOneField(Currency, on_delete=models.CASCADE, related_name='rate')

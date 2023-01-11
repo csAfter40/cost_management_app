@@ -24,3 +24,26 @@ function getData(page = 1) {
         setupDeleteButtons();
     });
 };
+
+// handle not editable transfers. user may not be able to click on transfer edit or delete links that are not editable.
+let editLinks = document.querySelectorAll(".edit-link");
+editLinks.forEach(function(link) {
+    link.addEventListener("click", function(event) {
+        if (link.dataset.editable == "False") {
+            alert("This transfer has deleted account(s) and is not editable.")
+            event.preventDefault();
+            return false;
+        };
+    });
+});
+
+// prevent modal toggle in case transfer is not editable
+let modal = document.querySelector("#deleteTransferModal");
+modal.addEventListener("show.bs.modal", function(event){
+    var button = event.relatedTarget;
+    if (button.dataset.editable == "False") {
+        alert("This transfer has deleted account(s) and is not editable.")
+        event.preventDefault();
+        return false;
+    };
+});
