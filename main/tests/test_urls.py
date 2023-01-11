@@ -45,6 +45,9 @@ class TestUrls(SimpleTestCase):
     def test_profile_url(self):
         self.assert_path_resolves_to_CBV("/profile", views.ProfileView, "profile")
 
+    def test_update_profile_url(self):
+        self.assert_path_resolves_to_CBV("/profile/update", views.UpdateProfileView, "update_profile")
+
     def test_accounts_url(self):
         self.assert_path_resolves_to_CBV("/accounts", views.AccountsView, "accounts")
 
