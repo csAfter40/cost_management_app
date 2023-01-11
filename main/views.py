@@ -59,6 +59,7 @@ from .utils import (
     get_account_data,
     get_account_balance_data,
     get_loan_data,
+    get_loan_balance_data,
     get_subcategory_stats,
     handle_transaction_delete,
     validate_main_category_uniqueness,
@@ -482,9 +483,11 @@ class PayLoanView(LoginRequiredMixin, FormView):
             kwargs["form"] = self.form_class(user=self.request.user)
         account_data = get_account_data(self.request.user)
         loan_data = get_loan_data(self.request.user)
+        loan_balance_data = get_loan_balance_data(self.request.user)
         context = {
             "account_data": account_data,
             "loan_data": loan_data,
+            "loan_balance_data": loan_balance_data
         }
         context.update(kwargs)
         return context
