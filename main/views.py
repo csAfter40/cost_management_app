@@ -32,6 +32,7 @@ from .models import (
     Transaction,
     Category,
     Loan,
+    Currency,
     UserPreferences,
 )
 from .forms import (
@@ -980,3 +981,14 @@ class AccountDetailDayArchiveView(
     AccountDetailDateArchiveMixin, DayArchiveView
 ):
     pass
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = "main/profile.html"
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        currencies = Currency.objects.all()
+        user_currency = self.request.user.primary_currency
+        kwargs.update({"currencies": currencies, "user_currency": user_currency})
+        return kwargs

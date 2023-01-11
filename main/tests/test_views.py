@@ -824,6 +824,16 @@ class TestSetupView(BaseViewTestMixin, TestCase):
         currency = CurrencyFactory()
         self.post_data = {'currency': currency.id}
 
+class TestProfileView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:profile')
+        cls.template = "main/profile.html"
+        cls.view_function = views.ProfileView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
         
 class TestCheckUsername(BaseViewTestMixin, TestCase):
     
