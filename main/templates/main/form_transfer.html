@@ -11,7 +11,7 @@
     {% crispy_addon transfer_form.to_amount prepend='-' %}
     {{ transfer_form.date|as_crispy_field }}
     <div class="d-grid gap-2 my-4">
-        <input type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary">
+        <input id="transfer-submit" type="submit" name="submit-transfer" value="Submit" class="btn btn-outline-primary">
     </div>
 </form>
 
