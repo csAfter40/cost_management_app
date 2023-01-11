@@ -87,12 +87,22 @@ def get_account_balance_data(user):
 
 def get_loan_data(user):
     """
-    Returns all accounts of a user and currencies of those accounts.
+    Returns all loans of a user and currencies of those loans.
     """
     loans = Loan.objects.filter(user=user, is_active=True).select_related("currency")
     data = {}
     for loan in loans:
         data[loan.id] = loan.currency.code
+    return data
+
+def get_loan_balance_data(user):
+    """
+    Returns all loans of a user and balances of those loans.
+    """
+    loans = Loan.objects.filter(user=user, is_active=True)
+    data = {}
+    for loan in loans:
+        data[loan.id] = loan.balance
     return data
 
 
