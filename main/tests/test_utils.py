@@ -12,6 +12,7 @@ from main.utils import (
     get_conversion_rate,
     get_dates,
     get_loan_data,
+    get_loan_balance_data,
     get_latest_transactions,
     get_latest_transfers,
     get_loan_payment_transaction_data,
@@ -234,6 +235,16 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(mock.called_once)
         for obj in qs:
             self.assertEquals(data[obj.id], obj.currency.code)
+
+    @patch('main.utils.Loan')
+    def test_get_loan_balance_data(self, mock):
+        qs = LoanFactory.build_batch(5)
+        mock.objects.filter.return_value = qs
+        user = UserFactory.build()
+        data = get_loan_balance_data(user)
+        self.assertTrue(mock.called_once)
+        for obj in qs:
+            self.assertEquals(data[obj.id], obj.balance)
 
     def test_get_loan_progress(self):
         mock = Mock()
