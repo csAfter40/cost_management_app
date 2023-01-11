@@ -42,11 +42,22 @@ let payLoanFormSubmit = document.querySelector("#pay-loan-submit")
 payLoanFormSubmit.addEventListener("click", validatePositiveLoanBalance);
 
 function validatePositiveLoanBalance(event) {
-    const balanceData = JSON.parse(document.querySelector("#loan-balance-data").textContent)
+    const loanBalanceData = JSON.parse(document.querySelector("#loan-balance-data").textContent)
+    const accountBalanceData = JSON.parse(document.querySelector("#account-balance-data").textContent)
     var loan = document.querySelector("#loan-field").value;
-    var balance = parseFloat(balanceData[loan]);
+    var loanBalance = parseFloat(loanBalanceData[loan]);
+    var account = document.querySelector("#account-field").value;
+    var accountBalance = parseFloat(accountBalanceData[account]);
     var amount = Math.abs(parseFloat(document.querySelector("#id_amount").value));
-    if (balance <= 0 && amount > Math.abs(balance)) {
+    console.log(accountBalance)
+    console.log(amount)
+    if (accountBalance >= 0 && amount > accountBalance) {
+        if (!confirm("Account balance will be negative. Do you really want to proceed?")) {
+            event.preventDefault();
+            return false;
+        };
+    };
+    if (loanBalance <= 0 && amount > Math.abs(loanBalance)) {
         if (!confirm("Payment exceeds loan balance. Do you really want to proceed?")) {
             event.preventDefault();
             return false;

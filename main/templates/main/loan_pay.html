@@ -53,6 +53,7 @@
     {{ account_data|json_script:'account-data' }}
     {{ loan_data|json_script:'loan-data' }}
     {{ loan_balance_data|json_script:'loan-balance-data' }}
+    {{ account_balance_data|json_script:'account-balance-data' }}
 
     <script src="{% static 'main/loan_pay.js' %}"></script>
 {% endblock %}

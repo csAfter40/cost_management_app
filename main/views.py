@@ -484,10 +484,12 @@ class PayLoanView(LoginRequiredMixin, FormView):
         account_data = get_account_data(self.request.user)
         loan_data = get_loan_data(self.request.user)
         loan_balance_data = get_loan_balance_data(self.request.user)
+        account_balance_data = get_account_balance_data(self.request.user)
         context = {
             "account_data": account_data,
             "loan_data": loan_data,
-            "loan_balance_data": loan_balance_data
+            "loan_balance_data": loan_balance_data,
+            "account_balance_data": account_balance_data
         }
         context.update(kwargs)
         return context
