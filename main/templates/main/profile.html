@@ -1,6 +1,6 @@
 {% extends 'main/user_layout.html' %}
 {% block title %}
-    <title>Wallet Home</title>
+    <title>My Profile</title>
 {% endblock %}
 {% load static %}
 {% load crispy_forms_tags %}
@@ -12,7 +12,7 @@
     <div class="row justify-content-center">
 
         <div class="col-sm-12 col-lg-8 bg-light">
-            <form action="" method="post" class="px-3 py-3 ">
+            <form action="{% url 'main:update_profile' %}" method="post" class="px-3 py-3 ">
                 {% csrf_token %}
                 <h3 class="my-3">My Profile</h3>
                 <div class="mb-3 row">
@@ -24,11 +24,11 @@
                 <div class="mb-3 row">
                     <label for="inputPassword" class="col-4 col-form-label">Primary Currency</label>
                     <div class="col-8">
-                        <select id="currency-input" class="form-select" aria-label="Default select example">
+                        <select id="currency-input" name="currency" class="form-select" aria-label="Default select example">
 
-                            <option selected value={{user_currency.id}}>{{user_currency.code}}</option>
+                            <option selected value={{user_currency.id}}>{{user_currency.code}} - {{user_currency.name}}</option>
                             {% for currency in currencies %}
-                                <option value={{currency.id}}>{{currency.code}}</option>
+                                <option value={{currency.id}}>{{currency.code}} - {{currency.name}}</option>
                             {% endfor %}
                         </select>
                     </div>

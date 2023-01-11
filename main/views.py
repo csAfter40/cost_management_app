@@ -992,3 +992,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user_currency = self.request.user.primary_currency
         kwargs.update({"currencies": currencies, "user_currency": user_currency})
         return kwargs
+
+class UpdateProfileView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        currency_id = self.request.POST["currency"]
+        new_currency = get_object_or_404(Currency, pk=currency_id)
+        preferences = UserPreferences.objects.get(user=self.request.user)
+        preferences.primary_currency = new_currency
+        preferences.save()
+        return HttpResponseRedirect(reverse('main:profile'))
