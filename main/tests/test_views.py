@@ -834,6 +834,33 @@ class TestProfileView(BaseViewTestMixin, TestCase):
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
+class TestUpdateProfileView(BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:update_profile')
+        cls.redirect_url = reverse('main:profile')
+        cls.post_method = True
+        cls.get_method = False
+        cls.view_function = views.UpdateProfileView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_post(self):
+        user = self.user
+        currency = CurrencyFactory()
+        preferences = UserPreferencesFactory(user = user)
+        post_data = {'currency': currency.id}
+        response = self.client.post(self.test_url, post_data)
+        if self.redirect_url:
+            self.assertRedirects(
+                response, self.redirect_url, 302, fetch_redirect_response=False
+            )
+        else:
+            self.assertEquals(response.status_code, 200)
+        self.assertEquals(UserPreferences.objects.get(user=user).primary_currency, currency)
+        return response
+
         
 class TestCheckUsername(BaseViewTestMixin, TestCase):
     
