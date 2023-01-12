@@ -41,6 +41,7 @@ def get_latest_transfers(user, qty):
             "from_transaction__content_object__currency",
             "to_transaction__content_object__currency",
         )
+        .exclude(from_transaction__name="Pay Loan")
         .order_by("-date")[:qty]
     )
     return transfers
