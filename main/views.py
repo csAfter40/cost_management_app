@@ -119,6 +119,7 @@ def main(request):
                     messages.error(request, "Error during transfer")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
+                messages.error(request, "Future transfers are not permitted!")
                 transfer_form = form
 
         # expense form operations

@@ -1,6 +1,6 @@
 // date field datepicker
 $(function () {
-    $("#transfer-datepicker").datepicker();
+    $("#transfer-datepicker").datepicker({maxDate: '0'});
 });
 
 // get json file from script tag

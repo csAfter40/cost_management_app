@@ -118,6 +118,8 @@ class TransferForm(forms.Form):
                 raise ValidationError(
                     "From account and To account can not have same value."
                 )
+        if cleaned_data['date'] > date.today():
+            raise ValidationError("Future transfers are not permitted.")
         return cleaned_data
 
 
