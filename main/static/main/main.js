@@ -25,11 +25,11 @@ for (let i = 0; i < autocomplete_fields.length; i++) {
 
 // datepickers for expense and income input forms
 $(function () {
-    $("#expense-datepicker").datepicker();
+    $("#expense-datepicker").datepicker({maxDate: '0'});
 });
 
 $(function () {
-    $("#income-datepicker").datepicker();
+    $("#income-datepicker").datepicker({maxDate: '0'});
 });
 
 // handle expense input form submit button

@@ -38,6 +38,12 @@ class ExpenseInputForm(ModelForm):
             user=self.user, is_active=True
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data['date'] > date.today():
+            raise ValidationError("Future transactions are not permitted.")            
+        return cleaned_data
+
     def save(self, commit=True):
         transaction = super().save(commit=False)
         transaction.content_object = self.cleaned_data["content_object"]

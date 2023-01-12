@@ -128,6 +128,7 @@ def main(request):
                 create_transaction(form.cleaned_data)
                 return HttpResponseRedirect(reverse("main:main"))
             else:
+                messages.error(request, "Future transactions are not permitted!")
                 expense_form = form
         #  income form operations
         if request.POST.get("submit-income"):
