@@ -9,16 +9,6 @@
 {% block body %}
 
 <div class="container-lg bg-light py-3 my-2">
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        {{message}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    {% endfor %}
-    {% endif %}
     <div class="row">
         <div class="col-lg-6 text-left border-end border-muted my-3">
             <div class="col text-center">

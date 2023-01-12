@@ -6,16 +6,6 @@
     <title>Transfers</title>
 {% endblock %}
 {% block body %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    {% endif %}
     <div class="container py-5">
         
         {% include 'main/group_table_time_paginator.html' with table_template='main/table_transfers.html' table_title='Transfers' %}

@@ -9,16 +9,6 @@
 </div>
 <div class="d-flex  justify-content-center">
     <div class=" bg-light p-3 col-md-4">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {{message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            {% endfor %}
-        {% endif %}
         {% url 'main:edit_transfer' pk=object.id as url_form %}
         {% include 'main/form_transfer.html' with transfer_form=form post_url=url_form %}
     </div>
