@@ -102,6 +102,9 @@ class TestUrls(SimpleTestCase):
     def test_loans_url(self):
         self.assert_path_resolves_to_CBV("/loans", views.LoansView, "loans")
 
+    def test_loans_list_url(self):
+        self.assert_path_resolves_to_CBV("/loans/list", views.LoansListView, "loans_list")
+
     def test_loan_create_url(self):
         self.assert_path_resolves_to_CBV(
             "/loans/create", views.CreateLoanView, "create_loan"
