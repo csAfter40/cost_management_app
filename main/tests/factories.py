@@ -49,6 +49,7 @@ class AccountFactory(factory.django.DjangoModelFactory):
     balance = factory.fuzzy.FuzzyDecimal(50000)
     currency = factory.SubFactory(CurrencyFactory)
     initial = factory.SelfAttribute('balance')
+    is_active = True
 
 
 class LoanFactory(factory.django.DjangoModelFactory):
@@ -61,6 +62,7 @@ class LoanFactory(factory.django.DjangoModelFactory):
     balance = factory.fuzzy.FuzzyDecimal(low=-50000, high=0)
     currency = factory.SubFactory(CurrencyFactory)
     initial = factory.SelfAttribute('balance')
+    is_active = True
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
