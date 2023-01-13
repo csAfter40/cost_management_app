@@ -271,6 +271,17 @@ class AccountsView(LoginRequiredMixin, ListView):
         )
 
 
+class AccountsListView(LoginRequiredMixin, ListView):
+    model = Account
+    paginate_by = 5
+    template_name = "main/group_table_paginator.html"
+    extra_context = {"table_template": "main/table_accounts.html"}
+    context_object_name = "accounts"
+
+    def get_queryset(self):
+        return Account.objects.filter(user=self.request.user, is_active=True)
+
+
 class CreateAccountView(LoginRequiredMixin, CreateView):
 
     model = Account
