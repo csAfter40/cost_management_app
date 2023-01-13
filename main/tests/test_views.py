@@ -214,6 +214,30 @@ class TestAccountsView(TestListViewMixin, TestCase):
             self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
 
+class TestAccountsListView(TestListViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse("main:accounts_list")
+        cls.context_list = ["table_template"]
+        cls.template = "main/group_table_paginator.html"
+        cls.view_function = views.AccountsListView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = Account
+        cls.model_factory = AccountFactory
+        cls.object_list_name = 'accounts'
+
+    def test_queryset(self):
+        self.model_factory.create_batch(5, user=self.user, is_active=True)
+        self.model_factory.create_batch(5, user=self.user, is_active=False)
+        self.model_factory.create_batch(5, is_active=True)
+        qs = self.model.objects.filter(user=self.user, is_active=True)
+        response = self.client.get(self.test_url)
+        context_qs = response.context.get(self.object_list_name, None)
+        self.assertQuerysetEqual(qs, context_qs, ordered=False)
+
+
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
