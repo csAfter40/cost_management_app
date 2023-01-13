@@ -1,5 +1,5 @@
-function setupPgButtons(callback) {
-    const pgButtons = document.querySelectorAll('.pg-btn');
+function setupPgButtons(callback, htmlDocument=document) {
+    const pgButtons = htmlDocument.querySelectorAll('.pg-btn');
     pgButtons.forEach(function (pgButton) {
         pgButton.callback = callback;
         pgButton.addEventListener('click', pgEventHandler);

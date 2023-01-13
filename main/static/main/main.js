@@ -1,4 +1,5 @@
 import {setupDeleteButtons} from "./delete_button_handler.js";
+import {setupPgButtons} from "./paginator_buttons_handler.js";
 
 setupDeleteButtons();
 
@@ -56,4 +57,40 @@ function validateNegativeAccountBalance(event) {
         };
     };
     return true;
+};
+
+let accountsTableDiv = document.querySelector("#accounts-table");
+let loansTableDiv = document.querySelector("#loans-table");
+
+addEventListener("DOMContentLoaded", (event) => {
+    getAccountData();
+    getLoanData();
+});
+
+function getAccountData(page=1) {
+    const url = accountsTableDiv.dataset.url + `?page=${page}`
+    fetch(url, {
+        method: "GET",
+        headers: {}
+    }).then(response => {
+        return response.text();
+    }).then(obj => {
+        accountsTableDiv.innerHTML = obj;
+        setupPgButtons(getAccountData, accountsTableDiv);
+        setupDeleteButtons();
+    });
+};
+
+function getLoanData(page=1) {
+    const url = loansTableDiv.dataset.url + `?page=${page}`
+    fetch(url, {
+        method: "GET",
+        headers: {}
+    }).then(response => {
+        return response.text();
+    }).then(obj => {
+        loansTableDiv.innerHTML = obj;
+        setupPgButtons(getLoanData, loansTableDiv);
+        setupDeleteButtons();
+    });
 };
