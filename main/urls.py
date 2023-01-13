@@ -30,6 +30,7 @@ urlpatterns = [
         "accounts/<int:pk>/edit", views.EditAccountView.as_view(), name="edit_account"
     ),
     path("loans", views.LoansView.as_view(), name="loans"),
+    path("loans/list", views.LoansListView.as_view(), name="loans_list"),
     path("loans/create", views.CreateLoanView.as_view(), name="create_loan"),
     path("loans/del/<int:pk>", views.DeleteLoanView.as_view(), name="delete_loan"),
     path(
