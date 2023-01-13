@@ -81,7 +81,8 @@ class Transaction(models.Model):
         ("I", "Income"),
     )
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=ContentType.objects.get(app_label='main', model='account').id)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=9)
+    # content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=ContentType.objects.get(app_label='main', model='account').id)
     object_id = models.PositiveIntegerField(default=7)
     content_object = GenericForeignKey('content_type', 'object_id')
 
