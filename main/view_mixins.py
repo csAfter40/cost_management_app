@@ -26,7 +26,8 @@ class TransactionsDateArchiveMixin(LoginRequiredMixin):
     allow_empty = True
     extra_context = {
         "table_template": "main/table_transactions.html",
-        "date": datetime.date.today()
+        "date": datetime.date.today(),
+        "show_account": True
     }
     context_object_name = "transactions"
     template_name = "main/group_table_paginator.html"

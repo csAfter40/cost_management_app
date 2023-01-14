@@ -8,6 +8,7 @@ const timeButtonsDiv = document.querySelector('#time-buttons-div')
 setupTimeButtons(getData);
 setupPgButtons(getData);
 setupDeleteButtons();
+setUpEditLinks();
 
 function getData(page = 1) {
     const path = timeButtonsDiv.dataset.path;
@@ -22,5 +23,33 @@ function getData(page = 1) {
         tablePaginatorGroup.innerHTML = data;
         setupPgButtons(getData);
         setupDeleteButtons();
+        setUpEditLinks();
     });
 };
+
+
+// handle not editable transfers. user may not be able to click on transfer edit or delete links that are not editable.
+function setUpEditLinks(){
+    let editLinks = document.querySelectorAll(".edit-link");
+    editLinks.forEach(function(link) {
+        link.addEventListener("click", function(event) {
+            if (link.dataset.editable == "False") {
+                alert("This transaction's account has been and is not editable.")
+                event.preventDefault();
+                return false;
+            };
+        });
+    });
+};
+
+
+// prevent modal toggle in case transaction is not editable
+let modal = document.querySelector("#deleteTransactionModal");
+modal.addEventListener("show.bs.modal", function(event){
+    var button = event.relatedTarget;
+    if (button.dataset.editable == "False") {
+        alert("This transaction's account has been deleted and is not editable.")
+        event.preventDefault();
+        return false;
+    };
+});

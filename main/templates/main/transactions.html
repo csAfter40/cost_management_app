@@ -7,8 +7,13 @@
 {% endblock %}
 {% block body %}
     <div class="container py-5">
-        
-        {% include 'main/group_table_time_paginator.html' with table_template='main/table_transactions.html' table_title='Transactions' %}
+        {% with table_template='main/table_transactions.html' %}
+        {% with table_title='Transactions' %}
+        {% with show_account=True %}
+            {% include 'main/group_table_time_paginator.html' %}
+        {% endwith %}
+        {% endwith %}
+        {% endwith %}
     </div>
     {% with modal_title='Delete Transaction' %}
     {% with modal_message='Do you really want to delete this transaction? Account balance will be withdrawn.' %}

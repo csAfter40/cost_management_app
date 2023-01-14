@@ -761,6 +761,13 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
         kwargs.update({"user": self.request.user})
         return kwargs
 
+    def get(self, request, *args, **kwargs):
+        transaction_obj = self.get_object()
+        if not transaction_obj.is_editable:
+            messages.error(request, "This transaction's account has been deleted and is not editable.")
+            return HttpResponseRedirect(reverse('main:transactions'))
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form):
         try:
             with transaction.atomic():
@@ -778,7 +785,7 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
 
 class DeleteTransactionView(LoginRequiredMixin, DeleteView):
     model = Transaction
-    success_url = reverse_lazy("main:main")
+    success_url = reverse_lazy("main:transactions")
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -788,6 +795,9 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
         return queryset.filter(object_id__in=accounts_list)
 
     def form_valid(self, form):
+        if not self.object.is_editable:
+            messages.error(self.request, "This transaction's account has been deleted and is not editable.")
+            return HttpResponseRedirect(self.get_success_url())
         try:
             handle_transaction_delete(self.object)
         except IntegrityError:
