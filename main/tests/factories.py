@@ -1,6 +1,6 @@
 import factory
 import factory.fuzzy
-from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences, Rate
+from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences, Rate, CreditCard
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
 import string
@@ -63,6 +63,20 @@ class LoanFactory(factory.django.DjangoModelFactory):
     currency = factory.SubFactory(CurrencyFactory)
     initial = factory.SelfAttribute('balance')
     is_active = True
+
+
+class CreditCardFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CreditCard
+
+    id = factory.Sequence(lambda x: x+1)
+    user = factory.SubFactory(UserFactoryNoSignal)
+    name = factory.fuzzy.FuzzyText(length=4, chars=string.ascii_lowercase)
+    balance = factory.fuzzy.FuzzyDecimal(low=-50000, high=0)
+    currency = factory.SubFactory(CurrencyFactory)
+    initial = factory.SelfAttribute('balance')
+    is_active = True
+    payment_day = factory.fuzzy.FuzzyDecimal(low=1, high=31)
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):
