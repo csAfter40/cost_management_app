@@ -20,6 +20,7 @@ from main.tests.factories import (
     TransferFactory,
     UserPreferencesFactory,
     RateFactory,
+    CreditCardFactory
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -79,6 +80,42 @@ class TestLoan(TestCase):
             first_account = LoanFactory(user=user, name="duplicate")
             second_account = LoanFactory(user=user, name="duplicate")
 
+
+class TestCreditCard(TestCase):
+    def test_str(self):
+        credit_card = CreditCardFactory()
+        self.assertEquals(str(credit_card), credit_card.name)
+
+    def test_unique_together(self):
+        user = UserFactoryNoSignal()
+        with self.assertRaises(IntegrityError):
+            first_card = CreditCardFactory(user=user, name="duplicate", is_active=True)
+            second_card = CreditCardFactory(user=user, name="duplicate", is_active=True)
+
+    def test_error_not_raised_when_not_active(self):
+        try:
+            user = UserFactoryNoSignal()
+            first_card = CreditCardFactory(user=user, name="duplicate", is_active=True)
+            second_card = CreditCardFactory(user=user, name="duplicate", is_active=False)
+        except IntegrityError:
+            self.fail("Integrity error raised unexpectedly.")
+
+    def test_payment_day_constraint_gt_31(self):
+        with self.assertRaises(IntegrityError):
+            CreditCardFactory(payment_day=32)
+
+    def test_payment_day_constraint_lt_1(self):
+        with self.assertRaises(IntegrityError):
+            CreditCardFactory(payment_day=0)
+
+    def valid_payment_day_constraint(self):
+        try:
+            CreditCardFactory(payment_day=1)
+            CreditCardFactory(payment_day=11)
+            CreditCardFactory(payment_day=31)
+        except IntegrityError:
+            self.fail("Integrity error raised unexpectedly.")
+            
 
 class TestCategory(TestCase):
     def test_str(self):
