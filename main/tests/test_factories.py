@@ -1,10 +1,10 @@
 from main.models import (
     Rate, User, Currency, Account, Loan, Category, Transaction,
-    Transfer, UserPreferences,
+    Transfer, UserPreferences, CreditCard
 )
 from main.tests.factories import (
     AccountTransactionFactory, LoanTransactionFactory, RateFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory
+    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory, CreditCardFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
 from django.test import TestCase
@@ -15,22 +15,27 @@ class TestUserFactoryNoSignal(BaseFactoryTestMixin, TestCase):
     factory_class = UserFactoryNoSignal
 
 
-class TestCurrencyFactoryNoSignal(BaseFactoryTestMixin, TestCase):
+class TestCurrencyFactory(BaseFactoryTestMixin, TestCase):
     model = Currency
     factory_class = CurrencyFactory
 
 
-class TestAccountFactoryNoSignal(BaseFactoryTestMixin, TestCase):
+class TestAccountFactory(BaseFactoryTestMixin, TestCase):
     model = Account
     factory_class = AccountFactory
 
 
-class TestLoanFactoryNoSignal(BaseFactoryTestMixin, TestCase):
+class TestLoanFactory(BaseFactoryTestMixin, TestCase):
     model = Loan
     factory_class = LoanFactory
 
 
-class TestCategoryFactoryNoSignal(BaseFactoryTestMixin, TestCase):
+class TestCreditCardFactory(BaseFactoryTestMixin, TestCase):
+    model = CreditCard
+    factory_class = CreditCardFactory
+
+
+class TestCategoryFactory(BaseFactoryTestMixin, TestCase):
     model = Category
     factory_class = CategoryFactory
 
