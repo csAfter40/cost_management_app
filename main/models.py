@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import UniqueConstraint, Q
+from django.db.models import UniqueConstraint, CheckConstraint, Q
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -188,6 +188,28 @@ class Loan(Assets):
     @property
     def delete_url(self):
         return reverse('main:delete_loan', kwargs={'pk':self.id})
+
+
+class CreditCard(Assets):
+    transactions = GenericRelation(Transaction, related_query_name='credit_card')
+    currency = models.ForeignKey(
+        Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK, related_name='credit_cards'
+    )
+    payment_day = models.PositiveIntegerField(blank=True) # day of the month
+    
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=['name', 'user'], 
+                condition=Q(is_active=True), 
+                name='unique card name and user when active'
+            ),
+            CheckConstraint(
+                check=Q(payment_day__gte=1) & Q(payment_day__lte=31), 
+                name='payment_day_between_1-31'
+            )
+        ]
+
 
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
