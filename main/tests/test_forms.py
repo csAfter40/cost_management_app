@@ -7,6 +7,7 @@ from main.forms import (
     PayLoanForm,
     LoanDetailPaymentForm,
     EditTransactionForm,
+    CreateCreditCardForm
 )
 from main.models import UserPreferences
 from main.tests.factories import (
@@ -245,6 +246,18 @@ class TestForms(TestCase):
             'category': self.valid_expense_category.id,
         }
         form = EditTransactionForm(data=data, user=self.user, instance=expense_transaction)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+    
+    def test_create_credit_card_form(self):
+        currency = CurrencyFactory()
+        data = {
+            'name': 'test_name',
+            "balance": 5,
+            "currency": currency.id,
+            "payment_day": 5,
+        }
+        form = CreateCreditCardForm(data=data)
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
     
