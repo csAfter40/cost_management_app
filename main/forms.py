@@ -7,8 +7,9 @@ from django.forms import (
     Select,
     ValidationError,
     ModelChoiceField,
+    IntegerField
 )
-from .models import Account, Currency, Transaction, Transfer, Category, Loan
+from .models import Account, Currency, Transaction, Transfer, Category, Loan, CreditCard
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
 
@@ -216,3 +217,13 @@ class EditTransactionForm(ModelForm):
         data = self.cleaned_data
         data['object_id'] = data["object_id"].id
         return data
+
+
+class CreateCreditCardForm(ModelForm):
+    class Meta:
+        model = CreditCard
+        fields = ["name", "balance", "currency", "payment_day"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["payment_day"] = IntegerField(max_value=31, min_value=1, required=True)
