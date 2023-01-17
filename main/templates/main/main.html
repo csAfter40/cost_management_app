@@ -122,6 +122,14 @@
 {% endwith %}   
 {% endwith %}
 
+{% with modal_title='Delete Credit Card' %}
+{% with modal_message='Do you really want to delete this credit card?' %}
+{% with object_class='CreditCard' %}
+    {% include 'main/modal_delete_button.html'%}
+{% endwith %}   
+{% endwith %}   
+{% endwith %}
+
 {% with modal_title='Delete Account' %}
 {% with modal_message='Do you really want to delete this account?' %}
 {% with object_class='Account' %}
