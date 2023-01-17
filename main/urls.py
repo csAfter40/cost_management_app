@@ -29,6 +29,13 @@ urlpatterns = [
     path(
         "accounts/<int:pk>/edit", views.EditAccountView.as_view(), name="edit_account"
     ),
+    path("cards", views.CreditCardsView.as_view(), name="credit_cards"),
+    path("cards/list", views.CreditCardsListView.as_view(), name="credit_cards_list"),
+    path("cards/create", views.CreateCreditCardView.as_view(), name="create_credit_card"),
+    path("cards/pay", views.PayCreditCardView.as_view(), name="pay_credit_card"),
+    path("cards/<int:pk>", views.CreditCardDetailView.as_view(), name="credit_card_detail"),
+    path("cards/<int:pk>/edit", views.EditCreditCardView.as_view(), name="edit_credit_card"),
+    path("cards/del/<int:pk>", views.DeleteCreditCardView.as_view(), name="delete_credit_card"),
     path("loans", views.LoansView.as_view(), name="loans"),
     path("loans/list", views.LoansListView.as_view(), name="loans_list"),
     path("loans/create", views.CreateLoanView.as_view(), name="create_loan"),
