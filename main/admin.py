@@ -9,6 +9,7 @@ from .models import (
     UserPreferences,
     Loan,
     Rate,
+    CreditCard
 )
 
 
@@ -38,6 +39,11 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(Loan)
 class LoanAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'is_active')
+    ordering = ('user__username', '-is_active', 'name')
+
+@admin.register(CreditCard)
+class CreditCardAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'is_active', "payment_day", "next_payment_date")
     ordering = ('user__username', '-is_active', 'name')
 
 
