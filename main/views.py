@@ -44,6 +44,7 @@ from .forms import (
     LoanDetailPaymentForm,
     SetupForm,
     EditTransactionForm,
+    CreateCreditCardForm
 )
 from .view_mixins import (
     InsOutsDateArchiveMixin,
@@ -373,7 +374,29 @@ class CreditCardsListView(LoginRequiredMixin, ListView):
 
 
 class CreateCreditCardView(LoginRequiredMixin, CreateView):
-    pass
+    
+    login_url = reverse_lazy("main:login")
+    model = CreditCard
+    form_class = CreateCreditCardForm
+    success_url = reverse_lazy("main:main")
+    template_name = "main/create_credit_card.html"
+
+    def form_valid(self, form):
+        balance = form.cleaned_data["balance"]
+        balance = -abs(balance)  # make balance negative
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.balance = balance
+        self.object.initial = balance
+        try:
+            self.object.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already {self.object.name} in your credit cards.",
+            )
+            return self.form_invalid(form)
+        return super().form_valid(form)
 
 
 class PayCreditCardView(LoginRequiredMixin, FormView):
