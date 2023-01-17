@@ -99,6 +99,27 @@ class TestUrls(SimpleTestCase):
             "/accounts/1/edit", views.EditAccountView, "edit_account", pk=1
         )
 
+    def test_cards_url(self):
+        self.assert_path_resolves_to_CBV("/cards", views.CreditCardsView, "credit_cards")
+
+    def test_cards_list_url(self):
+        self.assert_path_resolves_to_CBV("/cards/list", views.CreditCardsListView, "credit_cards_list")
+
+    def test_cards_create_url(self):
+        self.assert_path_resolves_to_CBV("/cards/create", views.CreateCreditCardView, "create_credit_card")
+
+    def test_cards_pay_url(self):
+        self.assert_path_resolves_to_CBV("/cards/pay", views.PayCreditCardView, "pay_credit_card")
+
+    def test_cards_detail_url(self):
+        self.assert_path_resolves_to_CBV("/cards/1", views.CreditCardDetailView, "credit_card_detail", pk=1)
+
+    def test_cards_edit_url(self):
+        self.assert_path_resolves_to_CBV("/cards/1/edit", views.EditCreditCardView, "edit_credit_card", pk=1)
+
+    def test_cards_edit_url(self):
+        self.assert_path_resolves_to_CBV("/cards/del/1", views.DeleteCreditCardView, "delete_credit_card", pk=1)
+
     def test_loans_url(self):
         self.assert_path_resolves_to_CBV("/loans", views.LoansView, "loans")
 
