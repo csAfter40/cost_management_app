@@ -118,6 +118,10 @@ class TestCreditCard(TestCase):
         except IntegrityError:
             self.fail("Integrity error raised unexpectedly.")
 
+    def test_delete_url(self):
+        obj = CreditCardFactory()
+        self.assertEquals(obj.delete_url, f"/cards/del/{obj.id}")
+
     @patch("main.models.date")
     def test_next_payment_date_property(self, date_mock):
         date_mock.today.return_value = date(2001, 12, 20)

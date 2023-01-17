@@ -219,6 +219,10 @@ class CreditCard(Assets):
         next_month = get_next_month(f"{now.year}-{now.month}").split("-")
         return date(int(next_month[0]), int(next_month[1]), self.payment_day)
 
+    @property
+    def delete_url(self):
+        return reverse('main:delete_credit_card', kwargs={'pk':self.id})
+
 
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
