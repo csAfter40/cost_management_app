@@ -260,6 +260,47 @@ class TestLoansListView(TestListViewMixin, TestCase):
         context_qs = response.context.get(self.object_list_name, None)
         self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
+
+class TestCreateCreditCardView(TestCreateViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:create_credit_card')
+        cls.success_url = reverse('main:main')
+        cls.model = CreditCard
+        cls.context_list = ('form', )
+        cls.template = 'main/create_credit_card.html'
+        cls.view_function = views.CreateCreditCardView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        self.valid_data = [
+            {
+                'name': 'sample_loan',
+                'balance': Decimal(-12.00),
+                'currency': currency.id,
+                'payment_day': 5
+            },
+        ]
+        self.invalid_data = [
+            {
+                'name': 'sample_loan',
+                'balance': 'abc', # balance must be a number.
+                'currency': currency.id,
+                'payment_day': 5
+            },
+            {
+                'name': 'sample_loan',
+                'balance': 5,
+                'currency': currency.id,
+                'payment_day': 55 # payment day must be between 1 and 31
+            },
+        ]    
+
+
 class TestCreditCardsListView(TestListViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
