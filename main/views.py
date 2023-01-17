@@ -404,7 +404,21 @@ class PayCreditCardView(LoginRequiredMixin, FormView):
 
 
 class DeleteCreditCardView(LoginRequiredMixin, DeleteView):
-    pass
+    model = CreditCard
+    success_url = reverse_lazy("main:main")
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(user=self.request.user, is_active=True)
+        )
+
+    def form_valid(self, form):
+        handle_asset_delete(self.object)
+        self.object.is_active = False
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class EditCreditCardView(LoginRequiredMixin, UpdateView):
@@ -445,7 +459,7 @@ class CreateLoanView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class DeleteLoanView(LoginRequiredMixin, DeleteView):
+class DeleteLoanView(LoginRequiredMixin, DeleteView): 
     model = Loan
     success_url = reverse_lazy("main:main")
 
