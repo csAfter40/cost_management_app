@@ -4,7 +4,7 @@ import factory
 import unittest
 from unittest.mock import patch
 from wallet.settings import TESTING_ATOMIC
-from .factories import CategoryFactory, AccountTransactionFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal, UserPreferencesFactory
+from .factories import CategoryFactory, AccountTransactionFactory, TransactionFactory, TransferFactory, UserFactoryNoSignal, UserPreferencesFactory, CreditCardFactory
 from .cbv_test_mixins import (
     TestCreateViewMixin,
     TestListViewMixin,
@@ -13,7 +13,7 @@ from .cbv_test_mixins import (
     TestDeleteViewMixin
 )
 from main.forms import TransferForm, ExpenseInputForm, IncomeInputForm
-from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences
+from main.models import Account, Category, Loan, Transaction, Transfer, User, UserPreferences, CreditCard
 from main.tests.mixins import BaseViewTestMixin, UserFailTestMixin
 from .factories import AccountFactory, CurrencyFactory, LoanFactory, RateFactory
 from django.urls import reverse, resolve
@@ -259,6 +259,29 @@ class TestLoansListView(TestListViewMixin, TestCase):
         response = self.client.get(self.test_url)
         context_qs = response.context.get(self.object_list_name, None)
         self.assertQuerysetEqual(qs, context_qs, ordered=False)
+
+class TestCreditCardsListView(TestListViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse("main:credit_cards_list")
+        cls.context_list = ["table_template"]
+        cls.template = "main/group_table_paginator.html"
+        cls.view_function = views.CreditCardsListView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = CreditCard
+        cls.model_factory = CreditCardFactory
+        cls.object_list_name = 'credit_cards'
+
+    def test_queryset(self):
+        self.model_factory.create_batch(5, user=self.user, is_active=True)
+        self.model_factory.create_batch(5, user=self.user, is_active=False)
+        self.model_factory.create_batch(5, is_active=True)
+        qs = self.model.objects.filter(user=self.user, is_active=True).order_by('created')
+        response = self.client.get(self.test_url)
+        context_qs = response.context.get(self.object_list_name, None)
+        self.assertQuerysetEqual(qs, context_qs, ordered=True)
 
 
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
