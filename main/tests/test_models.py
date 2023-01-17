@@ -24,6 +24,8 @@ from main.tests.factories import (
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
+from unittest.mock import patch
+from datetime import date
 
 
 class TestUser(TestCase):
@@ -108,13 +110,21 @@ class TestCreditCard(TestCase):
         with self.assertRaises(IntegrityError):
             CreditCardFactory(payment_day=0)
 
-    def valid_payment_day_constraint(self):
+    def test_valid_payment_day_constraint(self):
         try:
             CreditCardFactory(payment_day=1)
             CreditCardFactory(payment_day=11)
             CreditCardFactory(payment_day=31)
         except IntegrityError:
             self.fail("Integrity error raised unexpectedly.")
+
+    @patch("main.models.date")
+    def test_next_payment_date_property(self, date_mock):
+        date_mock.today.return_value = date(2001, 12, 20)
+        date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
+        credit_card = CreditCardFactory.create(payment_day=12)
+        self.assertEquals(credit_card.next_payment_date, date(2002, 1, 12))
+
             
 
 class TestCategory(TestCase):

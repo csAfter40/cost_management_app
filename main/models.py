@@ -210,6 +210,15 @@ class CreditCard(Assets):
             )
         ]
 
+    @property
+    def next_payment_date(self):
+        from .utils import get_next_month # import the function here due to circular import
+        now = date.today()
+        if now.day <= self.payment_day:
+            return date(now.year, now.month, self.payment_day)
+        next_month = get_next_month(f"{now.year}-{now.month}").split("-")
+        return date(int(next_month[0]), int(next_month[1]), self.payment_day)
+
 
 class Transfer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Transfers")
