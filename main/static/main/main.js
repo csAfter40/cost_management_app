@@ -61,10 +61,12 @@ function validateNegativeAccountBalance(event) {
 
 let accountsTableDiv = document.querySelector("#accounts-table");
 let loansTableDiv = document.querySelector("#loans-table");
+let creditCardsTableDiv = document.querySelector("#credit-cards-table");
 
 addEventListener("DOMContentLoaded", (event) => {
     getAccountData();
     getLoanData();
+    getCreditCardData();
 });
 
 function getAccountData(page=1) {
@@ -91,6 +93,20 @@ function getLoanData(page=1) {
     }).then(obj => {
         loansTableDiv.innerHTML = obj;
         setupPgButtons(getLoanData, loansTableDiv);
+        setupDeleteButtons();
+    });
+};
+
+function getCreditCardData(page=1) {
+    const url = creditCardsTableDiv.dataset.url + `?page=${page}`
+    fetch(url, {
+        method: "GET",
+        headers: {}
+    }).then(response => {
+        return response.text();
+    }).then(obj => {
+        creditCardsTableDiv.innerHTML = obj;
+        setupPgButtons(getCreditCardData, creditCardsTableDiv);
         setupDeleteButtons();
     });
 };
