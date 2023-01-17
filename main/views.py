@@ -34,6 +34,7 @@ from .models import (
     Loan,
     Currency,
     UserPreferences,
+    CreditCard
 )
 from .forms import (
     ExpenseInputForm,
@@ -281,6 +282,7 @@ class AccountsListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Account.objects.filter(user=self.request.user, is_active=True).order_by("created")
 
+
 class LoansListView(LoginRequiredMixin, ListView):
     model = Loan
     paginate_by = 5
@@ -353,6 +355,41 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
         self.object.is_active = False
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class CreditCardsView(LoginRequiredMixin, ListView):
+    pass
+
+
+class CreditCardsListView(LoginRequiredMixin, ListView):
+    model = CreditCard
+    paginate_by = 5
+    template_name = "main/group_table_paginator.html"
+    extra_context = {"table_template": "main/table_credit_cards.html"}
+    context_object_name = "credit_cards"
+
+    def get_queryset(self):
+        return CreditCard.objects.filter(user=self.request.user, is_active=True).order_by("created")
+
+
+class CreateCreditCardView(LoginRequiredMixin, CreateView):
+    pass
+
+
+class PayCreditCardView(LoginRequiredMixin, FormView):
+    pass
+
+
+class DeleteCreditCardView(LoginRequiredMixin, DeleteView):
+    pass
+
+
+class EditCreditCardView(LoginRequiredMixin, UpdateView):
+    pass
+
+
+class CreditCardDetailView(LoginRequiredMixin, DetailView):
+    pass
 
 
 class LoansView(LoginRequiredMixin, ListView):
