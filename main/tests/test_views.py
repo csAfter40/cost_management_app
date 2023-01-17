@@ -301,6 +301,56 @@ class TestCreateCreditCardView(TestCreateViewMixin, TestCase):
         ]    
 
 
+
+class TestDeleteCreditCardView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.redirect_url = reverse('main:main')
+        cls.post_method = True
+        cls.get_method = False
+        cls.view_function = views.DeleteCreditCardView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+    
+    def setUp(self) -> None:
+        super().setUp()
+        CategoryFactory(user=self.user, type='E', name='Asset Delete', parent=None)
+        CategoryFactory(user=self.user, type='I', name='Asset Delete', parent=None)
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse('main:delete_credit_card', kwargs={'pk':self.object.id})
+
+    def test_inactive_card(self):
+        inactive_card = CreditCardFactory(is_active=False)
+        test_url = reverse('main:delete_credit_card', kwargs={'pk':inactive_card.id})
+        response = self.client.post(test_url, {})
+        self.assertEquals(response.status_code, 404)
+
+    def test_unauthenticated_access(self):
+        self.client.logout()
+        response = self.client.post(self.test_url, self.post_data)
+        self.assertEquals(response.status_code, 302)
+
+    def test_with_positive_balance_card(self):
+        card = CreditCardFactory(user=self.user, balance=100)
+        test_url = reverse('main:delete_credit_card', kwargs={'pk':card.id})
+        self.client.post(test_url)
+        transaction = Transaction.objects.first()
+        self.assertEquals(transaction.amount, 100)
+        self.assertEquals(transaction.type, 'E')
+
+    def test_with_negative_balance_loan(self):
+        card = CreditCardFactory(user=self.user, balance=-100)
+        test_url = reverse('main:delete_credit_card', kwargs={'pk':card.id})
+        self.client.post(test_url)
+        transaction = Transaction.objects.first()
+        self.assertEquals(transaction.amount, 100)
+        self.assertEquals(transaction.type, 'I')
+
+
+
 class TestCreditCardsListView(TestListViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -1086,7 +1136,7 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
 
     def test_inactive_loan(self):
         inactive_loan = LoanFactory(is_active=False)
-        test_url = reverse('main:delete_account', kwargs={'pk':inactive_loan.id})
+        test_url = reverse('main:delete_loan', kwargs={'pk':inactive_loan.id}) #todo bug
         response = self.client.post(test_url, {})
         self.assertEquals(response.status_code, 404)
 
@@ -1096,16 +1146,16 @@ class TestDeleteLoanView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertEquals(response.status_code, 302)
 
     def test_with_positive_balance_loan(self):
-        account = AccountFactory(user=self.user, balance=100)
-        test_url = reverse('main:delete_account', kwargs={'pk':account.id})
+        loan = LoanFactory(user=self.user, balance=100)
+        test_url = reverse('main:delete_loan', kwargs={'pk':loan.id})
         self.client.post(test_url)
         transaction = Transaction.objects.first()
         self.assertEquals(transaction.amount, 100)
         self.assertEquals(transaction.type, 'E')
 
     def test_with_negative_balance_loan(self):
-        account = AccountFactory(user=self.user, balance=-100)
-        test_url = reverse('main:delete_account', kwargs={'pk':account.id})
+        loan = LoanFactory(user=self.user, balance=-100)
+        test_url = reverse('main:delete_loan', kwargs={'pk':loan.id})
         self.client.post(test_url)
         transaction = Transaction.objects.first()
         self.assertEquals(transaction.amount, 100)
