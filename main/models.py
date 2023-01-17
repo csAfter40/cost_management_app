@@ -195,7 +195,7 @@ class CreditCard(Assets):
     currency = models.ForeignKey(
         Currency, on_delete=models.SET_DEFAULT, default=DEFAULT_CURRENCY_PK, related_name='credit_cards'
     )
-    payment_day = models.PositiveIntegerField(blank=True) # day of the month
+    payment_day = models.PositiveIntegerField() # day of the month
     
     class Meta:
         constraints = [
