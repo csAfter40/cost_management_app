@@ -1,0 +1,19 @@
+{% extends 'main/user_layout.html' %}
+{% block title %}
+    <title>Create Credit Card</title>
+{% endblock %}
+{% load crispy_forms_tags %}
+{% block body %}
+<div class="d-flex justify-content-center p-3">
+    <div class="container text-center justify-content-center p-3 bg-light col-sm-4">
+        <h3>Create a credit card</h3>
+        <div class="container text-start">
+            <form action="{% url 'main:create_credit_card' %}" method="POST">
+                {%csrf_token%}
+                {{form|crispy}}
+                <input type="submit" value="Submit" class="btn btn-primary my-3">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
