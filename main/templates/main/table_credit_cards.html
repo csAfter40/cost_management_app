@@ -1,0 +1,38 @@
+{% load static %}
+<div class="container-fluid bg-light w-100 px-3 py-1 animate-table" id="loans_table_div">
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th class="align-middle col-md-1" scope="col">#</th>
+                <th class="align-middle col-md-3" scope="col">Name</th>
+                <th class="align-middle col-md-1" scope="col">Currency</th>
+                <th class="align-middle col-md-2" scope="col">Balance</th>
+                <th class="align-middle col-md-2" scope="col">Next Payment</th>
+                <th class="align-middle text-center col-md-1" scope="col">Edit</th>
+                <th class="align-middle text-center col-md-1" scope="col">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if not credit_cards %}
+            <tr>
+                <td colspan="6" class="table-info">No Credit Cards available.</td>
+            </tr>
+            {% endif %}
+            {% for object in credit_cards %}
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td><a href="{% url 'main:credit_card_detail' pk=object.id %}">{{ object.name }}</a></td>
+                <td>{{ object.currency }}</td>
+                <td>{{ object.balance }}</td>
+                <td>{{ object.next_payment_date }}</td>
+                <td style="text-align: center;" class="align-middle">
+                    <a href="{% url 'main:edit_credit_card' pk=object.id %}" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                </td>
+                <td data-balance="{{object.balance}}" data-currency="{{object.currency}}" style="text-align: center;" class="align-middle">
+                    {% include 'main/button_delete.html' %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
