@@ -422,7 +422,26 @@ class DeleteCreditCardView(LoginRequiredMixin, DeleteView):
 
 
 class EditCreditCardView(LoginRequiredMixin, UpdateView):
-    pass
+    model = CreditCard
+    # fields = ["name", "balance", "currency", "paymeny_day"]
+    form_class = CreateCreditCardForm
+    template_name = "main/credit_card_update.html"
+    success_url = reverse_lazy("main:main")
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+
+    def form_valid(self, form):
+        form.instance.balance = -abs(form.cleaned_data["balance"])
+        try:
+            self.object = form.save()
+        except IntegrityError:
+            messages.error(
+                self.request,
+                f"There is already {self.object.name} in your credit cards.",
+            )
+            return self.form_invalid(form)
+        return super().form_valid(form)
 
 
 class CreditCardDetailView(LoginRequiredMixin, DetailView):
