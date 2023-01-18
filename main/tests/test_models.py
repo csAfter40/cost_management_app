@@ -123,11 +123,27 @@ class TestCreditCard(TestCase):
         self.assertEquals(obj.delete_url, f"/cards/del/{obj.id}")
 
     @patch("main.models.date")
-    def test_next_payment_date_property(self, date_mock):
+    def test_next_payment_date_property_year_change(self, date_mock):
         date_mock.today.return_value = date(2001, 12, 20)
         date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
         credit_card = CreditCardFactory.create(payment_day=12)
         self.assertEquals(credit_card.next_payment_date, date(2002, 1, 12))
+    
+    @patch("main.models.date")
+    def test_next_payment_date_property_day_out_of_range(self, date_mock):
+        date_mock.today.return_value = date(2002, 2, 1)
+        date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
+        credit_card = CreditCardFactory.create(payment_day=31)
+        # 31st of February is not availabe so function should return last day of February
+        self.assertEquals(credit_card.next_payment_date, date(2002, 2, 28))
+    
+    @patch("main.models.date")
+    def test_next_payment_date_property_leap_year(self, date_mock):
+        date_mock.today.return_value = date(2004, 2, 1)
+        date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
+        credit_card = CreditCardFactory.create(payment_day=31)
+        # 31st of February is not availabe so function should return last day of February
+        self.assertEquals(credit_card.next_payment_date, date(2004, 2, 29))
 
             
 
