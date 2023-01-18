@@ -212,12 +212,14 @@ class CreditCard(Assets):
 
     @property
     def next_payment_date(self):
-        from .utils import get_next_month # import the function here due to circular import
+        from .utils import get_next_month, get_valid_date # import the function here due to circular import
         now = date.today()
         if now.day <= self.payment_day:
-            return date(now.year, now.month, self.payment_day)
+            return get_valid_date(now.year, now.month, self.payment_day)
+            # return date(now.year, now.month, self.payment_day)
         next_month = get_next_month(f"{now.year}-{now.month}").split("-")
-        return date(int(next_month[0]), int(next_month[1]), self.payment_day)
+        return get_valid_date(int(next_month[0]), int(next_month[1]), self.payment_day)
+        # return date(int(next_month[0]), int(next_month[1]), self.payment_day)
 
     @property
     def delete_url(self):
