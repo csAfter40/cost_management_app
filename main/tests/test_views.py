@@ -301,7 +301,6 @@ class TestCreateCreditCardView(TestCreateViewMixin, TestCase):
         ]    
 
 
-
 class TestDeleteCreditCardView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     
     @classmethod
@@ -350,7 +349,6 @@ class TestDeleteCreditCardView(UserFailTestMixin, BaseViewTestMixin, TestCase):
         self.assertEquals(transaction.type, 'I')
 
 
-
 class TestCreditCardsListView(TestListViewMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -373,6 +371,71 @@ class TestCreditCardsListView(TestListViewMixin, TestCase):
         response = self.client.get(self.test_url)
         context_qs = response.context.get(self.object_list_name, None)
         self.assertQuerysetEqual(qs, context_qs, ordered=True)
+
+
+class TestEditCreditCardView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/cards/<pk>/edit'
+        cls.success_url = reverse('main:main')
+        cls.model = CreditCard
+        cls.context_list = ('form', )
+        cls.template = 'main/credit_card_update.html'
+        cls.view_function = views.EditCreditCardView.as_view()
+        cls.login_required = True
+        cls.model_factory = CreditCardFactory
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        currency = CurrencyFactory()
+        self.valid_data = [
+            {
+                'name': 'new_card_name',
+                'balance': Decimal(20.00),
+                'currency': currency.id,
+                'payment_day': 5,
+            },
+        ]
+        self.invalid_data = [
+            {
+                'name': 'new_card_name',
+                'balance': Decimal(20.00),
+                'currency': 'XYZ',
+                'payment_day': 5,
+            },
+            {
+                'name': 'new_loan_name',
+                'balance': 'abc',
+                'currency': currency.id,
+                'payment_day': 5,
+            },
+            {
+                'name': 'new_loan_name',
+                'balance': Decimal(20.00),
+                'currency': currency.id,
+                'payment_day': 55,
+            },
+        ]    
+
+    def set_object(self):
+        super().set_object()
+        self.object.user = self.user
+        self.object.save()
+
+    def subtest_post_success(self, data):
+        response = self.client.post(self.test_url, data=data)
+        self.assertRedirects(response, self.success_url, status_code=302, target_status_code=200, fetch_redirect_response=True)
+        # get updated object values from db
+        self.object.refresh_from_db()
+        for key, value in data.items():
+            if isinstance(getattr(self.object, key), models.Model):
+                self.assertEquals(getattr(self.object, key).id, value)
+            elif key == 'balance':
+                self.assertEquals(getattr(self.object, key), -abs(value))
+            else:
+                self.assertEquals(getattr(self.object, key), value)
 
 
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
