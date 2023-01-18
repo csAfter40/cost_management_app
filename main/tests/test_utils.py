@@ -36,6 +36,7 @@ from main.utils import (
     convert_str_to_date,
     convert_date_to_str,
     get_next_month,
+    get_valid_date,
     fill_missing_monthly_data,
     convert_money,
     get_net_worth_by_currency,
@@ -362,6 +363,14 @@ class TestUtilityFunctions(TestCase):
         date2 = get_next_month('2022-12')
         self.assertEquals(date1,'2022-03')
         self.assertEquals(date2,'2023-01')
+
+    def test_get_valid_date(self):
+        date1 = get_valid_date(2002, 2, 21)
+        date2 = get_valid_date(2002, 2, 31)
+        date3 = get_valid_date(2004, 2, 31)
+        self.assertEquals(date1, datetime.date(2002, 2, 21))
+        self.assertEquals(date2, datetime.date(2002, 2, 28))
+        self.assertEquals(date3, datetime.date(2004, 2, 29))
 
     def test_fill_missing_monthly_data(self):
         data = {'2022-02':1, '2022-01':5, '2022-04':9}
