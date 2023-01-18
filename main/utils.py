@@ -396,6 +396,17 @@ def get_next_month(date: str) -> str:
     new_date = datetime_obj + relativedelta(months=+1)
     return convert_date_to_str(new_date)
 
+def get_valid_date(year, month, day):
+    """
+    Accepts year, month and day values and returns the last day of month if 
+    day is out of range of the month.
+    Example: year=2004, month=2, day=31 will return date(2004, 2, 29)
+    """
+    try:
+        return date(year, month, day)
+    except ValueError:
+        return get_valid_date(year, month, day-1)
+
 def fill_missing_monthly_data(data):
     today = date.today()
     this_month = f"{today.year}-{today.month:02d}"
