@@ -16,6 +16,7 @@ from .models import (
     Transaction,
     Loan,
     Rate,
+    CreditCard
 )
 from .categories import categories
 from datetime import date, timedelta, datetime
@@ -96,6 +97,16 @@ def get_loan_data(user):
         data[loan.id] = loan.currency.code
     return data
 
+def get_credit_card_data(user):
+    """
+    Returns all credit cards of a user and currencies of those loans.
+    """
+    cards = CreditCard.objects.filter(user=user, is_active=True).select_related("currency")
+    data = {}
+    for card in cards:
+        data[card.id] = card.currency.code
+    return data
+
 def get_loan_balance_data(user):
     """
     Returns all loans of a user and balances of those loans.
@@ -104,6 +115,16 @@ def get_loan_balance_data(user):
     data = {}
     for loan in loans:
         data[loan.id] = loan.balance
+    return data
+
+def get_credit_card_balance_data(user):
+    """
+    Returns all credit cards of a user and balances of those cards.
+    """
+    cards = CreditCard.objects.filter(user=user, is_active=True)
+    data = {}
+    for card in cards:
+        data[card.id] = card.balance
     return data
 
 
@@ -650,6 +671,23 @@ def get_loan_payment_transaction_data(form, asset):
     }
     return transaction_data
 
+def get_credit_card_payment_transaction_data(form, asset):
+    '''
+    Accepts a Django form and asset string. Creates and returns a data dictionary 
+    required for creating a transaction object.
+    '''
+    data = form.cleaned_data
+    category = Category.objects.get(user=form.user, name='Pay Card')
+    transaction_data = {
+        'content_object': data.get(asset),
+        'name': 'Pay Card',
+        'amount': abs(data.get('amount')),
+        'date': data.get('date'),
+        'category': category,
+        'type': 'E' if asset == 'account' else 'I'
+    }
+    return transaction_data
+
 def handle_loan_payment(form):
     '''
     Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
@@ -661,6 +699,20 @@ def handle_loan_payment(form):
                 user = form.user,
                 from_transaction = account_transaction,
                 to_transaction = loan_transaction,
+                date = account_transaction.date
+            )
+
+def handle_credit_card_payment(form):
+    '''
+    Accepts a Django form, creates transaction and transfer objects needed for credit card payment process.
+    '''
+    with transaction.atomic():
+        account_transaction = create_transaction(get_credit_card_payment_transaction_data(form, asset='account'))
+        credit_card_transaction = create_transaction(get_credit_card_payment_transaction_data(form, asset='card'))
+        Transfer.objects.create(
+                user = form.user,
+                from_transaction = account_transaction,
+                to_transaction = credit_card_transaction,
                 date = account_transaction.date
             )
 
