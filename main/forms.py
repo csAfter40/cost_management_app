@@ -167,6 +167,48 @@ class PayLoanForm(forms.Form):
         return f"{obj.name}  ({obj.balance} {obj.currency})"
 
 
+class PayCreditCardForm(forms.Form):
+    amount = forms.DecimalField(decimal_places=2)
+    date = forms.DateField(
+        initial=date.today, widget=TextInput(attrs={"id": "card-pay-datepicker"})
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if user:
+            qs_account = Account.objects.filter(user=user, is_active=True)
+            qs_card = CreditCard.objects.filter(user=user, is_active=True)
+            self.fields["account"] = forms.ModelChoiceField(
+                queryset=qs_account, widget=Select(attrs={"id": "account-field"})
+            )
+            self.fields["card"] = forms.ModelChoiceField(
+                queryset=qs_card, widget=Select(attrs={"id": "card-field"})
+            )
+            self.user = user
+        self.fields["account"].label_from_instance = self.label_from_instance
+        self.fields["card"].label_from_instance = self.label_from_instance
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("account", None) and cleaned_data.get("card", None):
+            if cleaned_data["account"].currency != cleaned_data["card"].currency:
+                raise ValidationError(
+                    "Account and credit card currencies can not be different."
+                )
+        else:
+            raise ValidationError("Invalid account or credit card data.")
+        return cleaned_data
+
+    @staticmethod
+    def label_from_instance(obj):
+        """
+        Method for overriding label_from_instance method of ModelChoiceField. 
+        Edits text of choice field.
+        """
+        return f"{obj.name}  ({obj.balance} {obj.currency})"
+
+
 class LoanDetailPaymentForm(forms.Form):
 
     amount = forms.DecimalField(decimal_places=2)
