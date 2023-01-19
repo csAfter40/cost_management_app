@@ -44,7 +44,8 @@ from .forms import (
     LoanDetailPaymentForm,
     SetupForm,
     EditTransactionForm,
-    CreateCreditCardForm
+    CreateCreditCardForm,
+    PayCreditCardForm
 )
 from .view_mixins import (
     InsOutsDateArchiveMixin,
@@ -62,7 +63,9 @@ from .utils import (
     get_account_data,
     get_account_balance_data,
     get_loan_data,
+    get_credit_card_data,
     get_loan_balance_data,
+    get_credit_card_balance_data,
     get_subcategory_stats,
     handle_transaction_delete,
     validate_main_category_uniqueness,
@@ -82,6 +85,7 @@ from .utils import (
     withdraw_asset_balance,
     create_transfer,
     handle_loan_payment,
+    handle_credit_card_payment,
     handle_asset_delete,
     handle_transfer_delete,
     handle_transfer_edit,
@@ -400,7 +404,39 @@ class CreateCreditCardView(LoginRequiredMixin, CreateView):
 
 
 class PayCreditCardView(LoginRequiredMixin, FormView):
-    pass
+    form_class = PayCreditCardForm
+    success_url = reverse_lazy("main:main")
+    template_name = "main/credit_card_pay.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"user": self.request.user})
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            handle_credit_card_payment(form)
+        except IntegrityError:
+            messages.error(self.request, "Error during credit card payment")
+            context = self.get_context_data(form=form)
+            return render(self.request, "main/credit_card_pay.html", context)
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        if "form" not in kwargs:
+            kwargs["form"] = self.form_class(user=self.request.user)
+        account_data = get_account_data(self.request.user)
+        card_data = get_credit_card_data(self.request.user)
+        card_balance_data = get_credit_card_balance_data(self.request.user)
+        account_balance_data = get_account_balance_data(self.request.user)
+        context = {
+            "account_data": account_data,
+            "card_data": card_data,
+            "card_balance_data": card_balance_data,
+            "account_balance_data": account_balance_data
+        }
+        context.update(kwargs)
+        return context
 
 
 class DeleteCreditCardView(LoginRequiredMixin, DeleteView):
