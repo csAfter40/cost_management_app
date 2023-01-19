@@ -5,6 +5,7 @@ from main.forms import (
     SetupForm,
     TransferForm,
     PayLoanForm,
+    PayCreditCardForm,
     LoanDetailPaymentForm,
     EditTransactionForm,
     CreateCreditCardForm
@@ -18,6 +19,7 @@ from main.tests.factories import (
     AccountFactory,
     CategoryFactory,
     LoanFactory,
+    CreditCardFactory,
     UserPreferencesFactory,
 )
 import datetime
@@ -129,6 +131,76 @@ class TestForms(TestCase):
             form.errors["__all__"],
         )
 
+    def test_pay_credit_card_form_with_valid_data(self):
+        currency = CurrencyFactory()
+        valid_card = CreditCardFactory(user=self.user, currency=currency)
+        valid_account = AccountFactory(user=self.user, currency=currency)
+        data = {
+            "account": valid_account.id,
+            "card": valid_card.id,
+            "amount": 10,
+            "date": datetime.date(2022, 2, 2),
+        }
+        form = PayCreditCardForm(user=self.user, data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+    def test_pay_credit_card_form_with_invalid_data(self):
+        currency = CurrencyFactory()
+        invalid_card = CreditCardFactory(currency=currency)
+        invalid_account = AccountFactory(currency=currency)
+        data = {
+            "account": invalid_account.id,
+            "card": invalid_card.id,
+            "amount": "invalid amount",
+            "date": "invalid date",
+        }
+        form = PayCreditCardForm(user=self.user, data=data)
+        for key, value in data.items():
+            self.assertIn(key, form.errors)
+
+    def test_pay_credit_card_form_account_and_card_currencies_not_matching(self):
+        card_currency = CurrencyFactory()
+        account_currency = CurrencyFactory()
+        valid_card = CreditCardFactory(user=self.user, currency=card_currency)
+        valid_account = AccountFactory(user=self.user, currency=account_currency)
+        data = {
+            "account": valid_account.id,
+            "card": valid_card.id,
+            "amount": 10,
+            "date": datetime.date(2022, 2, 2),
+        }
+        form = PayCreditCardForm(user=self.user, data=data)
+        self.assertIn(
+            "Account and credit card currencies can not be different.", form.errors["__all__"]
+        )
+
+    def test_pay_credit_card_form_with_invalid_account(self):
+        currency = CurrencyFactory()
+        valid_card = CreditCardFactory(user=self.user, currency=currency)
+        invalid_account = AccountFactory(currency=currency)
+        data = {
+            "account": invalid_account.id,
+            "card": valid_card.id,
+            "amount": 10,
+            "date": datetime.date(2022, 2, 2),
+        }
+        form = PayCreditCardForm(user=self.user, data=data)
+        self.assertIn("Invalid account or credit card data.", form.errors["__all__"])
+
+    def test_pay_credit_form_with_invalid_account(self):
+        currency = CurrencyFactory()
+        invalid_card = CreditCardFactory(currency=currency)
+        valid_account = AccountFactory(user=self.user, currency=currency)
+        data = {
+            "account": valid_account.id,
+            "card": invalid_card.id,
+            "amount": 10,
+            "date": datetime.date(2022, 2, 2),
+        }
+        form = PayCreditCardForm(user=self.user, data=data)
+        self.assertIn("Invalid account or credit card data.", form.errors["__all__"])
+        
     def test_pay_loan_form_with_valid_data(self):
         currency = CurrencyFactory()
         valid_loan = LoanFactory(user=self.user, currency=currency)
