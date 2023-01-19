@@ -438,6 +438,87 @@ class TestEditCreditCardView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
                 self.assertEquals(getattr(self.object, key), value)
 
 
+class TestPayCreditCardView(BaseViewTestMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = reverse('main:pay_credit_card')
+        cls.redirect_url = reverse('main:main')
+        cls.context_list = ['account_data', 'card_data', 'card_balance_data', 'account_balance_data', 'form']
+        cls.template = 'main/credit_card_pay.html'
+        cls.post_method = False
+        cls.get_method = True
+        cls.view_function = views.PayCreditCardView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self):
+        super().setUp()
+        CategoryFactory(user=self.user, name='Pay Card', parent=None)
+        currency = CurrencyFactory()
+        account = AccountFactory(user=self.user, currency=currency)
+        card = CreditCardFactory(user=self.user, currency=currency)
+        self.valid_data = [
+            {
+                'amount': 1000,
+                'date': date.today(),
+                'account': account.id,
+                'card': card.id,
+            }
+        ]
+        self.invalid_data = [
+            {
+                'amount': 'abc',
+                'date': date.today(),
+                'account': account.id,
+                'card': card.id,
+            },
+            {
+                'amount': 1000,
+                'date': date.today(),
+                'account': 'abc',
+                'card': card.id,
+            },
+        ]
+
+    def subtest_valid_post(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            self.redirect_url, 
+            302, 
+            200, 
+            fetch_redirect_response=True
+        )
+        self.assertEquals(Transfer.objects.count(), 1)
+        self.assertEquals(Transaction.objects.count(), 2)
+
+    def test_post_valid(self):
+        for data in self.valid_data:
+            with self.subTest(data):
+                self.subtest_valid_post(data)
+
+    def subtest_invalid_post(self, data):
+        response = self.client.post(self.test_url, data)
+        self.assertEquals(response.status_code, 200)
+
+    def test_post_invalid(self):
+        for data in self.invalid_data:
+            with self.subTest(data):
+                self.subtest_invalid_post(data)
+    
+    @unittest.skip('will be implemented')
+    def test_atomic_transaction(self):
+        data = self.valid_data[0]
+        before_transaction_qty = Transaction.objects.all().count()
+        with self.settings(TESTING_ATOMIC=True):
+            response = self.client.post(self.test_url, data)
+            after_transaction_qty = Transaction.objects.all().count()
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(before_transaction_qty, after_transaction_qty)
+
+
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
