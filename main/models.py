@@ -90,8 +90,17 @@ class Transaction(models.Model):
     date = models.DateField(blank=True, default=date.today)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='transactions')
     type = models.CharField(max_length=2, choices=TRANSACTION_TYPES)
+    installments = models.PositiveIntegerField(blank=True, null=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            CheckConstraint(
+                check=Q(installments__gte=2) & Q(installments__lte=36), 
+                name='installments_btw_0_36'
+            )
+        ]
 
     def __str__(self):
         return f"{self.name} - {self.amount} on {self.content_object}"
