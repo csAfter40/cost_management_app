@@ -395,10 +395,12 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(date2, datetime.date(2002, 2, 28))
         self.assertEquals(date3, datetime.date(2004, 2, 29))
 
-    def test_fill_missing_monthly_data(self):
+    @patch("main.utils.date")
+    def test_fill_missing_monthly_data(self, mock):
+        mock.today.return_value = datetime.date(2022, 6, 1)
         data = {'2022-02':1, '2022-01':5, '2022-04':9}
         result = fill_missing_monthly_data(data)
-        expected = {'2022-02':1, '2022-01':5, '2022-03':1, '2022-04':9}
+        expected = {'2022-02':1, '2022-01':5, '2022-03':1, '2022-04':9, '2022-05':9, '2022-06':9,}
         self.assertEquals(result, expected)
 
     def test_get_conversion_rate(self):
