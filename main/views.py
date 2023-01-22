@@ -84,8 +84,7 @@ from .utils import (
     get_users_grand_total,
     withdraw_asset_balance,
     create_transfer,
-    handle_loan_payment,
-    handle_credit_card_payment,
+    handle_debt_payment,
     handle_asset_delete,
     handle_transfer_delete,
     handle_transfer_edit,
@@ -415,7 +414,7 @@ class PayCreditCardView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         try:
-            handle_credit_card_payment(form)
+            handle_debt_payment(form, paid_asset="card")
         except IntegrityError:
             messages.error(self.request, "Error during credit card payment")
             context = self.get_context_data(form=form)
@@ -625,7 +624,7 @@ class PayLoanView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         try:
-            handle_loan_payment(form)
+            handle_debt_payment(form, paid_asset="loan")
         except IntegrityError:
             messages.error(self.request, "Error during loan payment")
             context = self.get_context_data(form=form)

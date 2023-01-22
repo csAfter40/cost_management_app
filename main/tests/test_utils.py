@@ -13,13 +13,11 @@ from main.utils import (
     get_dates,
     get_credit_card_data,
     get_credit_card_balance_data,
-    get_credit_card_payment_transaction_data,
-    handle_credit_card_payment,
     get_loan_data,
     get_loan_balance_data,
     get_latest_transactions,
     get_latest_transfers,
-    get_loan_payment_transaction_data,
+    get_payment_transaction_data,
     get_loan_progress,
     get_multi_currency_category_detail_stats,
     get_stats,
@@ -31,7 +29,7 @@ from main.utils import (
     get_user_currencies,
     get_worth_stats,
     handle_asset_delete,
-    handle_loan_payment,
+    handle_debt_payment,
     handle_transfer_delete,
     handle_transfer_edit,
     sort_balance_data,
@@ -611,7 +609,7 @@ class TestUtilityFunctions(TestCase):
         to_mock.assert_called_once_with(data, self.user)
         self.assertTrue(Transfer.objects.exists())
 
-    def test_get_loan_payment_transaction_data_with_account(self):
+    def test_get_payment_transaction_data_with_account(self):
         account = AccountFactory()
         loan = LoanFactory()
         data = {
@@ -624,11 +622,11 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Loan', parent=None)
-        result = get_loan_payment_transaction_data(form, 'account')
+        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='E')
+        result = get_payment_transaction_data(form, 'account')
         validation_data = {
             'content_object': account,
-            'name': 'Pay Loan',
+            'name': 'Pay Debt',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,
@@ -636,7 +634,7 @@ class TestUtilityFunctions(TestCase):
         }
         self.assertEquals(result, validation_data)
     
-    def test_get_loan_payment_transaction_data_with_loan(self):
+    def test_get_payment_transaction_data_with_loan(self):
         account = AccountFactory()
         loan = LoanFactory()
         data = {
@@ -649,45 +647,19 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Loan', parent=None)
-        result = get_loan_payment_transaction_data(form, 'loan')
+        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='I')
+        result = get_payment_transaction_data(form, 'loan')
         validation_data = {
             'content_object': loan,
-            'name': 'Pay Loan',
+            'name': 'Pay Debt',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,
             'type': 'I'
         }
         self.assertEquals(result, validation_data)
-
-    def test_get_credit_card_payment_transaction_data_with_account(self):
-        account = AccountFactory()
-        card = CreditCardFactory()
-        data = {
-            'account': account,
-            'card': card,
-            'amount': 10,
-            'date': datetime.date(2001, 1, 1)
-        }
-        form = Mock()
-        form.cleaned_data = data
-        user = UserFactoryNoSignal()
-        form.user = user
-        category = CategoryFactory(user=user, name='Pay Card', parent=None)
-        result = get_credit_card_payment_transaction_data(form, 'account')
-        validation_data = {
-            'content_object': account,
-            'name': 'Pay Card',
-            'amount': 10,
-            'date': datetime.date(2001, 1, 1),
-            'category': category,
-            'type': 'E'
-        }
-        self.assertEquals(result, validation_data)
-
     
-    def test_get_credit_card_payment_transaction_data_with_card(self):
+    def test_get_payment_transaction_data_with_card(self):
         account = AccountFactory()
         card = CreditCardFactory()
         data = {
@@ -700,11 +672,11 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Card', parent=None)
-        result = get_credit_card_payment_transaction_data(form, 'card')
+        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='I')
+        result = get_payment_transaction_data(form, 'card')
         validation_data = {
             'content_object': card,
-            'name': 'Pay Card',
+            'name': 'Pay Debt',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,
@@ -713,25 +685,25 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(result, validation_data)
 
     @patch('main.utils.create_transaction')
-    @patch('main.utils.get_credit_card_payment_transaction_data')
-    def test_handle_credit_card_payment(self, get_mock, create_mock):
+    @patch('main.utils.get_payment_transaction_data')
+    def test_handle_debt_payment_with_loan_asset(self, get_mock, create_mock):
         transaction = AccountTransactionFactory()
         create_mock.return_value = transaction
         form = Mock()
         form.user = UserFactoryNoSignal()
-        handle_credit_card_payment(form)
+        handle_debt_payment(form, "loan")
         self.assertEquals(create_mock.call_count, 2)
         self.assertEquals(get_mock.call_count, 2)
         self.assertTrue(Transfer.objects.exists())
 
     @patch('main.utils.create_transaction')
-    @patch('main.utils.get_loan_payment_transaction_data')
-    def test_handle_loan_payment(self, get_mock, create_mock):
+    @patch('main.utils.get_payment_transaction_data')
+    def test_handle_debt_payment_with_card_asset(self, get_mock, create_mock):
         transaction = AccountTransactionFactory()
         create_mock.return_value = transaction
         form = Mock()
         form.user = UserFactoryNoSignal()
-        handle_loan_payment(form)
+        handle_debt_payment(form, "card")
         self.assertEquals(create_mock.call_count, 2)
         self.assertEquals(get_mock.call_count, 2)
         self.assertTrue(Transfer.objects.exists())

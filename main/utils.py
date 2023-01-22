@@ -654,65 +654,35 @@ def create_transfer(data, user):
             date = data['date']
         )
 
-def get_loan_payment_transaction_data(form, asset):
+def get_payment_transaction_data(form, asset):
     '''
     Accepts a Django form and asset string. Creates and returns a data dictionary 
     required for creating a transaction object.
     '''
+    type = 'E' if asset=='account' else 'I'
     data = form.cleaned_data
-    category = Category.objects.get(user=form.user, name='Pay Loan')
+    category = Category.objects.get(user=form.user, name='Pay Debt', type=type)
     transaction_data = {
         'content_object': data.get(asset),
-        'name': 'Pay Loan',
+        'name': 'Pay Debt',
         'amount': abs(data.get('amount')),
         'date': data.get('date'),
         'category': category,
-        'type': 'E' if asset == 'account' else 'I'
+        'type': type
     }
     return transaction_data
 
-def get_credit_card_payment_transaction_data(form, asset):
-    '''
-    Accepts a Django form and asset string. Creates and returns a data dictionary 
-    required for creating a transaction object.
-    '''
-    data = form.cleaned_data
-    category = Category.objects.get(user=form.user, name='Pay Card')
-    transaction_data = {
-        'content_object': data.get(asset),
-        'name': 'Pay Card',
-        'amount': abs(data.get('amount')),
-        'date': data.get('date'),
-        'category': category,
-        'type': 'E' if asset == 'account' else 'I'
-    }
-    return transaction_data
-
-def handle_loan_payment(form):
+def handle_debt_payment(form, paid_asset):
     '''
     Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
     '''
     with transaction.atomic():
-        account_transaction = create_transaction(get_loan_payment_transaction_data(form, asset='account'))
-        loan_transaction = create_transaction(get_loan_payment_transaction_data(form, asset='loan'))
+        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account'))
+        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset))
         Transfer.objects.create(
                 user = form.user,
                 from_transaction = account_transaction,
-                to_transaction = loan_transaction,
-                date = account_transaction.date
-            )
-
-def handle_credit_card_payment(form):
-    '''
-    Accepts a Django form, creates transaction and transfer objects needed for credit card payment process.
-    '''
-    with transaction.atomic():
-        account_transaction = create_transaction(get_credit_card_payment_transaction_data(form, asset='account'))
-        credit_card_transaction = create_transaction(get_credit_card_payment_transaction_data(form, asset='card'))
-        Transfer.objects.create(
-                user = form.user,
-                from_transaction = account_transaction,
-                to_transaction = credit_card_transaction,
+                to_transaction = paid_asset_transaction,
                 date = account_transaction.date
             )
 
