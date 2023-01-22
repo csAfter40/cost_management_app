@@ -53,6 +53,7 @@ categories = {
     "Uncategorized": {"type": "I", "children": None},
     "Transfer In": {"type": "I", "children": None, "is_transfer": True, 'is_protected': True},
     "Loan In": {"type": 'I', 'children': None, 'is_protected': True},
-    "Card In": {"type": 'I', 'children': None, 'is_protected': True},
+    "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
+    "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "I", "children":None, "is_protected": True},
 }
