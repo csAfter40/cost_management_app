@@ -41,7 +41,8 @@ class ExpenseInputForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data['date'] > date.today():
+        form_date = cleaned_data.get('date', None)
+        if form_date and form_date > date.today():
             raise ValidationError("Future transactions are not permitted.")            
         return cleaned_data
 
@@ -80,7 +81,8 @@ class IncomeInputForm(ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data['date'] > date.today():
+        form_date = cleaned_data.get('date', None)
+        if form_date and form_date > date.today():
             raise ValidationError("Future transactions are not permitted.")            
         return cleaned_data
 
@@ -119,7 +121,9 @@ class TransferForm(forms.Form):
                 raise ValidationError(
                     "From account and To account can not have same value."
                 )
-        if cleaned_data['date'] > date.today():
+        form_date = cleaned_data.get('date', None)
+        if form_date and form_date > date.today():
+        # if cleaned_data['date'] > date.today():
             raise ValidationError("Future transfers are not permitted.")
         return cleaned_data
 
