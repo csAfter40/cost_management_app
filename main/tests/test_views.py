@@ -1139,6 +1139,10 @@ class TestProfileView(BaseViewTestMixin, TestCase):
         cls.view_function = views.ProfileView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
+    
+    def setUp(self) -> None:
+        super().setUp()
+        UserPreferencesFactory(user=self.user)
 
 class TestUpdateProfileView(BaseViewTestMixin, TestCase):
     @classmethod
