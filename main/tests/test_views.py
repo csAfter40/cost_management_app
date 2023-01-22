@@ -1216,6 +1216,50 @@ class TestLogoutView(BaseViewTestMixin, TestCase):
         self.assertFalse(user.is_authenticated)
 
 
+class TestGetAccountsView(TestListViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.model = Account
+        cls.model_factory = AccountFactory
+        cls.object_list_name = 'object_list'
+        cls.test_url = reverse('main:get_accounts')
+        cls.template = 'main/get_assets.html'
+        cls.view_function = views.GetAccountsView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_queryset(self):
+        self.model_factory.create_batch(5, user=self.user)
+        qs = self.model.objects.filter(user=self.user)
+        response = self.client.get(self.test_url)
+        context_qs = response.context.get(self.object_list_name, None)
+        if context_qs:
+            self.assertQuerysetEqual(qs, context_qs, ordered=False)
+
+
+class TestGetCreditCardsView(TestListViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.model = CreditCard
+        cls.model_factory = CreditCardFactory
+        cls.object_list_name = 'object_list'
+        cls.test_url = reverse('main:get_credit_cards')
+        cls.template = 'main/get_assets.html'
+        cls.view_function = views.GetCreditCardsView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def test_queryset(self):
+        self.model_factory.create_batch(5, user=self.user)
+        qs = self.model.objects.filter(user=self.user)
+        response = self.client.get(self.test_url)
+        context_qs = response.context.get(self.object_list_name, None)
+        if context_qs:
+            self.assertQuerysetEqual(qs, context_qs, ordered=False)
+
+
 class TestDeleteAccountView(UserFailTestMixin, BaseViewTestMixin, TestCase):
     
     @classmethod
