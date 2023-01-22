@@ -263,6 +263,38 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("main:index"))
 
 
+class GetAccountsView(LoginRequiredMixin, ListView):
+    model = Account
+    template_name = "main/get_assets.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+
+
+class GetCreditCardsView(LoginRequiredMixin, ListView):
+    model = CreditCard
+    template_name = "main/get_assets.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+
+
+class GetCreditCardsView(LoginRequiredMixin, ListView):
+    model = CreditCard
+    template_name = "main/get_assets.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+
+
+class GetCreditCardsView(LoginRequiredMixin, ListView):
+    model = CreditCard
+    template_name = "main/get_assets.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user, is_active=True)
+
+
 class AccountsView(LoginRequiredMixin, ListView):
     model = Account
     template_name = "main/accounts.html"
