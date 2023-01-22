@@ -2245,7 +2245,7 @@ class TestDeleteTransactionView(UserFailTestMixin, TestDeleteViewMixin, TestCase
         cls.model = Transaction
         cls.model_factory = AccountTransactionFactory
         cls.test_url_pattern = '/transactions/<pk>/delete' 
-        cls.success_url = reverse('main:main')
+        cls.success_url = reverse('main:transactions')
         cls.context_list = []
         cls.get_method = False
         cls.post_data = {}
