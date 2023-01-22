@@ -138,6 +138,10 @@ class Transaction(models.Model):
     def is_editable(self):
         return self.content_object.is_active
 
+    @property
+    def user(self):
+        return self.content_object.user
+
 
 class Assets(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
