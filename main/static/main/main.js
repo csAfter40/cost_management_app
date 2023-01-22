@@ -118,6 +118,10 @@ var asset_radio_button_divs = document.querySelectorAll('.form-check')
 asset_radio_button_divs.forEach(function(div) {
     div.classList.add('form-check-inline')
 });
+var installments_divs = document.querySelectorAll("#div_id_installments");
+installments_divs.forEach(function(div){
+    div.style.display = "none";
+});
 
 let labels = {'account': 'Account*', 'card': 'Credit Card*'};
 
@@ -134,5 +138,17 @@ function getAssets(asset, form) {
         let asset_label = asset_div.querySelector("label");
         asset_label.textContent = `${labels[asset]}`
         asset_list.innerHTML = obj;
+        switchInstallmentsInput(asset, form)
     })
+};
+
+function switchInstallmentsInput(asset, form) {
+    let installments_div = form.querySelector('#div_id_installments')
+    let installments_input = installments_div.querySelector('select')
+    if (asset == "account") {
+        installments_div.style.display = "none";
+        installments_input.value = "";
+    } else {
+        installments_div.style.display = "block";
+    };
 };

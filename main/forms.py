@@ -30,6 +30,10 @@ class ExpenseInputForm(ModelForm):
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
     content_object = ModelChoiceField(queryset=None, label='Account')
+    installments = forms.ChoiceField(
+        choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
+        initial="",
+    )
 
     class Meta:
         model = Transaction
@@ -80,6 +84,10 @@ class IncomeInputForm(ModelForm):
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
     content_object = ModelChoiceField(queryset=None, label='Account')
+    installments = forms.ChoiceField(
+        choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
+        initial="",
+    )
 
     class Meta:
         model = Transaction
