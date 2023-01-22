@@ -48,6 +48,12 @@ class TestUrls(SimpleTestCase):
     def test_update_profile_url(self):
         self.assert_path_resolves_to_CBV("/profile/update", views.UpdateProfileView, "update_profile")
 
+    def test_get_accounts_url(self):
+        self.assert_path_resolves_to_CBV("/get_assets/account", views.GetAccountsView, "get_accounts")
+
+    def test_get_cards_url(self):
+        self.assert_path_resolves_to_CBV("/get_assets/card", views.GetCreditCardsView, "get_credit_cards")
+
     def test_accounts_url(self):
         self.assert_path_resolves_to_CBV("/accounts", views.AccountsView, "accounts")
 
