@@ -7,15 +7,26 @@ from django.forms import (
     Select,
     ValidationError,
     ModelChoiceField,
-    IntegerField
+    IntegerField,
+    RadioSelect
 )
+
 from .models import Account, Currency, Transaction, Transfer, Category, Loan, CreditCard
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
 
 
 class ExpenseInputForm(ModelForm):
-
+    ASSET_CHOICES = [
+        ('account', 'Account'),
+        ('card', 'Credit Card'),
+    ]
+    expense_asset = forms.ChoiceField(
+        widget=RadioSelect(),
+        choices=ASSET_CHOICES,
+        initial='account',
+        label='Pay from:'
+    )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
     content_object = ModelChoiceField(queryset=None, label='Account')
@@ -56,6 +67,16 @@ class ExpenseInputForm(ModelForm):
 
 class IncomeInputForm(ModelForm):
 
+    ASSET_CHOICES = [
+        ('account', 'Account'),
+        ('card', 'Credit Card'),
+    ]
+    income_asset = forms.ChoiceField(
+        widget=RadioSelect(),
+        choices=ASSET_CHOICES,
+        initial='account',
+        label='Pay to:'
+    )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
     content_object = ModelChoiceField(queryset=None, label='Account')
