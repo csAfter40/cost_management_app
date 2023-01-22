@@ -1,7 +1,9 @@
 import {setupDeleteButtons} from "./delete_button_handler.js";
 import {setupPgButtons} from "./paginator_buttons_handler.js";
+import {setupFormRadioButtons} from "./form_radio_buttons_handler.js";
 
 setupDeleteButtons();
+setupFormRadioButtons(getAssets);
 
 // set autocomplete for expense and income name input fields
 var autocomplete_fields = document.querySelectorAll('.autocomplete');
@@ -109,4 +111,28 @@ function getCreditCardData(page=1) {
         setupPgButtons(getCreditCardData, creditCardsTableDiv);
         setupDeleteButtons();
     });
+};
+
+// set radio buttons as inline
+var asset_radio_button_divs = document.querySelectorAll('.form-check')
+asset_radio_button_divs.forEach(function(div) {
+    div.classList.add('form-check-inline')
+});
+
+let labels = {'account': 'Account*', 'card': 'Credit Card*'};
+
+function getAssets(asset, form) {
+    var url = `/get_assets/${asset}`;
+    fetch(url, {
+        method: "GET",
+        headers: {}
+    }).then(response => {
+        return response.text();
+    }).then(obj => {
+        let asset_list = form.querySelector("#id_content_object");
+        let asset_div = form.querySelector("#div_id_content_object");
+        let asset_label = asset_div.querySelector("label");
+        asset_label.textContent = `${labels[asset]}`
+        asset_list.innerHTML = obj;
+    })
 };
