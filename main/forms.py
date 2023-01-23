@@ -39,7 +39,7 @@ class ExpenseInputForm(ModelForm):
         widget=RadioSelect(),
         choices=ASSET_CHOICES,
         initial='account',
-        label='Pay from:'
+        label=False
     )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
@@ -105,7 +105,7 @@ class IncomeInputForm(ModelForm):
         widget=RadioSelect(),
         choices=ASSET_CHOICES,
         initial='account',
-        label='Pay to:'
+        label=False
     )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
