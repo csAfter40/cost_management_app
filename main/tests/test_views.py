@@ -773,7 +773,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         content = response.content.decode('utf-8')
         self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
 
-    def test_post_expense_success(self):
+    def test_post_expense_success_with_account(self):
         category = CategoryFactory(
             user=self.user, 
             parent=None, 
@@ -782,9 +782,11 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         account = AccountFactory(user=self.user)
         data = {
+            'expense_asset': 'account',
             'submit-expense': True,
             'name': 'test_transfer',
             'content_object': account.id,
+            'installments': "",
             'amount': 12,
             'category': category.id,
             'date': date.today(),
@@ -800,7 +802,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         self.assertTrue(
             Transaction.objects.all().exists(), 
-            msg='Transfer object not created.'
+            msg='Transaction object not created.'
         )
         transaction_obj = Transaction.objects.last()
         self.assertEquals(
@@ -833,12 +835,87 @@ class TestMainView(BaseViewTestMixin, TestCase):
             transaction_obj.type,
             msg="Type value not matching",
         )
+        self.assertEquals(
+            None, 
+            transaction_obj.installments,
+            msg="Account installments must be None",
+        )
+
+    def test_post_expense_success_with_credit_card(self):
+        category = CategoryFactory(
+            user=self.user, 
+            parent=None, 
+            type='E', 
+            is_transfer=False
+        )
+        card = CreditCardFactory(user=self.user)
+        data = {
+            'expense_asset': 'account',
+            'submit-expense': True,
+            'name': 'test_transfer',
+            'content_object': card.id,
+            'installments': 3,
+            'amount': 12,
+            'category': category.id,
+            'date': date.today(),
+            'type': 'E'
+        }
+        response = self.client.post(self.test_url, data)
+        self.assertRedirects(
+            response, 
+            reverse('main:main'), 
+            status_code=302, 
+            target_status_code=200, 
+            fetch_redirect_response=True
+        )
+        self.assertTrue(
+            Transaction.objects.all().exists(), 
+            msg='Transaction object not created.'
+        )
+        transaction_obj = Transaction.objects.last()
+        self.assertEquals(
+            data['name'], 
+            transaction_obj.name,
+            msg="Name value not matching",
+        )
+        self.assertEquals(
+            data['content_object'], 
+            transaction_obj.object_id,
+            msg="Account id value not matching",
+        )
+        self.assertEquals(
+            data['amount'], 
+            transaction_obj.amount,
+            msg="Amount value not matching",
+        )
+        self.assertEquals(
+            data['category'], 
+            transaction_obj.category.id,
+            msg="Category id value not matching",
+        )
+        self.assertEquals(
+            data['date'], 
+            transaction_obj.date,
+            msg="Date value not matching",
+        )
+        self.assertEquals(
+            data['type'], 
+            transaction_obj.type,
+            msg="Type value not matching",
+        )
+        self.assertEquals(
+            data['installments'], 
+            transaction_obj.installments,
+            msg="Account installments must be None",
+        )
 
     def test_post_expense_failure(self):
         data = {
+            'expense_asset': 'account',
             'submit-expense': True,
             'name': 'test_transfer',
             'account': 'invalid_data',
+            'installments': '',
             'amount': 'invalid_data',
             'category': 'invalid_data',
             'date': date.today(),

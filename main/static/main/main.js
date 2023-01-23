@@ -36,20 +36,25 @@ $(function () {
 });
 
 // handle expense input form submit button
-let expenseFormSubmit = document.querySelector("#expense-submit")
+let expenseFormSubmit = document.querySelector("#expense-submit");
 expenseFormSubmit.account = document.querySelector("#id_content_object");
 expenseFormSubmit.amount = document.querySelector("#id_amount");
 expenseFormSubmit.addEventListener("click", validateNegativeAccountBalance);
 
 // handle transfer form submit button
-let transferFormSubmit = document.querySelector("#transfer-submit")
-transferFormSubmit.account = document.querySelector("#from-account-field")
-transferFormSubmit.amount = document.querySelector("#id_from_amount")
+let transferFormSubmit = document.querySelector("#transfer-submit");
+transferFormSubmit.account = document.querySelector("#from-account-field");
+transferFormSubmit.amount = document.querySelector("#id_from_amount");
 transferFormSubmit.addEventListener("click", validateNegativeAccountBalance);
 
 function validateNegativeAccountBalance(event) {
-    const balanceData = JSON.parse(document.querySelector("#account-balance-data").textContent)
-    var account = event.currentTarget.account.value
+    if (event.currentTarget.id == "expense-submit") {
+        let expenseForm = document.querySelector('#expense-input-form');
+        let assetType = expenseForm.querySelector('input[name="expense_asset"]:checked').value;
+        if (assetType == "card") {return true};
+    };
+    const balanceData = JSON.parse(document.querySelector("#account-balance-data").textContent);
+    var account = event.currentTarget.account.value;
     var balance = parseFloat(balanceData[account]);
     var amount = Math.abs(parseFloat(event.currentTarget.amount.value));
     if (balance >= 0 && amount > balance) {
