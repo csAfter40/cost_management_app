@@ -109,12 +109,7 @@ class IncomeInputForm(ModelForm):
     )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
-    content_object = ModelChoiceField(queryset=None, label='Account')
-    installments = forms.ChoiceField(
-        choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
-        initial="",
-        required=False
-    )
+    content_object = MyModelChoiceField(queryset=None, label='Account')
 
     class Meta:
         model = Transaction
@@ -134,9 +129,11 @@ class IncomeInputForm(ModelForm):
         self.fields["content_object"].queryset = Account.objects.filter(
             user=self.user, is_active=True
         )
-
+    
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get("income_asset", None):
+            del cleaned_data['income_asset']
         form_date = cleaned_data.get('date', None)
         if form_date and form_date > date.today():
             raise ValidationError("Future transactions are not permitted.")            

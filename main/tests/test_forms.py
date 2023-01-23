@@ -106,10 +106,25 @@ class TestForms(TestCase):
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
 
-    def test_income_input_form_with_valid_data(self):
+    def test_income_input_form_with_valid_account_data(self):
         data = {
+            "income_asset": "account",
             "name": "test_name",
             "content_object": self.valid_account.id,
+            "amount": "10",
+            "category": self.valid_income_category.id,
+            "date": datetime.date(2022, 2, 2),
+            "type": "I",
+        }
+        form = IncomeInputForm(user=self.user, data=data)
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+    def test_income_input_form_with_valid_card_data(self):
+        data = {
+            "income_asset": "account",
+            "name": "test_name",
+            "content_object": self.valid_card.id,
             "amount": "10",
             "category": self.valid_income_category.id,
             "date": datetime.date(2022, 2, 2),
