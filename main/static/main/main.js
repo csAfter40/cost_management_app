@@ -143,7 +143,9 @@ function getAssets(asset, form) {
         let asset_label = asset_div.querySelector("label");
         asset_label.textContent = `${labels[asset]}`
         asset_list.innerHTML = obj;
-        switchInstallmentsInput(asset, form)
+        if (form.id == "expense-input-form") {
+            switchInstallmentsInput(asset, form)
+        };
     })
 };
 

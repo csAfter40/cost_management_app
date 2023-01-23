@@ -935,6 +935,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         )
         account = AccountFactory(user=self.user)
         data = {
+            'income_asset': "account",
             'submit-income': True,
             'name': 'test_transfer',
             'content_object': account.id,
@@ -989,6 +990,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
     
     def test_post_income_failure(self):
         data = {
+            'income_asset': "invalid asset",
             'submit-income': True,
             'name': 'test_transfer',
             'account': 'invalid_data',
@@ -1000,7 +1002,7 @@ class TestMainView(BaseViewTestMixin, TestCase):
         response = self.client.post(self.test_url, data)
         self.assertEquals(response.status_code, 200)
         content = response.content.decode('utf-8')
-        self.assertEquals(content.count('invalid-feedback'), 3, msg='Error count not matching')
+        self.assertEquals(content.count('invalid-feedback'), 4, msg='Error count not matching')
 
 
 class TestTransactionNameAutocomplete(BaseViewTestMixin, TestCase):
