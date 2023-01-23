@@ -16,6 +16,20 @@ from mptt.forms import TreeNodeChoiceField
 from datetime import date
 
 
+class MyModelChoiceField(ModelChoiceField):
+
+   def to_python(self, value):
+        try:
+            value = super(MyModelChoiceField, self).to_python(value)
+        except:
+            key = self.to_field_name or 'pk'
+            value = CreditCard.objects.filter(**{key: value})
+            if not value.exists():
+               raise ValidationError(self.error_messages['invalid_choice'], code='invalid_choice')
+            else:
+               value= value.first()
+        return value
+
 class ExpenseInputForm(ModelForm):
     ASSET_CHOICES = [
         ('account', 'Account'),
@@ -29,10 +43,11 @@ class ExpenseInputForm(ModelForm):
     )
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
-    content_object = ModelChoiceField(queryset=None, label='Account')
+    content_object = MyModelChoiceField(queryset=None, label='Account')
     installments = forms.ChoiceField(
         choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
         initial="",
+        required=False
     )
 
     class Meta:
@@ -47,18 +62,29 @@ class ExpenseInputForm(ModelForm):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+        self.accounts = Account.objects.filter(user=self.user, is_active=True)
+        self.cards = CreditCard.objects.filter(user=self.user, is_active=True)
         self.fields["category"].queryset = Category.objects.filter(
             user=self.user, type="E", is_protected=False
         )
-        self.fields["content_object"].queryset = Account.objects.filter(
-            user=self.user, is_active=True
-        )
+        self.fields["content_object"].queryset = self.accounts
 
     def clean(self):
         cleaned_data = super().clean()
+        try:
+            cleaned_data["installments"] = cleaned_data["installments"] if cleaned_data["installments"] else None
+        except KeyError:
+            cleaned_data["installments"] = None
+        if cleaned_data.get("expense_asset", None):
+            del cleaned_data['expense_asset']
         form_date = cleaned_data.get('date', None)
         if form_date and form_date > date.today():
-            raise ValidationError("Future transactions are not permitted.")            
+            raise ValidationError("Future transactions are not permitted.") 
+        asset = cleaned_data.get("content_object", None)
+        if asset not in self.accounts and not asset in self.cards:
+            raise ValidationError("Account/Credit Card not found")
+        if isinstance(asset, Account) and cleaned_data["installments"] is not None:
+            raise ValidationError("Installment plan is only availavle for credit cards.")
         return cleaned_data
 
     def save(self, commit=True):
@@ -87,6 +113,7 @@ class IncomeInputForm(ModelForm):
     installments = forms.ChoiceField(
         choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
         initial="",
+        required=False
     )
 
     class Meta:

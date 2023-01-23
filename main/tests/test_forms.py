@@ -30,7 +30,9 @@ class TestForms(TestCase):
     def setUp(self):
         self.user = UserFactoryNoSignal()
         self.valid_account = AccountFactory(user=self.user)
+        self.valid_card = CreditCardFactory(user=self.user)
         self.invalid_account = AccountFactory()
+        self.invalid_card = CreditCardFactory()
         self.valid_expense_category = CategoryFactory(
             user=self.user, type="E", parent=None
         )
@@ -39,31 +41,70 @@ class TestForms(TestCase):
         )
         self.invalid_category = CategoryFactory(parent=None)
 
-    def test_expense_input_form_with_valid_data(self):
+    def test_expense_input_form_with_valid_account_data(self):
         data = {
+            "expense_asset": "account",
             "name": "test_name",
             "content_object": self.valid_account.id,
             "amount": "10",
+            "installments": None,
             "category": self.valid_expense_category.id,
             "date": datetime.date(2022, 2, 2),
             "type": "E",
         }
         form = ExpenseInputForm(user=self.user, data=data)
+        del data["expense_asset"]
         for key, value in data.items():
             self.assertEquals(form[key].value(), value)
-
+    
     def test_expense_input_form_with_invalid_data(self):
         data = {
+            "expense_asset": "invalid asset",
             "name": "",
-            "content_object": self.invalid_account.id,
-            "amount": "abc",
+            "content_object": "10000",
+            "amount": "invalid amount",
+            "installments": 55,
             "category": self.invalid_category.id,
-            "date": "invalid_date",
+            "date": "invalid date",
             "type": "invalid type",
         }
         form = ExpenseInputForm(user=self.user, data=data)
+        del data["expense_asset"]
         for key, value in data.items():
             self.assertIn(key, form.errors)
+
+    def test_expense_input_form_with_valid_card_data_no_installments(self):
+        data = {
+            "expense_asset": "card",
+            "name": "test_name",
+            "content_object": self.valid_card.id,
+            "amount": "10",
+            "installments": None,
+            "category": self.valid_expense_category.id,
+            "date": datetime.date(2022, 2, 2),
+            "type": "E",
+        }
+        form = ExpenseInputForm(user=self.user, data=data)
+        del data["expense_asset"]
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
+
+
+    def test_expense_input_form_with_valid_card_data_with_installments(self):
+        data = {
+            "expense_asset": "card",
+            "name": "test_name",
+            "content_object": self.valid_card.id,
+            "amount": "10",
+            "installments": 10,
+            "category": self.valid_expense_category.id,
+            "date": datetime.date(2022, 2, 2),
+            "type": "E",
+        }
+        form = ExpenseInputForm(user=self.user, data=data)
+        del data["expense_asset"]
+        for key, value in data.items():
+            self.assertEquals(form[key].value(), value)
 
     def test_income_input_form_with_valid_data(self):
         data = {
