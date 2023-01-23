@@ -94,13 +94,16 @@ class TestUtilityFunctions(TestCase):
         self.user = UserFactoryNoSignal()
 
     @patch('main.utils.Account')
+    @patch('main.utils.CreditCard')
     @patch('main.utils.Transaction')
-    def test_get_latest_transactions_no_db(self, mock_transaction, mock_account):
+    def test_get_latest_transactions_no_db(self, mock_transaction, mock_card, mock_account):
         user = 'user'
         mock_account.objects.filter.return_value.values_list.return_value = [AccountFactory.build().id]
+        mock_card.objects.filter.return_value.values_list.return_value = [CreditCardFactory.build().id]
         mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
         transactions = get_latest_transactions(user, 5)
         self.assertTrue(mock_account.called_once)
+        self.assertTrue(mock_card.called_once)
         self.assertTrue(mock_transaction.called_once)
         self.assertEquals(len(transactions), 5)
 

@@ -1,5 +1,5 @@
 import datetime
-from .models import Account, Category, Transaction, Transfer
+from .models import Account, Category, Transaction, Transfer, CreditCard
 from .utils import (
     get_category_stats,
     get_comparison_stats,
@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, Http404
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.conf import settings
+from django.db.models import Q
 
 
 class TransactionsDateArchiveMixin(LoginRequiredMixin):
@@ -38,11 +39,16 @@ class TransactionsDateArchiveMixin(LoginRequiredMixin):
         user_accounts_list = Account.objects.filter(
             user=self.request.user
         ).values_list("pk", flat=True)
+        user_cards_list = CreditCard.objects.filter(
+            user=self.request.user
+        ).values_list("pk", flat=True)
         return (
             super()
             .get_queryset()
             .filter(
-                content_type__model="account", object_id__in=user_accounts_list
+                # content_type__model="account", object_id__in=user_accounts_list
+                Q(content_type__model="account") & Q(object_id__in=user_accounts_list) |
+                Q(content_type__model="creditcard") & Q(object_id__in=user_cards_list)
             )
         )
 

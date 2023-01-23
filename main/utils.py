@@ -25,9 +25,12 @@ from dateutil.relativedelta import relativedelta
 
 def get_latest_transactions(user, qty):
     account_ids = Account.objects.filter(user=user).values_list("id", flat=True)
+    card_ids = CreditCard.objects.filter(user=user).values_list("id", flat=True)
     transactions = (
         Transaction.objects.filter(
-            content_type__model="account", object_id__in=account_ids
+            # content_type__model="account", object_id__in=account_ids
+            Q(content_type__model="account") & Q(object_id__in=account_ids) | 
+            Q(content_type__model="creditcard") & Q(object_id__in=card_ids)
         )
         .exclude(category__is_transfer=True)
         .order_by("-date")[:qty]
