@@ -520,6 +520,26 @@ class TestPayCreditCardView(BaseViewTestMixin, TestCase):
             self.assertEquals(before_transaction_qty, after_transaction_qty)
 
 
+class TestCreditCardDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url_pattern = '/cards/<pk>'
+        cls.context_list = ['transactions', 'expense_stats', 'date']
+        cls.template = 'main/credit_card_detail.html'
+        cls.get_method = True
+        cls.view_function = views.CreditCardDetailView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+        cls.model = CreditCard
+        cls.model_factory = CreditCardFactory
+        cls.object_context_name = 'card'
+
+    def setUp(self):
+        super().setUp()
+        self.object.user = self.user
+        self.object.save()  
+
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
