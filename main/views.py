@@ -53,7 +53,8 @@ from .view_mixins import (
     SubcategoryDateArchiveMixin,
     AccountDetailDateArchiveMixin,
     TransfersDateArchiveMixin,
-    TransactionsDateArchiveMixin
+    TransactionsDateArchiveMixin,
+    CreditCardDetailDateArchiveMixin,
 )
 from .utils import (
     create_transaction,
@@ -495,8 +496,8 @@ class EditCreditCardView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class CreditCardDetailView(LoginRequiredMixin, DetailView):
-    pass
+class CreditCardDetailView(CreditCardDetailDateArchiveMixin, ArchiveIndexView):
+    template_name = "main/credit_card_detail.html"
 
 
 class LoansView(LoginRequiredMixin, ListView):
