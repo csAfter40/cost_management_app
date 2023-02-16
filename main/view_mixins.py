@@ -255,11 +255,21 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
 
     def get_queryset(self):
         account = self.get_account()
+        card = self.get_card()
         if account:
             return (
                 super()
                 .get_queryset()
                 .filter(account=account)
+                .exclude(category__is_transfer=True)
+                .select_related("category")
+                .prefetch_related("content_object__currency")
+            )
+        elif card:
+            return (
+                super()
+                .get_queryset()
+                .filter(credit_card=card)
                 .exclude(category__is_transfer=True)
                 .select_related("category")
                 .prefetch_related("content_object__currency")
@@ -284,6 +294,16 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
         except:
             return None
 
+    def get_card(self):
+        try:
+            card_id = self.request.GET.get("card")
+            card = CreditCard.objects.get(id=card_id)
+            if not card.is_active:
+                raise Http404
+            return card
+        except: 
+            return None
+
     def get_category(self):
         self.category = get_object_or_404(Category, pk=self.kwargs.get("pk"))
         return self.category
@@ -294,3 +314,60 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
             qs, self.category, self.request.user
         )
         return JsonResponse(data)
+
+
+class CreditCardDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
+
+    # template_name = "main/group_account_bar_table_chart_script.html"
+    model = Transaction
+    date_field = "date"
+    paginate_by = 2
+    # paginate_by = settings.DEFAULT_PAGINATION_QTY
+    allow_future = True
+    allow_empty = True
+    context_object_name = "transactions"
+    month_format = "%m"
+    make_object_list = True
+
+    def test_func(self):
+        return self.card.user == self.request.user
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.set_card()
+
+    def set_card(self):
+        card_id = self.kwargs.get("pk")
+        self.card = get_object_or_404(CreditCard, id=card_id)
+        if not self.card.is_active:
+            raise Http404
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(credit_card=self.card)
+            .prefetch_related("content_object__currency")
+        )
+
+    def get_context_data(self, **kwargs):
+        transactions = self.get_dated_items()[1]
+        # stats = get_stats(transactions, self.account.balance)
+        expense_category_stats = get_category_stats(
+            transactions, "E", None, self.request.user
+        )
+        # income_category_stats = get_category_stats(
+        #     transactions, "I", None, self.request.user
+        # )
+        # comparison_stats = get_comparison_stats(
+        #     expense_category_stats, income_category_stats
+        # )
+        context = {
+            "card": self.card,
+            # "stats": stats,
+            "expense_stats": expense_category_stats,
+            # "income_stats": income_category_stats,
+            # "comparison_stats": comparison_stats,
+            "date": datetime.date.today(),
+        }
+        return super().get_context_data(**context)
