@@ -1,0 +1,9 @@
+<script id="chart-script">
+    let expenseLabels = [{% for key, value in expense_stats.items %}'{{key}}', {% endfor %}];
+    let expenseData = [{% for key, value in expense_stats.items %}{{ value.sum }}, {% endfor %}];
+    let expenseIds = [{% for key, value in expense_stats.items %}{{ value.id }}, {% endfor %}];
+    expensesChart.data.labels = expenseLabels;
+    expensesChart.data.datasets[0].data = expenseData;
+    expensesChart.data.datasets[0].ids = expenseIds;
+    expensesChart.update();
+</script>
