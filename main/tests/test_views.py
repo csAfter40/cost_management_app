@@ -540,6 +540,92 @@ class TestCreditCardDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase)
         self.object.user = self.user
         self.object.save()  
 
+
+class TestCreditCardDetailAllArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.CreditCardDetailAllArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:credit_card_all_archive', 
+                            kwargs = {'pk':self.object.id}
+                        )
+
+class TestCreditCardDetailYearArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.CreditCardDetailYearArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:credit_card_year_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001}
+                        )
+
+class TestCreditCardDetailMonthArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.CreditCardDetailMonthArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:credit_card_month_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001, 'month':2}
+                        )
+
+class TestCreditCardDetailWeekArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.CreditCardDetailWeekArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:credit_card_week_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001, 'week':2}
+                        )
+
+class TestCreditCardDetailDayArchiveView(UserFailTestMixin, BaseViewTestMixin, TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.test_url = ''
+        cls.view_function = views.CreditCardDetailDayArchiveView.as_view()
+        cls.login_required = True
+        cls.user_factory = UserFactoryNoSignal
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.object = CreditCardFactory(user=self.user)
+        self.test_url = reverse(
+                            'main:credit_card_day_archive', 
+                            kwargs = {'pk':self.object.id, 'year': 2001, 'month':2, 'day': 1}
+                        )
+
 class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
