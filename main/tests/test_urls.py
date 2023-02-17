@@ -120,6 +120,31 @@ class TestUrls(SimpleTestCase):
     def test_cards_detail_url(self):
         self.assert_path_resolves_to_CBV("/cards/1", views.CreditCardDetailView, "credit_card_detail", pk=1)
 
+    def test_credit_card_all_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/cards/1/date", views.CreditCardDetailAllArchiveView, "credit_card_all_archive", pk=1
+        )
+    
+    def test_credit_card_year_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/cards/1/date/2001", views.CreditCardDetailYearArchiveView, "credit_card_year_archive", pk=1, year=2001
+        )
+    
+    def test_credit_card_month_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/cards/1/date/2001/2", views.CreditCardDetailMonthArchiveView, "credit_card_month_archive", pk=1, year=2001, month=2
+        )
+    
+    def test_credit_card_week_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/cards/1/date/2001/week/2", views.CreditCardDetailWeekArchiveView, "credit_card_week_archive", pk=1, year=2001, week=2
+        )
+    
+    def test_credit_card_day_archive_url(self):
+        self.assert_path_resolves_to_CBV(
+            "/cards/1/date/2001/2/1", views.CreditCardDetailDayArchiveView, "credit_card_day_archive", pk=1, year=2001, month=2, day=1
+        )
+
     def test_cards_edit_url(self):
         self.assert_path_resolves_to_CBV("/cards/1/edit", views.EditCreditCardView, "edit_credit_card", pk=1)
 
