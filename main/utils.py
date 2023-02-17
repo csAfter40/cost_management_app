@@ -238,7 +238,7 @@ def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
 
     return category_stats
 
-def get_multi_currency_category_json_stats(qs, parent, user, target_currency=None):
+def get_multi_currency_category_json_stats(qs, parent, user, target_currency=None, card=False):
     """
     Gets a qs of transactions, a category type, a parent category, a user and target currency. 
     Extracts and returns data to be used in subcategory modal charts.
@@ -247,13 +247,21 @@ def get_multi_currency_category_json_stats(qs, parent, user, target_currency=Non
     labels = []
     if not target_currency:
         target_currency = user.primary_currency
+    if not card:
+        categories = parent.get_descendants(include_self=True).annotate(
+            sum=Sum(
+                F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
+                filter=Q(transactions__in=qs)
+                )
+        ).exclude(sum=None)
+    else:
+        categories = parent.get_descendants(include_self=True).annotate(
+            sum=Sum(
+                F('transactions__amount')/F('transactions__credit_card__currency__rate__rate')*target_currency.get_rate(), 
+                filter=Q(transactions__in=qs)
+                )
+        ).exclude(sum=None)
 
-    categories = parent.get_descendants(include_self=True).annotate(
-        sum=Sum(
-            F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
-            filter=Q(transactions__in=qs)
-            )
-    ).exclude(sum=None)
     for category in categories:
         labels.append(category.name)
         if category.sum:
@@ -262,6 +270,7 @@ def get_multi_currency_category_json_stats(qs, parent, user, target_currency=Non
         "data": sum_data,
         "labels": labels,
     }
+    print(data)
     return data
 
 def get_multi_currency_main_category_stats(qs, category_type, user, target_currency=None):
