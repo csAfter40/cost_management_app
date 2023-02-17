@@ -500,6 +500,36 @@ class CreditCardDetailView(CreditCardDetailDateArchiveMixin, ArchiveIndexView):
     template_name = "main/credit_card_detail.html"
 
 
+class CreditCardDetailAllArchiveView(
+    CreditCardDetailDateArchiveMixin, ArchiveIndexView
+):
+    pass
+
+
+class CreditCardDetailYearArchiveView(
+    CreditCardDetailDateArchiveMixin, YearArchiveView
+):
+    pass
+
+
+class CreditCardDetailMonthArchiveView(
+    CreditCardDetailDateArchiveMixin, MonthArchiveView
+):
+    pass
+
+
+class CreditCardDetailWeekArchiveView(
+    CreditCardDetailDateArchiveMixin, WeekArchiveView
+):
+    pass
+
+
+class CreditCardDetailDayArchiveView(
+    CreditCardDetailDateArchiveMixin, DayArchiveView
+):
+    pass
+
+
 class LoansView(LoginRequiredMixin, ListView):
     pass
 

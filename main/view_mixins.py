@@ -318,11 +318,10 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
 
 class CreditCardDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
 
-    # template_name = "main/group_account_bar_table_chart_script.html"
+    template_name = "main/group_table_paginator_chart_script.html"
     model = Transaction
     date_field = "date"
-    paginate_by = 2
-    # paginate_by = settings.DEFAULT_PAGINATION_QTY
+    paginate_by = settings.DEFAULT_PAGINATION_QTY
     allow_future = True
     allow_empty = True
     context_object_name = "transactions"
@@ -352,22 +351,12 @@ class CreditCardDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         transactions = self.get_dated_items()[1]
-        # stats = get_stats(transactions, self.account.balance)
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
         )
-        # income_category_stats = get_category_stats(
-        #     transactions, "I", None, self.request.user
-        # )
-        # comparison_stats = get_comparison_stats(
-        #     expense_category_stats, income_category_stats
-        # )
         context = {
             "card": self.card,
-            # "stats": stats,
             "expense_stats": expense_category_stats,
-            # "income_stats": income_category_stats,
-            # "comparison_stats": comparison_stats,
             "date": datetime.date.today(),
         }
         return super().get_context_data(**context)
