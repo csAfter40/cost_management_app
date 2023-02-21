@@ -93,6 +93,7 @@ class Transaction(models.Model):
     installments = models.PositiveIntegerField(blank=True, null=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    due_date = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -125,6 +126,12 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         self.amount = abs(self.amount)
         super().save(*args, **kwargs)
+
+    @property
+    def installment_amount(self):
+        if self.installments:
+            return self.amount/self.installments
+        return None
 
     @property
     def class_name(self):
@@ -223,16 +230,16 @@ class CreditCard(Assets):
             )
         ]
 
+    def get_next_payment_date(self, current_date):
+        from .utils import get_next_month, get_valid_date # import the function here due to circular import
+        if current_date.day <= self.payment_day:
+            return get_valid_date(current_date.year, current_date.month, self.payment_day)
+        next_month = get_next_month(f"{current_date.year}-{current_date.month}").split("-")
+        return get_valid_date(int(next_month[0]), int(next_month[1]), self.payment_day)
+    
     @property
     def next_payment_date(self):
-        from .utils import get_next_month, get_valid_date # import the function here due to circular import
-        now = date.today()
-        if now.day <= self.payment_day:
-            return get_valid_date(now.year, now.month, self.payment_day)
-            # return date(now.year, now.month, self.payment_day)
-        next_month = get_next_month(f"{now.year}-{now.month}").split("-")
-        return get_valid_date(int(next_month[0]), int(next_month[1]), self.payment_day)
-        # return date(int(next_month[0]), int(next_month[1]), self.payment_day)
+        return self.get_next_payment_date(date.today())
 
     @property
     def delete_url(self):
