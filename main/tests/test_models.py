@@ -20,7 +20,8 @@ from main.tests.factories import (
     TransferFactory,
     UserPreferencesFactory,
     RateFactory,
-    CreditCardFactory
+    CreditCardFactory,
+    CreditCardTransactionFactory
 )
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -197,6 +198,9 @@ class TestTransaction(TestCase):
         self.assertEquals(positive_amount_transaction.amount, 10)
         self.assertEquals(negative_amount_transaction.amount, 10)
 
+    def test_installment_amount_property(self):
+        card_transaction = CreditCardTransactionFactory(installments=5, amount=10)
+        self.assertEquals(card_transaction.installment_amount, 2)
 
 class TestTransfer(TestCase):
     def test_str(self):
