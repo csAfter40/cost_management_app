@@ -4,7 +4,8 @@ from main.models import Account, Category, Transaction, Transfer, User, Currency
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
 import string
-
+import datetime
+from pytz import UTC
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -101,6 +102,8 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     date = factory.Faker('date')
     category = factory.SubFactory(CategoryFactory, parent__parent=None)
     type = 'E'
+    installments = None
+    due_date = None
 
     class Meta:
         exclude = 'content_object'
@@ -116,6 +119,14 @@ class LoanTransactionFactory(TransactionFactory):
 
 class AccountTransactionFactory(TransactionFactory):
     content_object = factory.SubFactory(AccountFactory)
+
+    class Meta:
+        model = Transaction
+
+class CreditCardTransactionFactory(TransactionFactory):
+    content_object = factory.SubFactory(CreditCardFactory)
+    installments = factory.fuzzy.FuzzyInteger(2, 32)
+    due_date = factory.fuzzy.FuzzyDateTime(datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
     class Meta:
         model = Transaction
