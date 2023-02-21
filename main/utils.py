@@ -130,6 +130,19 @@ def get_credit_card_balance_data(user):
         data[card.id] = card.balance
     return data
 
+def get_incomplete_expences(card):
+    # incomplete_expences = Transaction.objects.filter() 
+    pass
+
+def add_installments_to_payment_plan(expence, payment_plan):
+    pass
+
+def get_credit_card_payment_plan(card):
+    payment_plan = {}
+    incomplete_expences = get_incomplete_expences(card)
+    for expence in incomplete_expences:
+        add_installments_to_payment_plan(expence, payment_plan)
+    return payment_plan
 
 def validate_main_category_uniqueness(name, user, type):
     return not Category.objects.filter(
@@ -270,7 +283,6 @@ def get_multi_currency_category_json_stats(qs, parent, user, target_currency=Non
         "data": sum_data,
         "labels": labels,
     }
-    print(data)
     return data
 
 def get_multi_currency_main_category_stats(qs, category_type, user, target_currency=None):
@@ -612,13 +624,30 @@ def edit_asset_balance(transaction):
         asset.balance += amount 
     asset.save()
 
+def get_transaction_installment_due_date(transaction_date, installments, card):
+    """
+    Given a card, a transaction date and installments qty, calculates payment due date of the transaction.
+    1. Find the next payment date using the transaction date
+    2. Go to day 1 of the next payment date month
+    3. Add installments qty months to that date
+    4. Finds final payment date using card's get_next_payment_date method
+    """
+    next_payment_date = card.get_next_payment_date(transaction_date)
+    first_day_of_month = date(next_payment_date.year, next_payment_date.month, 1)
+    installments_months_later = first_day_of_month + relativedelta(months=int(installments)-1)
+    due_date = card.get_next_payment_date(installments_months_later)
+    return due_date
+
 def create_transaction(data):
     '''
     Accepts a dictionary object, creates a transaction, edits related asset balance 
     and returns the created transaction object.
     '''
     with transaction.atomic():
-        transaction_obj = Transaction.objects.create(**data)   
+        transaction_obj = Transaction.objects.create(**data)
+        if data['installments']:
+            transaction_obj.due_date = get_transaction_installment_due_date(data['date'], data['installments'], data['content_object'])
+            transaction_obj.save()
         edit_asset_balance(transaction_obj)
     return transaction_obj
 
