@@ -4,7 +4,7 @@ from main.models import (
 )
 from main.tests.factories import (
     AccountTransactionFactory, LoanTransactionFactory, RateFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransactionFactory, TransferFactory, UserPreferencesFactory, CreditCardFactory
+    LoanFactory, CategoryFactory, TransferFactory, UserPreferencesFactory, CreditCardFactory, CreditCardTransactionFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
 from django.test import TestCase
@@ -51,6 +51,10 @@ class TestAccountTransactionFactory(BaseFactoryTestMixin, TestCase):
 class TestLoanTransactionFactory(BaseFactoryTestMixin, TestCase):
     model = Transaction
     factory_class = LoanTransactionFactory
+
+class TestCreditCardTransactionFactory(BaseFactoryTestMixin, TestCase):
+    model = Transaction
+    factory_class = CreditCardTransactionFactory
 
 
 class TestTransferFactoryNoSignal(BaseFactoryTestMixin, TestCase):
