@@ -13,6 +13,8 @@ from main.utils import (
     get_dates,
     get_credit_card_data,
     get_credit_card_balance_data,
+    get_credit_card_payment_plan,
+    get_transaction_installment_due_date,
     get_loan_data,
     get_loan_balance_data,
     get_latest_transactions,
@@ -83,6 +85,7 @@ from main.tests.factories import (
 )
 import datetime
 from datetime import timedelta
+from pytz import UTC
 from main.categories import categories
 from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency
 from freezegun import freeze_time
@@ -571,11 +574,33 @@ class TestUtilityFunctions(TestCase):
             'amount': 10,
             'date': datetime.date(2001,1,1),
             'category': category,
-            'type': 'E'
+            'type': 'E',
+            'installments': None,
+            'due_date': None
         }
         transaction_object = create_transaction(data)
         self.assertIsNotNone(transaction_object)
         self.assertEquals(transaction_object.name, data['name'])
+        mock.assert_called_once()
+
+    @patch('main.utils.get_transaction_installment_due_date')
+    def test_create_transaction_with_due_date(self, mock):
+        due_date = datetime.datetime(2001, 4, 5, tzinfo=UTC)
+        mock.return_value = due_date
+        card = CreditCardFactory()
+        category = CategoryFactory(parent=None)
+        data = {
+            'content_object': card,
+            'name': 'test',
+            'amount': 10,
+            'date': datetime.date(2001,1,1),
+            'category': category,
+            'type': 'E',
+            'installments': 4
+        }
+        transaction_object = create_transaction(data)
+        self.assertIsNotNone(transaction_object)
+        self.assertEquals(transaction_object.due_date, due_date)
         mock.assert_called_once()
 
     @patch('main.utils.create_transaction')
@@ -937,3 +962,20 @@ class TestUtilityFunctions(TestCase):
             'cat2': {'sum': 11, 'id':category2.id},
         }
         self.assertEquals(result, expected)
+
+    @patch('main.utils.get_incomplete_expences')
+    @patch('main.utils.add_installments_to_payment_plan')
+    def test_get_credit_card_payment_plan(self, mock1, mock2):
+        mock1.return_value = None
+        mock2.return_value = ['expense1', 'expense2']
+        payment_plan = get_credit_card_payment_plan('mock_card')
+        self.assertIsInstance(payment_plan, dict)
+        self.assertTrue(mock1.called)
+        self.assertTrue(mock2.called_once)
+
+    def test_get_transaction_installment_due_date(self):
+        card = CreditCardFactory(payment_day=5)
+        transaction_date = datetime.date(1999, 12, 13)
+        installments = 5
+        date = get_transaction_installment_due_date(transaction_date, installments, card)
+        self.assertEquals(date, datetime.date(2000, 5, 5))
