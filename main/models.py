@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from wallet.settings import DEFAULT_CURRENCY_PK
 from django.urls import reverse
 
@@ -236,6 +237,11 @@ class CreditCard(Assets):
             return get_valid_date(current_date.year, current_date.month, self.payment_day)
         next_month = get_next_month(f"{current_date.year}-{current_date.month}").split("-")
         return get_valid_date(int(next_month[0]), int(next_month[1]), self.payment_day)
+    
+    def get_previous_payment_date(self, current_date):
+        first_day_of_the_month = date(current_date.year, current_date.month, 1)
+        first_day_of_the_previous_month = first_day_of_the_month + relativedelta(months=-1)
+        return self.get_next_payment_date(first_day_of_the_previous_month)
     
     @property
     def next_payment_date(self):
