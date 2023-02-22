@@ -130,19 +130,31 @@ def get_credit_card_balance_data(user):
         data[card.id] = card.balance
     return data
 
-def get_incomplete_expences(card):
-    # incomplete_expences = Transaction.objects.filter() 
-    pass
+def add_installments_to_payment_plan(expense, payment_plan, card):
+    """
+    Given a transaction, a payment plan and a card, add all installment payments to payment plan.
+    """
+    current_date = expense.due_date.date()
+    if expense.installments:
+        while current_date >= card.next_payment_date:
+            payment_plan[current_date] = payment_plan.get(current_date, 0) + expense.installment_amount
+            current_date = card.get_previous_payment_date(current_date)
+    else:
+        payment_plan[current_date] = payment_plan.get(current_date, 0) + expense.amount
+    return payment_plan
 
-def add_installments_to_payment_plan(expence, payment_plan):
+def get_sorted_payment_plan(payment_plan):
     pass
 
 def get_credit_card_payment_plan(card):
+    """
+    Given a card, returns a monthly payment plan dictionary.
+    """
     payment_plan = {}
-    incomplete_expences = get_incomplete_expences(card)
-    for expence in incomplete_expences:
-        add_installments_to_payment_plan(expence, payment_plan)
-    return payment_plan
+    incomplete_expenses = card.transactions.filter(due_date__gt=date.today())
+    for expense in incomplete_expenses:
+        add_installments_to_payment_plan(expense, payment_plan, card)
+    return get_sorted_payment_plan(payment_plan)
 
 def validate_main_category_uniqueness(name, user, type):
     return not Category.objects.filter(
