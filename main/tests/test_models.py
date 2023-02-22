@@ -146,6 +146,10 @@ class TestCreditCard(TestCase):
         # 31st of February is not availabe so function should return last day of February
         self.assertEquals(credit_card.next_payment_date, date(2004, 2, 29))
 
+    def test_get_previous_payment_date(self):
+        card = CreditCardFactory(payment_day=5)
+        result = card.get_previous_payment_date(date(2003, 3, 5))
+        self.assertEquals(result, date(2003, 2, 5))
             
 
 class TestCategory(TestCase):
