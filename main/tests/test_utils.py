@@ -14,6 +14,7 @@ from main.utils import (
     get_credit_card_data,
     get_credit_card_balance_data,
     get_credit_card_payment_plan,
+    add_installments_to_payment_plan,
     get_transaction_installment_due_date,
     get_loan_data,
     get_loan_balance_data,
@@ -81,7 +82,8 @@ from main.tests.factories import (
     LoanTransactionFactory,
     LoanFactory,
     UserPreferencesFactory,
-    CreditCardFactory
+    CreditCardFactory, 
+    CreditCardTransactionFactory,
 )
 import datetime
 from datetime import timedelta
@@ -981,3 +983,11 @@ class TestUtilityFunctions(TestCase):
         installments = 5
         date = get_transaction_installment_due_date(transaction_date, installments, card)
         self.assertEquals(date, datetime.date(2000, 5, 5))
+
+    @freeze_time("2003-03-03")
+    def test_add_installments_to_payment_plan(self):
+        card = CreditCardFactory(payment_day = 5) 
+        expense = CreditCardTransactionFactory(installments=3, due_date=datetime.datetime(2003, 4, 5), amount=12)
+        payment_plan = {}
+        result = add_installments_to_payment_plan(expense, payment_plan, card)
+        self.assertEquals(len(result), 2)
