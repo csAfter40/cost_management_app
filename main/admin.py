@@ -49,7 +49,7 @@ class CreditCardAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display= ('name', 'amount', 'date', 'get_user')
+    list_display= ('name', 'amount', 'date', 'get_user', "due_date")
     ordering = ('-date',)
 
     def get_user(self, obj):
