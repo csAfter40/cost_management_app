@@ -963,15 +963,17 @@ class TestUtilityFunctions(TestCase):
         }
         self.assertEquals(result, expected)
 
-    @patch('main.utils.get_incomplete_expences')
+    @patch('main.utils.get_sorted_payment_plan')
     @patch('main.utils.add_installments_to_payment_plan')
     def test_get_credit_card_payment_plan(self, mock1, mock2):
         mock1.return_value = None
-        mock2.return_value = ['expense1', 'expense2']
-        payment_plan = get_credit_card_payment_plan('mock_card')
+        mock2.return_value = {}
+        card = Mock()
+        card.transactions.filter.return_value = ["transaction1", "transaction2"]
+        payment_plan = get_credit_card_payment_plan(card)
         self.assertIsInstance(payment_plan, dict)
         self.assertTrue(mock1.called)
-        self.assertTrue(mock2.called_once)
+        self.assertTrue(mock2.called)
 
     def test_get_transaction_installment_due_date(self):
         card = CreditCardFactory(payment_day=5)
