@@ -13,6 +13,7 @@ from main.utils import (
     get_dates,
     get_credit_card_data,
     get_credit_card_balance_data,
+    get_sorted_payment_plan,
     get_credit_card_payment_plan,
     add_installments_to_payment_plan,
     get_transaction_installment_due_date,
@@ -991,3 +992,9 @@ class TestUtilityFunctions(TestCase):
         payment_plan = {}
         result = add_installments_to_payment_plan(expense, payment_plan, card)
         self.assertEquals(len(result), 2)
+
+    def test_get_sorted_payment_plan(self):
+        payment_plan = {datetime.date(2003, 3, 3): 5, datetime.date(2003, 3, 5): 15, datetime.date(2003, 2, 3): 25}
+        sorted_paymet_plan = get_sorted_payment_plan(payment_plan)
+        expected_plan = [(datetime.date(2003, 2, 3), 25), (datetime.date(2003, 3, 3), 5), (datetime.date(2003, 3, 5), 15),]
+        self.assertEquals(sorted_paymet_plan, expected_plan)
