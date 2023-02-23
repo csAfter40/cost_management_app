@@ -2,7 +2,7 @@
 
   const dataPaymenPlan = {
     datasets: [{
-      data: [{% for key, value in payment_plan.items %}{x:'{{key}}', y:{{ value }}}, {% endfor %}],
+      data: [{% for item in payment_plan %}{x:'{{item.0}}', y:{{ item.1 }}}, {% endfor %}],
       borderColor: 'rgb(75, 192, 192)',
     }]
   };
