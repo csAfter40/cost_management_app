@@ -131,7 +131,7 @@ class Transaction(models.Model):
     @property
     def installment_amount(self):
         if self.installments:
-            return self.amount/self.installments
+            return round(self.amount/self.installments, 2)
         return None
 
     @property
