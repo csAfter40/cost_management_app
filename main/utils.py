@@ -146,15 +146,20 @@ def add_installments_to_payment_plan(expense, payment_plan, card):
 def get_sorted_payment_plan(payment_plan):
     """
     Given a dictionary of payment plan where keys are dates and values are decimals,
-    return a list of tuples where tuples are key value pairs and sorted by dates.
+    return a list of lists where lists are key value pairs and sorted by dates.
     """
     new_payment_plan = []
     for key, value in payment_plan.items():
-        new_payment_plan.append((key, value))
+        new_payment_plan.append([key, value])
     return sorted(new_payment_plan)
 
 def convert_payment_plan_dates(payment_plan):
-    pass
+    """
+    Given a payment plan, converts date objects to str object in '%Y-%m-%d' format.
+    """
+    for item in payment_plan:
+        item[0] = item[0].strftime("%Y-%m-%d")
+
 
 def get_credit_card_payment_plan(card):
     """
