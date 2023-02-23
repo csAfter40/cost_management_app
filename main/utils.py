@@ -144,6 +144,16 @@ def add_installments_to_payment_plan(expense, payment_plan, card):
     return payment_plan
 
 def get_sorted_payment_plan(payment_plan):
+    """
+    Given a dictionary of payment plan where keys are dates and values are decimals,
+    return a list of tuples where tuples are key value pairs and sorted by dates.
+    """
+    new_payment_plan = []
+    for key, value in payment_plan.items():
+        new_payment_plan.append((key, value))
+    return sorted(new_payment_plan)
+
+def convert_payment_plan_dates(payment_plan):
     pass
 
 def get_credit_card_payment_plan(card):
@@ -154,7 +164,9 @@ def get_credit_card_payment_plan(card):
     incomplete_expenses = card.transactions.filter(due_date__gt=date.today())
     for expense in incomplete_expenses:
         add_installments_to_payment_plan(expense, payment_plan, card)
-    return get_sorted_payment_plan(payment_plan)
+    sorted_payment_plan = get_sorted_payment_plan(payment_plan)
+    convert_payment_plan_dates(sorted_payment_plan)
+    return sorted_payment_plan
 
 def validate_main_category_uniqueness(name, user, type):
     return not Category.objects.filter(
