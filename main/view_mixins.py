@@ -11,6 +11,7 @@ from .utils import (
     get_multi_currency_category_detail_stats,
     get_multi_currency_category_json_stats,
     get_stats,
+    get_credit_card_payment_plan,
 )
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, Http404
@@ -354,9 +355,11 @@ class CreditCardDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
         expense_category_stats = get_category_stats(
             transactions, "E", None, self.request.user
         )
+        payment_plan= get_credit_card_payment_plan(self.card)
         context = {
             "card": self.card,
             "expense_stats": expense_category_stats,
             "date": datetime.date.today(),
+            "payment_plan": payment_plan,
         }
         return super().get_context_data(**context)
