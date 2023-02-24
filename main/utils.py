@@ -674,8 +674,11 @@ def create_transaction(data):
     '''
     with transaction.atomic():
         transaction_obj = Transaction.objects.create(**data)
-        if data['installments']:
-            transaction_obj.due_date = get_transaction_installment_due_date(data['date'], data['installments'], data['content_object'])
+        if isinstance(data['content_object'], CreditCard):
+            if data['installments']:
+                transaction_obj.due_date = get_transaction_installment_due_date(data['date'], data['installments'], data['content_object'])
+            else:
+                transaction_obj.due_date = data['content_object'].next_payment_date
             transaction_obj.save()
         edit_asset_balance(transaction_obj)
     return transaction_obj
