@@ -97,6 +97,7 @@ from .utils import (
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Q
 from django.contrib import messages
 from django.conf import settings
 
@@ -964,10 +965,7 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        accounts_list = Account.objects.filter(
-            user=self.request.user
-        ).values_list("id", flat=True)
-        return queryset.filter(object_id__in=accounts_list)
+        return queryset.filter(Q(account__user=self.request.user) | Q(credit_card__user=self.request.user))
 
     def form_valid(self, form):
         if not self.object.is_editable:
