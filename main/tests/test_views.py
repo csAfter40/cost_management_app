@@ -525,7 +525,7 @@ class TestCreditCardDetailView(UserFailTestMixin, TestDetailViewMixin, TestCase)
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url_pattern = '/cards/<pk>'
-        cls.context_list = ['transactions', 'expense_stats', 'date']
+        cls.context_list = ['transactions', 'expense_stats', 'date', 'card', 'payment_plan']
         cls.template = 'main/credit_card_detail.html'
         cls.get_method = True
         cls.view_function = views.CreditCardDetailView.as_view()
