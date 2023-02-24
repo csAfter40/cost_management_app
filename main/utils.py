@@ -675,7 +675,8 @@ def create_transaction(data):
     with transaction.atomic():
         transaction_obj = Transaction.objects.create(**data)
         if isinstance(data['content_object'], CreditCard):
-            if data['installments']:
+            installments = data.get('installments', None)
+            if installments:
                 transaction_obj.due_date = get_transaction_installment_due_date(data['date'], data['installments'], data['content_object'])
             else:
                 transaction_obj.due_date = data['content_object'].next_payment_date
@@ -770,7 +771,8 @@ def handle_asset_delete(asset):
             'name': 'Asset Delete',
             'amount': asset.balance,
             'category': category,
-            'type': 'E'
+            'type': 'E',
+            'installments': None
         }
         create_transaction(data)
     if asset.balance < 0:
@@ -780,7 +782,8 @@ def handle_asset_delete(asset):
             'name': 'Asset Delete',
             'amount': asset.balance,
             'category': category,
-            'type': 'I'
+            'type': 'I',
+            'installments': None
         }
         create_transaction(data)
 
