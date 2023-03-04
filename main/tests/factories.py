@@ -3,6 +3,7 @@ import factory.fuzzy
 from main.models import Account, Category, Transaction, Transfer, User, Currency, Loan, UserPreferences, Rate, CreditCard
 from django.db.models import signals
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.models import Session
 import string
 import datetime
 from pytz import UTC
@@ -148,4 +149,11 @@ class UserPreferencesFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactoryNoSignal)
     primary_currency = factory.SubFactory(CurrencyFactory)
+
+
+class SessionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Session
     
+    expire_date = factory.fuzzy.FuzzyDateTime(datetime.datetime(2008, 1, 1, tzinfo=UTC))
+    session_key = factory.fuzzy.FuzzyText(length=32, chars=string.ascii_lowercase+string.digits)
