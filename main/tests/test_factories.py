@@ -2,9 +2,11 @@ from main.models import (
     Rate, User, Currency, Account, Loan, Category, Transaction,
     Transfer, UserPreferences, CreditCard
 )
+from django.contrib.sessions.models import Session
 from main.tests.factories import (
     AccountTransactionFactory, LoanTransactionFactory, RateFactory, UserFactoryNoSignal, CurrencyFactory, AccountFactory, 
-    LoanFactory, CategoryFactory, TransferFactory, UserPreferencesFactory, CreditCardFactory, CreditCardTransactionFactory
+    LoanFactory, CategoryFactory, TransferFactory, UserPreferencesFactory, CreditCardFactory, CreditCardTransactionFactory,
+    SessionFactory
 )
 from main.tests.mixins import BaseFactoryTestMixin
 from django.test import TestCase
@@ -69,3 +71,7 @@ class TestUserPreferecesFactory(BaseFactoryTestMixin, TestCase):
 class TestRateFactory(BaseFactoryTestMixin, TestCase):
     model = Rate
     factory_class = RateFactory
+
+class TestSessionFactory(BaseFactoryTestMixin, TestCase):
+    model = Session
+    factory_class = SessionFactory
