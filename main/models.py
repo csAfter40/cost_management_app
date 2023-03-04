@@ -3,6 +3,7 @@ from django.db.models import UniqueConstraint, CheckConstraint, Q
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.sessions.models import Session
 from mptt.models import MPTTModel, TreeForeignKey
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -286,3 +287,8 @@ class Rate(models.Model):
 
     def __str__(self):
         return f'{self.currency} - {self.rate}'
+    
+
+class GuestUserSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="guest_user_session")
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="guest_user_session")
