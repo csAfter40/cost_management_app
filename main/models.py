@@ -12,6 +12,8 @@ from django.urls import reverse
 
 
 class User(AbstractUser):
+    is_guest = models.BooleanField(default=False)
+
     def __str__(self) -> str:
         return self.username
 
