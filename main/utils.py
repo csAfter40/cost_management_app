@@ -61,6 +61,7 @@ def create_categories(categories, user, parent=None):
             is_protected=value.get("is_protected", False),
         )
         if parent:
+            parent.refresh_from_db()
             category.parent = parent
         category.save()
         if value["children"]:
