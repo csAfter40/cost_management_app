@@ -5,6 +5,7 @@ app_name = "main"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("test_drive", views.test_drive, name="test_drive"),
     path("main", views.main, name="main"),
     path("login", views.LoginView.as_view(), name="login"),
     path("logout", views.logout_view, name="logout"),
