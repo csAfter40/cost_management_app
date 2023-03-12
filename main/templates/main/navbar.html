@@ -23,6 +23,11 @@
         <li class="nav-item">
           <a class="nav-link active" href="{% url 'main:worth' %}">Net Worth</a>
         </li>
+        {% if user.is_guest %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'main:register' %}">Register</a>
+          </li>
+        {% endif %}
         <li class="nav-item">
           <a class="nav-link active" onclick="document.querySelector('#logout-form').submit()" style="cursor:pointer">Logout</a>
           <form action="{% url 'main:logout' %}" id="logout-form" method="POST" class="d-none">
@@ -45,7 +50,11 @@
         <div class="btn-group mx-2">
           <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown"
             aria-expanded="false">
-            {{user.username}}
+            {% if user.is_guest %}
+              Guest
+            {% else %}
+              {{user.username}}
+            {% endif %}
           </button>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
             <li><a class="dropdown-item" href="{% url 'main:profile' %}">My Profile</a></li>

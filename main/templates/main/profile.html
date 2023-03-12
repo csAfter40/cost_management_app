@@ -18,7 +18,11 @@
                 <div class="mb-3 row">
                     <label for="username" class="col-4 col-form-label">Username</label>
                     <div class="col-8">
-                        <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{user.username}}">
+                        {% if user.is_guest %}
+                            <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="Guest User">
+                        {% else %}
+                            <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{user.username}}">
+                        {% endif %}
                     </div>
                 </div>
                 <div class="mb-3 row">
