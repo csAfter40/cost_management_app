@@ -29,6 +29,9 @@ class TestUrls(SimpleTestCase):
     
     def test_main_url(self):
         self.assert_path_resolves_to_FBV("/main", views.main, "main")
+    
+    def test_test_drive_url(self):
+        self.assert_path_resolves_to_FBV("/test_drive", views.test_drive, "test_drive")
 
     def test_login_url(self):
         self.assert_path_resolves_to_CBV("/login", views.LoginView, "login")
