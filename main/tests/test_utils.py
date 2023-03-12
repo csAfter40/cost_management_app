@@ -1,5 +1,7 @@
 import decimal
 import datetime
+import factory
+from django.db.models import signals
 from unittest.mock import Mock, MagicMock, patch
 from django.test.testcases import TestCase
 from main.utils import (
@@ -70,6 +72,9 @@ from main.utils import (
     get_category_detail_stats,
     convert_category_stats,
     add_category_stats,
+    create_guest_user,
+    get_session_from_db,
+    setup_guest_user,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -1005,3 +1010,9 @@ class TestUtilityFunctions(TestCase):
         convert_payment_plan_dates(payment_plan)
         expected_plan = [['2003-02-03', 25], ['2003-03-03', 5], ['2003-03-05', 15]]
         self.assertEquals(payment_plan, expected_plan)
+
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def test_create_guest_user(self):
+        user = create_guest_user()
+        self.assertTrue(User.objects.filter(username=user.username).exists())
+        self.assertTrue(user.is_guest)
