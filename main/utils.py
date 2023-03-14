@@ -6,6 +6,7 @@ from django.db.models import Q, Sum, F
 from django.db.models.functions import Coalesce, ExtractMonth, ExtractYear
 from django.db.models.signals import post_save
 from django.core.paginator import Paginator
+from django.contrib.sessions.models import Session
 from .models import (
     Currency,
     User,
@@ -16,11 +17,15 @@ from .models import (
     Transaction,
     Loan,
     Rate,
-    CreditCard
+    CreditCard,
+    GuestUserSession,
 )
 from .categories import categories
 from datetime import date, timedelta, datetime
 from dateutil.relativedelta import relativedelta
+import uuid
+import random
+import string
 
 
 def get_latest_transactions(user, qty):
@@ -878,6 +883,29 @@ def get_ins_outs_report(user, qs, target_currency=None):
     total = get_report_total(currencies, target_currency)
     return report, total
 
+def create_guest_user():
+    username = uuid.uuid4().hex
+    email = f"{username}@example.com"
+    password = "".join(random.sample(string.ascii_lowercase, 6))
+    user = User.objects.create_user(
+        username=username, email=email, password=password, is_guest=True
+    )
+    user.save()
+    return user
+
+def get_session_from_db(request):
+    if not request.session.session_key:
+        request.session.save()
+    session_key = request.session.session_key
+    request.session.set_expiry(86400) # will expire in 1 day
+    return Session.objects.get(session_key=session_key)
+
+def setup_guest_user(request):
+    user = create_guest_user()
+    session_obj = get_session_from_db(request)
+    user_session = GuestUserSession(user=user, session=session_obj)
+    user_session.save()
+    return user
 
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
