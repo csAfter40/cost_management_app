@@ -91,13 +91,16 @@ from main.tests.factories import (
     UserPreferencesFactory,
     CreditCardFactory, 
     CreditCardTransactionFactory,
+    SessionFactory
 )
 import datetime
 from datetime import timedelta
 from pytz import UTC
 from main.categories import categories
-from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency
+from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency, GuestUserSession
 from freezegun import freeze_time
+from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 
 
 class TestUtilityFunctions(TestCase):
@@ -1016,3 +1019,43 @@ class TestUtilityFunctions(TestCase):
         user = create_guest_user()
         self.assertTrue(User.objects.filter(username=user.username).exists())
         self.assertTrue(user.is_guest)
+
+    def test_get_session_from_db(self):
+        session_store = SessionStore()
+        session_store.create()
+        session_key = session_store.session_key
+        request = Mock()
+        request.session = session_store
+        session_db = Session(session_key=session_key, expire_date=datetime.date(2003,1,1))
+        session_db.save()
+        result = get_session_from_db(request)
+        self.assertEquals(result, session_db)
+
+    def test_get_session_from_db_no_initial_session_on_db(self):
+        session_store = SessionStore()
+        session_store.create()
+        session_key = session_store.session_key
+        request = Mock()
+        request.session = session_store
+        result = get_session_from_db(request)
+        self.assertEquals(result.session_key, session_key)
+
+    def test_get_session_from_db_session_store_without_session_key(self):
+        session_store = SessionStore(session_key=None)
+        request = Mock()
+        request.session = session_store
+        result = get_session_from_db(request)
+        self.assertEquals(Session.objects.first(), result)
+
+    @patch('main.utils.create_guest_user')
+    @patch('main.utils.get_session_from_db')
+    def test_setup_guest_user(self, session_mock, user_mock):
+        request = Mock()
+        user = UserFactoryNoSignal()
+        session = SessionFactory()
+        session_mock.return_value = session
+        user_mock.return_value = user
+        result = setup_guest_user(request)
+        self.assertEquals(user, result)
+        self.assertTrue(GuestUserSession.objects.all().exists())
+        self.assertEquals(GuestUserSession.objects.first().session, session)
