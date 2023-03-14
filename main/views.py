@@ -34,7 +34,7 @@ from .models import (
     Loan,
     Currency,
     UserPreferences,
-    CreditCard
+    CreditCard,
 )
 from .forms import (
     ExpenseInputForm,
@@ -93,6 +93,7 @@ from .utils import (
     get_report_total,
     get_multi_currency_category_detail_stats,
     get_multi_currency_category_json_stats,
+    setup_guest_user,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -107,6 +108,12 @@ def index(request):
         return HttpResponseRedirect(reverse("main:main"))
     return render(request, "main/index.html")
 
+def test_drive(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("main:main"))
+    user = setup_guest_user(request)
+    login(request, user)
+    return HttpResponseRedirect(reverse("main:setup"))
 
 @login_required(login_url=reverse_lazy("main:login"))
 def main(request):
