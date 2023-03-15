@@ -112,7 +112,6 @@ def test_drive(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("main:main"))
     user = setup_guest_user(request)
-    login(request, user)
     return HttpResponseRedirect(reverse("main:setup"))
 
 @login_required(login_url=reverse_lazy("main:login"))

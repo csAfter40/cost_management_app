@@ -1049,13 +1049,16 @@ class TestUtilityFunctions(TestCase):
 
     @patch('main.utils.create_guest_user')
     @patch('main.utils.get_session_from_db')
-    def test_setup_guest_user(self, session_mock, user_mock):
-        request = Mock()
+    @patch('main.utils.login')
+    def test_setup_guest_user(self, login_mock, session_mock, user_mock):
         user = UserFactoryNoSignal()
         session = SessionFactory()
         session_mock.return_value = session
+        request = Mock()
         user_mock.return_value = user
         result = setup_guest_user(request)
         self.assertEquals(user, result)
         self.assertTrue(GuestUserSession.objects.all().exists())
         self.assertEquals(GuestUserSession.objects.first().session, session)
+        self.assertTrue(login_mock.called_once)
+        

@@ -26,6 +26,7 @@ from dateutil.relativedelta import relativedelta
 import uuid
 import random
 import string
+from django.contrib.auth import login
 
 
 def get_latest_transactions(user, qty):
@@ -902,9 +903,9 @@ def get_session_from_db(request):
 
 def setup_guest_user(request):
     user = create_guest_user()
+    login(request, user)
     session_obj = get_session_from_db(request)
-    user_session = GuestUserSession(user=user, session=session_obj)
-    user_session.save()
+    user_session = GuestUserSession.objects.create(user=user, session=session_obj)
     return user
 
 @receiver(post_save, sender=User)
