@@ -901,11 +901,15 @@ def get_session_from_db(request):
     request.session.set_expiry(86400) # will expire in 1 day
     return Session.objects.get(session_key=session_key)
 
+def create_guest_user_data(user):
+    pass
+
 def setup_guest_user(request):
     user = create_guest_user()
     login(request, user)
     session_obj = get_session_from_db(request)
     user_session = GuestUserSession.objects.create(user=user, session=session_obj)
+    create_guest_user_data(user)
     return user
 
 @receiver(post_save, sender=User)
