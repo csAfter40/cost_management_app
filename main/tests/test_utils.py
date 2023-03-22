@@ -1050,7 +1050,8 @@ class TestUtilityFunctions(TestCase):
     @patch('main.utils.create_guest_user')
     @patch('main.utils.get_session_from_db')
     @patch('main.utils.login')
-    def test_setup_guest_user(self, login_mock, session_mock, user_mock):
+    @patch('main.utils.create_guest_user_data')
+    def test_setup_guest_user(self, data_mock, login_mock, session_mock, user_mock):
         user = UserFactoryNoSignal()
         session = SessionFactory()
         session_mock.return_value = session
@@ -1061,4 +1062,4 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(GuestUserSession.objects.all().exists())
         self.assertEquals(GuestUserSession.objects.first().session, session)
         self.assertTrue(login_mock.called_once)
-        
+        self.assertTrue(data_mock.called_once)
