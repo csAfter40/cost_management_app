@@ -75,6 +75,7 @@ from main.utils import (
     create_guest_user,
     get_session_from_db,
     setup_guest_user,
+    create_guest_user_data,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -1063,3 +1064,9 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(GuestUserSession.objects.first().session, session)
         self.assertTrue(login_mock.called_once)
         self.assertTrue(data_mock.called_once)
+
+    @patch("main.utils.create_guest_user_accounts")
+    def test_create_guest_user_data(self, accounts_mock):
+        user = Mock()
+        create_guest_user_data(user)
+        self.assertTrue(accounts_mock.called_once)
