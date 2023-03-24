@@ -76,6 +76,7 @@ from main.utils import (
     get_session_from_db,
     setup_guest_user,
     create_guest_user_data,
+    create_guest_user_accounts,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -1070,3 +1071,10 @@ class TestUtilityFunctions(TestCase):
         user = Mock()
         create_guest_user_data(user)
         self.assertTrue(accounts_mock.called_once)
+
+    def test_create_guest_user_accounts(self):
+        user = UserFactoryNoSignal()
+        user_preferences = UserPreferencesFactory(user=user)
+        user_accounts = create_guest_user_accounts(user)
+        for key, value in user_accounts.items():
+            self.assertEquals(value.user, user)
