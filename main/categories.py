@@ -80,7 +80,13 @@ categories = {
         }
     },
     # Income categories
-    "Salary": {"type": "I", "children": None},
+    "Work": {
+        "type": "I",
+        "children": {
+            "Salary": {"type": "I", "children": None},
+            "Self-Employment": {"type": "I", "children": None},
+        }    
+    },
     "Investments": {"type": "I", "children": None},
     "Rental Income": {"type": "I", "children": None},
     "Child Support": {"type": "I", "children": None},
