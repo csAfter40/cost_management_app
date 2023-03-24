@@ -27,6 +27,7 @@ import uuid
 import random
 import string
 from django.contrib.auth import login
+from . import guest_user_data
 
 
 def get_latest_transactions(user, qty):
@@ -901,8 +902,34 @@ def get_session_from_db(request):
     request.session.set_expiry(86400) # will expire in 1 day
     return Session.objects.get(session_key=session_key)
 
+def create_guest_user_accounts(user):
+    bank_account = Account.objects.create(
+        user = user, 
+        name = guest_user_data.bank_account["name"],
+        balance = guest_user_data.bank_account['initial'],
+        currency = user.primary_currency
+    )
+    wallet = Account.objects.create(
+        user = user, 
+        name = guest_user_data.wallet["name"],
+        balance = guest_user_data.wallet['initial'],
+        currency = user.primary_currency
+    )
+    credit_card = CreditCard.objects.create(
+        user = user, 
+        name = guest_user_data.credit_card["name"],
+        payment_day = guest_user_data.credit_card['payment_day'],
+        currency = user.primary_currency
+    )
+    user_accounts = {
+        'bank_account': bank_account,
+        'wallet': wallet,
+        'credit_card': credit_card,
+    }
+    return user_accounts
+
 def create_guest_user_data(user):
-    pass
+    user_accounts = create_guest_user_accounts(user)
 
 def setup_guest_user(request):
     user = create_guest_user()
