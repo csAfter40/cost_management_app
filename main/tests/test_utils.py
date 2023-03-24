@@ -1072,9 +1072,11 @@ class TestUtilityFunctions(TestCase):
         create_guest_user_data(user)
         self.assertTrue(accounts_mock.called_once)
 
+    @freeze_time("2000-05-01")
     def test_create_guest_user_accounts(self):
         user = UserFactoryNoSignal()
         user_preferences = UserPreferencesFactory(user=user)
         user_accounts = create_guest_user_accounts(user)
         for key, value in user_accounts.items():
             self.assertEquals(value.user, user)
+            self.assertEquals(value.created.date().__str__(), "2000-01-22")
