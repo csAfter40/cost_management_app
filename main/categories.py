@@ -5,8 +5,8 @@ categories = {
         "children": {
             "Mortgage/Rent": {"type": "E", "children": None},
             "Taxes": {"type": "E", "children": None},
-            "Insurance": {"type": "E", "children": None},
-            "Repairs": {"type": "E", "children": None},
+            "House Insurance": {"type": "E", "children": None},
+            "House Repairs": {"type": "E", "children": None},
             "Utilities": {"type": "E", "children": None}
         }
     },
@@ -15,8 +15,8 @@ categories = {
         "children": {
             "Car Payments": {"type": "E", "children": None},
             "Gas/Fuel": {"type": "E", "children": None},
-            "Insurance": {"type": "E", "children": None},
-            "Repairs": {"type": "E", "children": None},
+            "Car Insurance": {"type": "E", "children": None},
+            "Car Repairs": {"type": "E", "children": None},
             "Public Transit": {"type": "E", "children": None}
         }
     },
@@ -41,7 +41,7 @@ categories = {
     "Health": {
         "type": "E",
         "children": {
-            "Insurance": {"type": "E", "children": None},
+            "Health Insurance": {"type": "E", "children": None},
             "Medicine": {"type": "E", "children": None},
             "Medical Supplies": {"type": "E", "children": None}
         }
@@ -75,7 +75,7 @@ categories = {
         "type": "E",
         "children": {
             "Bank Fees": {"type": "E", "children": None},
-            "Taxes": {"type": "E", "children": None},
+            "Other Taxes": {"type": "E", "children": None},
             "Legal Fees": {"type": "E", "children": None}
         }
     },
