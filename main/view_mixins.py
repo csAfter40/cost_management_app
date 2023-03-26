@@ -311,8 +311,9 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
 
     def get(self, request, *args, **kwargs):
         qs = self.get_dated_items()[1]
+        card = self.get_card()
         data = get_multi_currency_category_json_stats(
-            qs, self.category, self.request.user, card=True
+            qs, self.category, self.request.user, card=card
         )
         return JsonResponse(data)
 
