@@ -112,7 +112,7 @@ def test_drive(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("main:main"))
     user = setup_guest_user(request)
-    return HttpResponseRedirect(reverse("main:setup"))
+    return HttpResponseRedirect(reverse("main:main"))
 
 @login_required(login_url=reverse_lazy("main:login"))
 def main(request):
@@ -155,8 +155,8 @@ def main(request):
                 income_form = form
 
     context = {
-        "accounts": Account.objects.filter(user=request.user, is_active=True),
-        "loans": Loan.objects.filter(user=request.user, is_active=True),
+        "loans": Loan.objects.filter(user=request.user, is_active=True).exists(),
+        "cards": CreditCard.objects.filter(user=request.user, is_active=True).exists(),
         "expense_form": expense_form,
         "income_form": income_form,
         "transfer_form": transfer_form,
