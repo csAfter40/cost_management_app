@@ -1066,14 +1066,16 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(login_mock.called_once)
         self.assertTrue(data_mock.called_once)
 
-    def test_create_guest_user_data(self):
+    @patch('main.utils.edit_guest_user_assets_balance')
+    def test_create_guest_user_data(self, mock):
         from ..categories import categories
         from ..utils import create_categories
         user = UserFactoryNoSignal()
         preferences = UserPreferencesFactory(user=user)
         create_categories(categories, user)
         create_guest_user_data(user)
-        self.assertEquals(Transaction.objects.count(), 80)
+        self.assertEquals(Transaction.objects.count(), 93)
+        self.assertTrue(mock.called_once_with(user))
 
     @freeze_time("2000-05-01")
     def test_create_guest_user_accounts(self):

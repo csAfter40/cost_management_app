@@ -289,7 +289,7 @@ def get_multi_currency_category_stats(qs, parent, user, target_currency=None):
 
     return category_stats
 
-def get_multi_currency_category_json_stats(qs, parent, user, target_currency=None, card=False):
+def get_multi_currency_category_json_stats(qs, parent, user, target_currency=None, card=None):
     """
     Gets a qs of transactions, a category type, a parent category, a user and target currency. 
     Extracts and returns data to be used in subcategory modal charts.
@@ -868,7 +868,7 @@ def get_ins_outs_report(user, qs, target_currency=None):
     report = []
     if not target_currency:
         target_currency = user.primary_currency
-    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate').annotate(
+    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate'). tate(
         expense = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='E')), Decimal(0)),
         income = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='I')), Decimal(0))
     ).annotate(
@@ -931,13 +931,62 @@ def create_guest_user_accounts(user):
         }
     return user_accounts
 
+def get_guest_user_expense_categories(user):
+    categories = Category.objects.filter(user=user, is_protected=False, type='E')
+    expense_categories = {}
+    for category in categories:
+        expense_categories[category.name] = category
+    return expense_categories
+
+def get_guest_user_income_categories(user):
+    categories = Category.objects.filter(user=user, is_protected=False, type='I')
+    income_categories = {}
+    for category in categories:
+        income_categories[category.name] = category
+    return income_categories
+
+def edit_guest_user_assets_balance(user):
+    user_accounts = Account.objects.filter(user=user, is_active=True)
+    user_credit_cards = CreditCard.objects.filter(user=user, is_active=True)
+    user_assets = list(user_accounts) + list(user_credit_cards)
+    for asset in user_assets:
+        incomes = asset.transactions.filter(type='I').aggregate(Sum('amount'))
+        expenses = asset.transactions.filter(type='E').aggregate(Sum('amount'))
+        asset.balance += incomes['amount__sum'] or 0 - expenses['amount__sum'] or 0
+        asset.save()
+
 def create_guest_user_data(user):
     user_accounts = create_guest_user_accounts(user)
-    # create expense transactions
+    user_expense_categories = get_guest_user_expense_categories(user)
+    user_income_categories = get_guest_user_income_categories(user)
+    # create expense transactions list
+    expense_objects = []
     for item in guest_user_data.expenses:
-        Transaction.objects.create(
-
+        expense_objects.append(
+            Transaction(
+                content_object = user_accounts[item['account']],
+                name = item['name'],
+                amount = item['amount'],
+                date = date.today() + relativedelta(days=-item['date']),
+                category = user_expense_categories[item['category']],
+                type = 'E'
+            )
+        ) 
+    # create income transactions list
+    income_objects = []
+    for item in guest_user_data.incomes:
+        income_objects.append(
+            Transaction(
+                content_object = user_accounts[item['account']],
+                name = item['name'],
+                amount = item['amount'],
+                date = date.today() + relativedelta(days=-item['date']),
+                category = user_income_categories[item['category']],
+                type = 'I'
+            )
         )
+    Transaction.objects.bulk_create(expense_objects+income_objects)
+    edit_guest_user_assets_balance(user)
 
 def setup_guest_user(request):
     user = create_guest_user()
