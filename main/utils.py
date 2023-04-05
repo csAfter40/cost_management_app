@@ -905,18 +905,21 @@ def create_guest_user_accounts(user):
             user = user, 
             name = guest_user_data.bank_account["name"],
             balance = guest_user_data.bank_account['initial'],
+            initial = guest_user_data.bank_account['initial'],
             currency = Currency.objects.get(code=guest_user_data.bank_account['currency'])
         )
         foreign_currency_account = Account.objects.create(
             user = user, 
             name = guest_user_data.foreign_currency_account["name"],
             balance = guest_user_data.foreign_currency_account['initial'],
+            initial = guest_user_data.foreign_currency_account['initial'],
             currency = Currency.objects.get(code=guest_user_data.foreign_currency_account['currency'])
         )
         wallet = Account.objects.create(
             user = user, 
             name = guest_user_data.wallet["name"],
             balance = guest_user_data.wallet['initial'],
+            initial = guest_user_data.wallet['initial'],
             currency = Currency.objects.get(code=guest_user_data.wallet['currency'])
         )
         loan = Loan.objects.create(
