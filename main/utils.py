@@ -20,7 +20,7 @@ from .models import (
     CreditCard,
     GuestUserSession,
 )
-from .categories import categories
+from .categories import expense_categories, income_categories
 from datetime import date, timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from freezegun import freeze_time
@@ -29,6 +29,7 @@ import random
 import string
 from django.contrib.auth import login
 from . import guest_user_data
+from unittest.mock import Mock
 
 
 def get_latest_transactions(user, qty):
@@ -175,7 +176,7 @@ def get_credit_card_payment_plan(card):
     Given a card, returns a monthly payment plan dictionary.
     """
     payment_plan = {}
-    incomplete_expenses = card.transactions.filter(due_date__gt=date.today())
+    incomplete_expenses = card.transactions.filter(due_date__gt=date.today(), type='E')
     for expense in incomplete_expenses:
         add_installments_to_payment_plan(expense, payment_plan, card)
     sorted_payment_plan = get_sorted_payment_plan(payment_plan)
@@ -683,13 +684,6 @@ def create_transaction(data):
     '''
     with transaction.atomic():
         transaction_obj = Transaction.objects.create(**data)
-        if isinstance(data['content_object'], CreditCard):
-            installments = data.get('installments', None)
-            if installments:
-                transaction_obj.due_date = get_transaction_installment_due_date(data['date'], data['installments'], data['content_object'])
-            else:
-                transaction_obj.due_date = data['content_object'].next_payment_date
-            transaction_obj.save()
         edit_asset_balance(transaction_obj)
     return transaction_obj
 
@@ -737,17 +731,18 @@ def create_transfer(data, user):
             date = data['date']
         )
 
-def get_payment_transaction_data(form, asset):
+def get_payment_transaction_data(form, asset, asset_type):
     '''
     Accepts a Django form and asset string. Creates and returns a data dictionary 
     required for creating a transaction object.
     '''
     type = 'E' if asset=='account' else 'I'
     data = form.cleaned_data
-    category = Category.objects.get(user=form.user, name='Pay Debt', type=type)
+    name = 'Pay Debt'
+    category = Category.objects.get(user=form.user, name=name, type=type)
     transaction_data = {
         'content_object': data.get(asset),
-        'name': 'Pay Debt',
+        'name': name,
         'amount': abs(data.get('amount')),
         'date': data.get('date'),
         'category': category,
@@ -760,8 +755,8 @@ def handle_debt_payment(form, paid_asset):
     Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
     '''
     with transaction.atomic():
-        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account'))
-        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset))
+        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account', asset_type=paid_asset))
+        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset, asset_type=paid_asset))
         Transfer.objects.create(
                 user = form.user,
                 from_transaction = account_transaction,
@@ -868,7 +863,7 @@ def get_ins_outs_report(user, qs, target_currency=None):
     report = []
     if not target_currency:
         target_currency = user.primary_currency
-    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate'). tate(
+    currencies = Currency.objects.filter(accounts__user=user).prefetch_related('rate').annotate(
         expense = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='E')), Decimal(0)),
         income = Coalesce(Sum('accounts__transactions__amount', filter=Q(accounts__transactions__in=qs)&Q(accounts__transactions__type='I')), Decimal(0))
     ).annotate(
@@ -910,24 +905,39 @@ def create_guest_user_accounts(user):
             user = user, 
             name = guest_user_data.bank_account["name"],
             balance = guest_user_data.bank_account['initial'],
-            currency = user.primary_currency
+            currency = Currency.objects.get(code=guest_user_data.bank_account['currency'])
+        )
+        foreign_currency_account = Account.objects.create(
+            user = user, 
+            name = guest_user_data.foreign_currency_account["name"],
+            balance = guest_user_data.foreign_currency_account['initial'],
+            currency = Currency.objects.get(code=guest_user_data.foreign_currency_account['currency'])
         )
         wallet = Account.objects.create(
             user = user, 
             name = guest_user_data.wallet["name"],
             balance = guest_user_data.wallet['initial'],
-            currency = user.primary_currency
+            currency = Currency.objects.get(code=guest_user_data.wallet['currency'])
+        )
+        loan = Loan.objects.create(
+            user = user, 
+            name = guest_user_data.loan["name"],
+            initial = guest_user_data.loan['initial'],
+            balance = guest_user_data.loan['initial'],
+            currency = Currency.objects.get(code=guest_user_data.loan['currency'])
         )
         credit_card = CreditCard.objects.create(
             user = user, 
             name = guest_user_data.credit_card["name"],
             payment_day = guest_user_data.credit_card['payment_day'],
-            currency = user.primary_currency
+            currency = Currency.objects.get(code=guest_user_data.credit_card['currency'])
         )
         user_accounts = {
             'bank_account': bank_account,
             'wallet': wallet,
+            'loan': loan,
             'credit_card': credit_card,
+            'foreign_currency_account': foreign_currency_account
         }
     return user_accounts
 
@@ -952,41 +962,68 @@ def edit_guest_user_assets_balance(user):
     for asset in user_assets:
         incomes = asset.transactions.filter(type='I').aggregate(Sum('amount'))
         expenses = asset.transactions.filter(type='E').aggregate(Sum('amount'))
-        asset.balance += incomes['amount__sum'] or 0 - expenses['amount__sum'] or 0
+        asset.balance += (incomes['amount__sum'] or 0) - (expenses['amount__sum'] or 0)
         asset.save()
+
+def create_guest_user_transfers(user, user_accounts):
+    for transfer in guest_user_data.transfers:
+        data = {
+            'from_account': user_accounts[transfer['from_account']],
+            'to_account': user_accounts[transfer['to_account']],
+            'from_amount': transfer['from_amount'],
+            'to_amount': transfer['to_amount'],
+            'date': date.today() + relativedelta(days=-transfer['date']),
+        }
+        create_transfer(data, user)
+
+def create_guest_user_debt_payments(user, user_accounts):
+    for payment in guest_user_data.debt_payments:
+        for key, account in user_accounts.items():
+            account.refresh_from_db()
+        data = {
+            'account': user_accounts[payment['from_account']],
+            payment['asset_type']: user_accounts[payment['to_account']],
+            'date': date.today() + relativedelta(days=-payment['date']),
+            'amount': payment['amount']
+        }
+        form = Mock()
+        form.user = user
+        form.cleaned_data = data
+        card1 = CreditCard.objects.get(user=user)
+        print(card1, card1.balance)
+        card = data.get('credit_card', None)
+        if card:
+            print(card, card.balance)
+        handle_debt_payment(form, payment['asset_type'])
 
 def create_guest_user_data(user):
     user_accounts = create_guest_user_accounts(user)
     user_expense_categories = get_guest_user_expense_categories(user)
     user_income_categories = get_guest_user_income_categories(user)
     # create expense transactions list
-    expense_objects = []
     for item in guest_user_data.expenses:
-        expense_objects.append(
-            Transaction(
-                content_object = user_accounts[item['account']],
-                name = item['name'],
-                amount = item['amount'],
-                date = date.today() + relativedelta(days=-item['date']),
-                category = user_expense_categories[item['category']],
-                type = 'E'
-            )
-        ) 
-    # create income transactions list
-    income_objects = []
-    for item in guest_user_data.incomes:
-        income_objects.append(
-            Transaction(
-                content_object = user_accounts[item['account']],
-                name = item['name'],
-                amount = item['amount'],
-                date = date.today() + relativedelta(days=-item['date']),
-                category = user_income_categories[item['category']],
-                type = 'I'
-            )
+        Transaction.objects.create(
+            content_object = user_accounts[item['account']],
+            name = item['name'],
+            amount = item['amount'],
+            date = date.today() + relativedelta(days=-item['date']),
+            category = user_expense_categories[item['category']],
+            installments = item.get('installments', None),
+            type = 'E'
         )
-    Transaction.objects.bulk_create(expense_objects+income_objects)
+    # create income transactions list
+    for item in guest_user_data.incomes:
+        Transaction.objects.create(
+            content_object = user_accounts[item['account']],
+            name = item['name'],
+            amount = item['amount'],
+            date = date.today() + relativedelta(days=-item['date']),
+            category = user_income_categories[item['category']],
+            type = 'I'
+        )
     edit_guest_user_assets_balance(user)
+    create_guest_user_transfers(user, user_accounts)
+    create_guest_user_debt_payments(user, user_accounts)
 
 def setup_guest_user(request):
     user = create_guest_user()
@@ -999,7 +1036,8 @@ def setup_guest_user(request):
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:
-        create_categories(categories, instance)
+        create_categories(expense_categories, instance)
+        create_categories(income_categories, instance)
 
 
 @receiver(post_save, sender=User)
