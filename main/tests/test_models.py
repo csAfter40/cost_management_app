@@ -27,6 +27,7 @@ from django.test import TestCase
 from django.db.utils import IntegrityError
 from unittest.mock import patch
 from datetime import date
+from freezegun import freeze_time
 
 
 class TestUser(TestCase):
@@ -201,9 +202,16 @@ class TestTransaction(TestCase):
         negative_amount_transaction = AccountTransactionFactory(amount=-10)
         self.assertEquals(positive_amount_transaction.amount, 10)
         self.assertEquals(negative_amount_transaction.amount, 10)
+    
+    def test_save_with_credit_card(self):
+        credit_card = CreditCardFactory(payment_day=15)
+        transaction_without_installments = CreditCardTransactionFactory(content_object=credit_card, installments=None, date=date(2000,5,1))
+        transaction_with_installments = CreditCardTransactionFactory(content_object=credit_card, installments=2, date=date(2000,5,1))
+        self.assertEquals(transaction_without_installments.due_date, date(2000,5,15))
+        self.assertEquals(transaction_with_installments.due_date, date(2000,6,15))
 
     def test_installment_amount_property(self):
-        card_transaction = CreditCardTransactionFactory(installments=5, amount=10)
+        card_transaction = CreditCardTransactionFactory(installments=5, amount=10, date=date(2000,5,1))
         self.assertEquals(card_transaction.installment_amount, 2)
 
 class TestTransfer(TestCase):

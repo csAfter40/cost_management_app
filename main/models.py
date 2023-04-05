@@ -128,7 +128,13 @@ class Transaction(models.Model):
         return None
 
     def save(self, *args, **kwargs):
+        from .utils import get_transaction_installment_due_date
         self.amount = abs(self.amount)
+        if isinstance(self.content_object, CreditCard):
+            if self.installments:
+                self.due_date = get_transaction_installment_due_date(self.date, self.installments, self.content_object)
+            else:
+                self.due_date = self.content_object.get_next_payment_date(self.date)
         super().save(*args, **kwargs)
 
     @property
