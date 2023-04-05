@@ -1,4 +1,4 @@
-categories = {
+expense_categories = {
     # Expense categories
     "Housing": {
         "type": "E",
@@ -79,7 +79,15 @@ categories = {
             "Legal Fees": {"type": "E", "children": None}
         }
     },
-    # Income categories
+    # Protected categories
+    "Transfer Out": {"type": "E", "children": None, "is_transfer": True, 'is_protected': True},
+    # "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
+    # "Pay Card": {"type": "E", 'children': None, 'is_protected': True},
+    "Pay Debt": {"type": "E", 'children': None, 'is_protected': True},
+    "Asset Delete": {"type": "E", "children":None, "is_protected": True},
+}
+
+income_categories = {
     "Work": {
         "type": "I",
         "children": {
@@ -95,13 +103,10 @@ categories = {
     "Scholarship": {"type": "I", "children": None},
     "Gifts": {"type": "I", "children": None},
     # Protected categories
-    "Transfer Out": {"type": "E", "children": None, "is_transfer": True, 'is_protected': True},
-    "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
-    "Pay Card": {"type": "E", 'children': None, 'is_protected': True},
-    "Asset Delete": {"type": "E", "children":None, "is_protected": True},
     "Transfer In": {"type": "I", "children": None, "is_transfer": True, 'is_protected': True},
     "Loan In": {"type": 'I', 'children': None, 'is_protected': True},
-    "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
-    "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
+    # "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
+    # "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
+    "Pay Debt": {"type": "I", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "I", "children":None, "is_protected": True},
 }
