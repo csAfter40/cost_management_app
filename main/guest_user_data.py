@@ -1,6 +1,8 @@
-bank_account = {"name": 'My Bank Account', 'initial': 10000}
-wallet = {"name": 'My Wallet', 'initial': 200}
-credit_card = {'name': 'My Credit Card', 'payment_day': 15}
+bank_account = {"name": 'My Bank Account', 'initial': 10000, 'currency': 'USD'}
+foreign_currency_account = {"name": 'Foreign Currency Account', 'initial': 500, 'currency': 'JPY'}
+wallet = {"name": 'My Wallet', 'initial': 200, 'currency': 'USD'}
+credit_card = {'name': 'My Credit Card', 'payment_day': 15, 'currency': 'USD'}
+loan = {'name': 'Personal Loan', 'initial': -15000, 'currency': 'USD'}
 
 # loans = [
 #     {'name': 'name', 'initial': 'initial'}
@@ -38,9 +40,9 @@ expenses = [
     {"name": "Income Tax", "amount": 750.25, "category": "Other Taxes", "date": 4, "account": "bank_account"},    
     {"name": "Internet Bill", "amount": 70.00, "category": "Utilities", "date": 10, "account": "bank_account"},    
     {"name": "Water Bill", "amount": 45.50, "category": "Utilities", "date": 15, "account": "credit_card"},    
-    {"name": "Groceries", "amount": 235.60, "category": "Groceries", "date": 8, "account": "wallet"},    
+    {"name": "Groceries", "amount": 235.60, "category": "Groceries", "date": 8, "account": "credit_card", 'installments': 6},    
     {"name": "Groceries", "amount": 135.60, "category": "Groceries", "date": 18, "account": "wallet"},    
-    {"name": "Groceries", "amount": 215.60, "category": "Groceries", "date": 28, "account": "wallet"},    
+    {"name": "Groceries", "amount": 215.60, "category": "Groceries", "date": 28, "account": "credit_card", 'installments': 3},    
     {"name": "Gasoline", "amount": 182.90, "category": "Gas/Fuel", "date": 10, "account": "bank_account"},    
     {"name": "Gasoline", "amount": 149.90, "category": "Gas/Fuel", "date": 20, "account": "bank_account"},    
     {"name": "Gasoline", "amount": 152.90, "category": "Gas/Fuel", "date": 30, "account": "bank_account"},    
@@ -112,7 +114,7 @@ expenses = [
     {"name": "Tennis lessons", "amount": 140.00, "category": "Activities", "date": 62, "account": "bank_account"},
     {"name": "Groceries", "amount": 245.80, "category": "Groceries", "date": 65, "account": "credit_card"},
     {"name": "Donation to charity", "amount": 50.00, "category": "Donations", "date": 69, "account": "wallet"},
-    {"name": "New tires", "amount": 600.00, "category": "Car Repairs", "date": 73, "account": "bank_account"},
+    {"name": "New tires", "amount": 600.00, "category": "Car Repairs", "date": 73, "account": "credit_card", 'installments': 12},
     {"name": "Haircut", "amount": 50.00, "category": "Haircuts", "date": 77, "account": "credit_card"},
 ]
 
@@ -144,4 +146,22 @@ incomes = [
     {"name": "Freelance Project", "amount": 600, "category": "Self-Employment", "date": 72, "account": "bank_account"},
     {"name": "2nd Hand Sales", "amount": 250, "category": "Other Income", "date": 78, "account": "bank_account"},
     {"name": "Gift", "amount": 150, "category": "Other Income", "date": 81, "account": "bank_account"},
+]
+
+transfers = [
+    {'from_account': 'bank_account', 'to_account': 'wallet', 'from_amount': 500, 'to_amount': 500, 'date': 5},
+    {'from_account': 'bank_account', 'to_account': 'wallet', 'from_amount': 600, 'to_amount': 600, 'date': 35},
+    {'from_account': 'bank_account', 'to_account': 'wallet', 'from_amount': 500, 'to_amount': 500, 'date': 65},
+    {'from_account': 'bank_account', 'to_account': 'foreign_currency_account', 'from_amount': 290, 'to_amount': 38000, 'date': 2},
+    {'from_account': 'bank_account', 'to_account': 'foreign_currency_account', 'from_amount': 330, 'to_amount': 42500, 'date': 32},
+    {'from_account': 'bank_account', 'to_account': 'foreign_currency_account', 'from_amount': 310, 'to_amount': 41300, 'date': 62},
+]
+
+debt_payments = [
+    {'from_account': 'bank_account', 'to_account': 'loan', 'amount': 1200, 'date': 5, 'asset_type': 'loan'},
+    {'from_account': 'bank_account', 'to_account': 'loan', 'amount': 1700, 'date': 35, 'asset_type': 'loan'},
+    {'from_account': 'bank_account', 'to_account': 'loan', 'amount': 500, 'date': 65, 'asset_type': 'loan'},
+    {'from_account': 'bank_account', 'to_account': 'credit_card', 'amount': 500, 'date': 15, 'asset_type': 'credit_card'},
+    {'from_account': 'bank_account', 'to_account': 'credit_card', 'amount': 1500, 'date': 45, 'asset_type': 'credit_card'},
+    {'from_account': 'bank_account', 'to_account': 'credit_card', 'amount': 700, 'date': 75, 'asset_type': 'credit_card'},
 ]
