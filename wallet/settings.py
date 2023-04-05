@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
-import debug_toolbar
 import environ
 from django.urls import reverse, reverse_lazy
 
