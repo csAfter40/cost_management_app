@@ -144,7 +144,10 @@ def add_installments_to_payment_plan(expense, payment_plan, card):
     """
     Given a transaction, a payment plan and a card, add all installment payments to payment plan.
     """
-    current_date = expense.due_date.date()
+    try:
+        current_date = expense.due_date.date()
+    except AttributeError:
+        current_date = expense.due_date
     if expense.installments:
         while current_date >= card.next_payment_date:
             payment_plan[current_date] = payment_plan.get(current_date, 0) + expense.installment_amount

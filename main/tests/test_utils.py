@@ -998,11 +998,12 @@ class TestUtilityFunctions(TestCase):
 
     @freeze_time("2003-03-03")
     def test_add_installments_to_payment_plan(self):
+        installments = 4
         card = CreditCardFactory(payment_day = 5) 
-        expense = CreditCardTransactionFactory(installments=3, due_date=datetime.datetime(2003, 4, 5), amount=12)
+        expense = CreditCardTransactionFactory(installments=installments, date=datetime.datetime(2003, 3, 3), amount=12, content_object=card)
         payment_plan = {}
         result = add_installments_to_payment_plan(expense, payment_plan, card)
-        self.assertEquals(len(result), 2)
+        self.assertEquals(len(result), installments)
 
     def test_get_sorted_payment_plan(self):
         payment_plan = {datetime.date(2003, 3, 3): 5, datetime.date(2003, 3, 5): 15, datetime.date(2003, 2, 3): 25}
