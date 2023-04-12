@@ -734,7 +734,7 @@ def create_transfer(data, user):
             date = data['date']
         )
 
-def get_payment_transaction_data(form, asset, asset_type):
+def get_payment_transaction_data(form, asset):
     '''
     Accepts a Django form and asset string. Creates and returns a data dictionary 
     required for creating a transaction object.
@@ -758,8 +758,8 @@ def handle_debt_payment(form, paid_asset):
     Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
     '''
     with transaction.atomic():
-        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account', asset_type=paid_asset))
-        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset, asset_type=paid_asset))
+        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account'))
+        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset))
         Transfer.objects.create(
                 user = form.user,
                 from_transaction = account_transaction,
