@@ -1068,15 +1068,24 @@ class TestUtilityFunctions(TestCase):
         self.assertTrue(data_mock.called_once)
 
     @patch('main.utils.edit_guest_user_assets_balance')
-    def test_create_guest_user_data(self, mock):
-        from ..categories import categories
+    @patch('main.utils.refresh_user_accounts_objects')
+    @patch('main.utils.create_guest_user_transfers')
+    @patch('main.utils.create_guest_user_debt_payments')
+    def test_create_guest_user_data(self, mock_debt, mock_transfers, mock_refresh, mock_balance):
+        from ..categories import income_categories, expense_categories
         from ..utils import create_categories
+        CurrencyFactory(code='USD')
+        CurrencyFactory(code='JPY')
         user = UserFactoryNoSignal()
         preferences = UserPreferencesFactory(user=user)
-        create_categories(categories, user)
+        create_categories(expense_categories, user)
+        create_categories(income_categories, user)
         create_guest_user_data(user)
         self.assertEquals(Transaction.objects.count(), 93)
-        self.assertTrue(mock.called_once_with(user))
+        self.assertTrue(mock_debt.called_once_with(user))
+        self.assertTrue(mock_transfers.called_once())
+        self.assertTrue(mock_refresh.called_once())
+        self.assertTrue(mock_balance.called_once())
 
     @freeze_time("2000-05-01")
     def test_create_guest_user_accounts(self):
