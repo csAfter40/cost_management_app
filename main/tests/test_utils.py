@@ -98,7 +98,7 @@ from main.tests.factories import (
 import datetime
 from datetime import timedelta
 from pytz import UTC
-from main.categories import categories
+from main.categories import income_categories, expense_categories
 from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency, GuestUserSession
 from freezegun import freeze_time
 from django.contrib.sessions.backends.db import SessionStore
@@ -134,12 +134,12 @@ class TestUtilityFunctions(TestCase):
         self.assertEquals(len(transfers), qty)
 
     def test_create_categories(self):
-        create_categories(categories, self.user)
+        create_categories(expense_categories, self.user)
         qs = Category.objects.all()
         self.assertEquals(
-            len(categories), qs.filter(parent=None, user=self.user).count()
+            len(expense_categories), qs.filter(parent=None, user=self.user).count()
         )
-        for key, value in categories.items():
+        for key, value in expense_categories.items():
             if value["children"]:
                 self.assertTrue(
                     Category.objects.filter(user=self.user, parent__name=key).exists()
