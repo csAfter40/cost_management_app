@@ -992,12 +992,11 @@ def create_guest_user_debt_payments(user, user_accounts):
         form = Mock()
         form.user = user
         form.cleaned_data = data
-        card1 = CreditCard.objects.get(user=user)
-        print(card1, card1.balance)
-        card = data.get('credit_card', None)
-        if card:
-            print(card, card.balance)
         handle_debt_payment(form, payment['asset_type'])
+
+def refresh_user_accounts_objects(user_accounts):
+    for key, object in user_accounts.items():
+        object.refresh_from_db()
 
 def create_guest_user_data(user):
     user_accounts = create_guest_user_accounts(user)
@@ -1025,6 +1024,7 @@ def create_guest_user_data(user):
             type = 'I'
         )
     edit_guest_user_assets_balance(user)
+    refresh_user_accounts_objects(user_accounts)
     create_guest_user_transfers(user, user_accounts)
     create_guest_user_debt_payments(user, user_accounts)
 
