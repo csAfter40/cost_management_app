@@ -1080,8 +1080,10 @@ class TestUtilityFunctions(TestCase):
 
     @freeze_time("2000-05-01")
     def test_create_guest_user_accounts(self):
+        CurrencyFactory(code='USD')
+        CurrencyFactory(code='JPY')
         user = UserFactoryNoSignal()
-        user_preferences = UserPreferencesFactory(user=user)
+        UserPreferencesFactory(user=user)
         user_accounts = create_guest_user_accounts(user)
         for key, value in user_accounts.items():
             self.assertEquals(value.user, user)
