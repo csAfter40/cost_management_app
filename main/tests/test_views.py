@@ -724,8 +724,6 @@ class TestMainView(BaseViewTestMixin, TestCase):
         super().setUpTestData()
         cls.test_url = reverse('main:main')
         cls.context_list = [
-            "accounts",
-            "loans",
             "expense_form",
             "income_form",
             "transfer_form",
@@ -738,24 +736,6 @@ class TestMainView(BaseViewTestMixin, TestCase):
         cls.view_function = views.main
         cls.user_factory = UserFactoryNoSignal
         cls.login_required = True
-
-    def test_loans_list(self):
-        LoanFactory.create_batch(5)
-        LoanFactory.create_batch(5, user=self.user)
-        LoanFactory.create_batch(5, user=self.user, is_active=False)
-        qs = Loan.objects.filter(user=self.user, is_active=True)
-        response = self.client.get(self.test_url)
-        context_qs = response.context['loans']
-        self.assertQuerysetEqual(qs, context_qs, ordered=False)
-    
-    def test_accounts_list(self):
-        AccountFactory.create_batch(5)
-        AccountFactory.create_batch(5, user=self.user)
-        AccountFactory.create_batch(5, user=self.user, is_active=False)
-        qs = Account.objects.filter(user=self.user, is_active=True)
-        response = self.client.get(self.test_url)
-        context_qs = response.context['accounts']
-        self.assertQuerysetEqual(qs, context_qs, ordered=False)
 
     def test_latest_transactions_list(self):
         AccountTransactionFactory.create_batch(

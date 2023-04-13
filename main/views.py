@@ -155,8 +155,8 @@ def main(request):
                 income_form = form
 
     context = {
-        "loans": Loan.objects.filter(user=request.user, is_active=True).exists(),
-        "cards": CreditCard.objects.filter(user=request.user, is_active=True).exists(),
+        # "loans": Loan.objects.filter(user=request.user, is_active=True).exists(),
+        # "cards": CreditCard.objects.filter(user=request.user, is_active=True).exists(),
         "expense_form": expense_form,
         "income_form": income_form,
         "transfer_form": transfer_form,
