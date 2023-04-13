@@ -127,7 +127,7 @@ class AccountTransactionFactory(TransactionFactory):
 class CreditCardTransactionFactory(TransactionFactory):
     content_object = factory.SubFactory(CreditCardFactory)
     installments = factory.fuzzy.FuzzyInteger(2, 32)
-    due_date = factory.fuzzy.FuzzyDateTime(datetime.datetime(2008, 1, 1, tzinfo=UTC))
+    date = factory.fuzzy.FuzzyDateTime(datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
     class Meta:
         model = Transaction
