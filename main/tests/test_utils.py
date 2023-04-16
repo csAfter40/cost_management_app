@@ -96,7 +96,6 @@ from main.tests.factories import (
     SessionFactory
 )
 import datetime
-from datetime import timedelta
 from pytz import UTC
 from main.categories import income_categories, expense_categories
 from main.models import Category, Transaction, Account, User, UserPreferences, Transfer, Currency, GuestUserSession
@@ -411,9 +410,9 @@ class TestUtilityFunctions(TestCase):
         date1 = get_valid_date(2002, 2, 21)
         date2 = get_valid_date(2002, 2, 31)
         date3 = get_valid_date(2004, 2, 31)
-        self.assertEquals(date1, datetime.date(2002, 2, 21))
-        self.assertEquals(date2, datetime.date(2002, 2, 28))
-        self.assertEquals(date3, datetime.date(2004, 2, 29))
+        self.assertEquals(date1, datetime.datetime(2002, 2, 21, tzinfo=UTC))
+        self.assertEquals(date2, datetime.datetime(2002, 2, 28, tzinfo=UTC))
+        self.assertEquals(date3, datetime.datetime(2004, 2, 29, tzinfo=UTC))
 
     @patch("main.utils.date")
     def test_fill_missing_monthly_data(self, mock):
@@ -994,7 +993,7 @@ class TestUtilityFunctions(TestCase):
         transaction_date = datetime.date(1999, 12, 13)
         installments = 5
         date = get_transaction_installment_due_date(transaction_date, installments, card)
-        self.assertEquals(date, datetime.date(2000, 5, 5))
+        self.assertEquals(date, datetime.datetime(2000, 5, 5, tzinfo=UTC))
 
     @freeze_time("2003-03-03")
     def test_add_installments_to_payment_plan(self):
@@ -1029,7 +1028,7 @@ class TestUtilityFunctions(TestCase):
         session_key = session_store.session_key
         request = Mock()
         request.session = session_store
-        session_db = Session(session_key=session_key, expire_date=datetime.date(2003,1,1))
+        session_db = Session(session_key=session_key, expire_date=datetime.datetime(2003,1,1, tzinfo=UTC))
         session_db.save()
         result = get_session_from_db(request)
         self.assertEquals(result, session_db)

@@ -30,6 +30,7 @@ import string
 from django.contrib.auth import login
 from . import guest_user_data
 from unittest.mock import Mock
+from pytz import UTC
 
 
 def get_latest_transactions(user, qty):
@@ -144,10 +145,7 @@ def add_installments_to_payment_plan(expense, payment_plan, card):
     """
     Given a transaction, a payment plan and a card, add all installment payments to payment plan.
     """
-    try:
-        current_date = expense.due_date.date()
-    except AttributeError:
-        current_date = expense.due_date
+    current_date = expense.due_date
     if expense.installments:
         while current_date >= card.next_payment_date:
             payment_plan[current_date] = payment_plan.get(current_date, 0) + expense.installment_amount
@@ -487,10 +485,10 @@ def get_valid_date(year, month, day):
     """
     Accepts year, month and day values and returns the last day of month if 
     day is out of range of the month.
-    Example: year=2004, month=2, day=31 will return date(2004, 2, 29)
+    Example: year=2004, month=2, day=31 will return datetime(2004, 2, 29)
     """
     try:
-        return date(year, month, day)
+        return datetime(year, month, day, tzinfo=UTC)
     except ValueError:
         return get_valid_date(year, month, day-1)
 
@@ -675,7 +673,7 @@ def get_transaction_installment_due_date(transaction_date, installments, card):
     4. Finds final payment date using card's get_next_payment_date method
     """
     next_payment_date = card.get_next_payment_date(transaction_date)
-    first_day_of_month = date(next_payment_date.year, next_payment_date.month, 1)
+    first_day_of_month = datetime(next_payment_date.year, next_payment_date.month, 1)
     installments_months_later = first_day_of_month + relativedelta(months=int(installments)-1)
     due_date = card.get_next_payment_date(installments_months_later)
     return due_date

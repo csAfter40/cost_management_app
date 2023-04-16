@@ -26,8 +26,9 @@ from main.tests.factories import (
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from unittest.mock import patch
-from datetime import date
+from datetime import datetime, date
 from freezegun import freeze_time
+from pytz import UTC
 
 
 class TestUser(TestCase):
@@ -126,31 +127,31 @@ class TestCreditCard(TestCase):
 
     @patch("main.models.date")
     def test_next_payment_date_property_year_change(self, date_mock):
-        date_mock.today.return_value = date(2001, 12, 20)
+        date_mock.today.return_value = datetime(2001, 12, 20)
         date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
         credit_card = CreditCardFactory.create(payment_day=12)
-        self.assertEquals(credit_card.next_payment_date, date(2002, 1, 12))
+        self.assertEquals(credit_card.next_payment_date, datetime(2002, 1, 12, tzinfo=UTC))
     
     @patch("main.models.date")
     def test_next_payment_date_property_day_out_of_range(self, date_mock):
-        date_mock.today.return_value = date(2002, 2, 1)
+        date_mock.today.return_value = datetime(2002, 2, 1)
         date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
         credit_card = CreditCardFactory.create(payment_day=31)
         # 31st of February is not availabe so function should return last day of February
-        self.assertEquals(credit_card.next_payment_date, date(2002, 2, 28))
+        self.assertEquals(credit_card.next_payment_date, datetime(2002, 2, 28, tzinfo=UTC))
     
     @patch("main.models.date")
     def test_next_payment_date_property_leap_year(self, date_mock):
-        date_mock.today.return_value = date(2004, 2, 1)
+        date_mock.today.return_value = datetime(2004, 2, 1)
         date_mock.side_effect = lambda *args, **kw: date(*args, **kw)
         credit_card = CreditCardFactory.create(payment_day=31)
         # 31st of February is not availabe so function should return last day of February
-        self.assertEquals(credit_card.next_payment_date, date(2004, 2, 29))
+        self.assertEquals(credit_card.next_payment_date, datetime(2004, 2, 29, tzinfo=UTC))
 
     def test_get_previous_payment_date(self):
         card = CreditCardFactory(payment_day=5)
         result = card.get_previous_payment_date(date(2003, 3, 5))
-        self.assertEquals(result, date(2003, 2, 5))
+        self.assertEquals(result, datetime(2003, 2, 5, tzinfo=UTC))
             
 
 class TestCategory(TestCase):
@@ -205,13 +206,13 @@ class TestTransaction(TestCase):
     
     def test_save_with_credit_card(self):
         credit_card = CreditCardFactory(payment_day=15)
-        transaction_without_installments = CreditCardTransactionFactory(content_object=credit_card, installments=None, date=date(2000,5,1))
-        transaction_with_installments = CreditCardTransactionFactory(content_object=credit_card, installments=2, date=date(2000,5,1))
-        self.assertEquals(transaction_without_installments.due_date, date(2000,5,15))
-        self.assertEquals(transaction_with_installments.due_date, date(2000,6,15))
+        transaction_without_installments = CreditCardTransactionFactory(content_object=credit_card, installments=None, date=datetime(2000,5,1))
+        transaction_with_installments = CreditCardTransactionFactory(content_object=credit_card, installments=2, date=datetime(2000,5,1))
+        self.assertEquals(transaction_without_installments.due_date, datetime(2000,5,15, tzinfo=UTC))
+        self.assertEquals(transaction_with_installments.due_date, datetime(2000,6,15, tzinfo=UTC))
 
     def test_installment_amount_property(self):
-        card_transaction = CreditCardTransactionFactory(installments=5, amount=10, date=date(2000,5,1))
+        card_transaction = CreditCardTransactionFactory(installments=5, amount=10, date=datetime(2000,5,1, tzinfo=UTC))
         self.assertEquals(card_transaction.installment_amount, 2)
 
 class TestTransfer(TestCase):
