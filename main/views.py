@@ -488,15 +488,17 @@ class DeleteCreditCardView(LoginRequiredMixin, DeleteView):
         handle_asset_delete(self.object)
         self.object.is_active = False
         self.object.save()
+        messages.success(self.request, f"Credit card {self.object.name} was deleted successfully.")
         return HttpResponseRedirect(self.get_success_url())
 
 
-class EditCreditCardView(LoginRequiredMixin, UpdateView):
+class EditCreditCardView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = CreditCard
     # fields = ["name", "balance", "currency", "paymeny_day"]
     form_class = CreateCreditCardForm
     template_name = "main/credit_card_update.html"
     success_url = reverse_lazy("main:main")
+    success_message = "%(name)s was edited successfully."
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user, is_active=True)
@@ -552,12 +554,13 @@ class LoansView(LoginRequiredMixin, ListView):
     pass
 
 
-class CreateLoanView(LoginRequiredMixin, CreateView):
+class CreateLoanView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
 
     login_url = reverse_lazy("main:login")
     model = Loan
     fields = ["name", "balance", "currency"]
     success_url = reverse_lazy("main:main")
+    success_message = "%(name)s loan was created successfully."
     template_name = "main/create_loan.html"
 
     def form_valid(self, form):
@@ -593,6 +596,7 @@ class DeleteLoanView(LoginRequiredMixin, DeleteView):
         handle_asset_delete(self.object)
         self.object.is_active = False
         self.object.save()
+        messages.success(self.request, f"{self.object.name} loan was deleted successfully.")
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -653,12 +657,13 @@ class LoanDetailAjaxView(LoginRequiredMixin, DetailView):
         return super().get_context_data(**context)
 
 
-class EditLoanView(LoginRequiredMixin, UpdateView):
+class EditLoanView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
 
     model = Loan
     fields = ["name", "balance", "currency"]
     template_name = "main/loan_update.html"
     success_url = reverse_lazy("main:main")
+    success_message = "%(name)s loan was edited successfully."
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -676,10 +681,11 @@ class EditLoanView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class PayLoanView(LoginRequiredMixin, FormView):
+class PayLoanView(SuccessMessageMixin, LoginRequiredMixin, FormView):
 
     form_class = PayLoanForm
     success_url = reverse_lazy("main:main")
+    success_message = "Loan payment done successfully."
     template_name = "main/loan_pay.html"
 
     def get_form_kwargs(self):
@@ -758,6 +764,7 @@ class CreateExpenseCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         new_category = Category(name=name, parent=parent, user=user, type="E")
         try:
             new_category.save()
+            messages.success(self.request, "Category created successfully.")
         except IntegrityError:
             messages.error(
                 request,
@@ -797,6 +804,7 @@ class CreateIncomeCategory(UserPassesTestMixin, LoginRequiredMixin, View):
         new_category = Category(name=name, parent=parent, user=user, type="I")
         try:
             new_category.save()
+            messages.success(self.request, "Category created successfully.")
         except IntegrityError:
             messages.error(
                 request,
@@ -834,6 +842,7 @@ class EditExpenseCategory(LoginRequiredMixin, View):
                 )
         else:
             category_obj.save()
+            messages.success(self.request, f"Category {category_obj.name} edited successfully.")
         return HttpResponseRedirect(reverse("main:categories"))
 
 
@@ -866,13 +875,15 @@ class EditIncomeCategory(LoginRequiredMixin, View):
                 )
         else:
             category_obj.save()
+            messages.success(self.request, f"Category {category_obj.name} edited successfully.")
         return HttpResponseRedirect(reverse("main:categories"))
 
 
-class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):
+class DeleteExpenseCategory(SuccessMessageMixin, LoginRequiredMixin, DeleteView):
 
     model = Category
     success_url = reverse_lazy("main:categories")
+    success_message = "Category deleted successfully."
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -883,9 +894,10 @@ class DeleteExpenseCategory(LoginRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class DeleteIncomeCategory(LoginRequiredMixin, DeleteView):
+class DeleteIncomeCategory(SuccessMessageMixin, LoginRequiredMixin, DeleteView):
     model = Category
     success_url = reverse_lazy("main:categories")
+    success_message = "Category deleted successfully."
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -969,6 +981,7 @@ class EditTransactionView(LoginRequiredMixin, UpdateView):
                 )  # get initial object from get_object method
                 self.object = form.save()
                 edit_asset_balance(self.object)
+                messages.success(self.request, "Transaction edited successfully.")
         except IntegrityError:
             messages.error(self.request, "Error during transaction update")
             context = self.get_context_data(form=form)
@@ -990,6 +1003,7 @@ class DeleteTransactionView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(self.get_success_url())
         try:
             handle_transaction_delete(self.object)
+            messages.success(self.request, "Transaction deleted successfully.")
         except IntegrityError:
             messages.error(self.request, "Error during transaction update")
         finally:
@@ -1036,6 +1050,7 @@ class DeleteTransferView(LoginRequiredMixin, DeleteView):
             return HttpResponseRedirect(self.get_success_url())
         try:
             handle_transfer_delete(self.object)
+            messages.success(self.request, "Transfer deleted successfully.")
         except IntegrityError:
             messages.error(self.request, "Error during deleting transfer")
         finally:
@@ -1085,6 +1100,7 @@ class EditTransferView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         try:
             handle_transfer_edit(self.object, form.cleaned_data)
+            messages.success(self.request, "Transfer edited successfully.")
         except IntegrityError:
             messages.error(self.request, "Error during editing transfer")
             return self.render_to_response(self.get_context_data(form=form))
@@ -1237,4 +1253,5 @@ class UpdateProfileView(LoginRequiredMixin, View):
         preferences = UserPreferences.objects.get(user=self.request.user)
         preferences.primary_currency = new_currency
         preferences.save()
+        messages.success(self.request, "Profile updated successfully.")
         return HttpResponseRedirect(reverse('main:profile'))
