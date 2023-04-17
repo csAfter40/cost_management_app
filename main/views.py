@@ -167,6 +167,8 @@ def main(request):
         "account_data": get_account_data(request.user),
         "account_balance_data": get_account_balance_data(request.user),
         "show_account": True,
+        "has_card": CreditCard.objects.filter(user=request.user, is_active=True).exists(),
+        "has_loan": Loan.objects.filter(user=request.user, is_active=True).exists(),
     }
     return render(request, "main/main.html", context)
 
