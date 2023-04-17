@@ -17,6 +17,7 @@ from django.views.generic import (
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
 from django.http import (
     HttpResponseRedirect,
@@ -325,12 +326,13 @@ class LoansListView(LoginRequiredMixin, ListView):
         return Loan.objects.filter(user=self.request.user, is_active=True).order_by("created")
 
 
-class CreateAccountView(LoginRequiredMixin, CreateView):
+class CreateAccountView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
 
     model = Account
     fields = ["name", "balance", "currency"]
     success_url = reverse_lazy("main:main")
     template_name = "main/create_account.html"
+    success_message = "%(name)s account was created successfully."
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -347,12 +349,13 @@ class CreateAccountView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditAccountView(LoginRequiredMixin, UpdateView):
+class EditAccountView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
 
     model = Account
     fields = ["name", "balance", "currency"]
     template_name = "main/account_update.html"
     success_url = reverse_lazy("main:main")
+    success_message = "%(name)s account edited successfully."
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
@@ -385,6 +388,7 @@ class DeleteAccountView(LoginRequiredMixin, DeleteView):
         handle_asset_delete(self.object)
         self.object.is_active = False
         self.object.save()
+        messages.success(self.request, f"{self.object.name} account was deleted successfully.")
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -403,13 +407,14 @@ class CreditCardsListView(LoginRequiredMixin, ListView):
         return CreditCard.objects.filter(user=self.request.user, is_active=True).order_by("created")
 
 
-class CreateCreditCardView(LoginRequiredMixin, CreateView):
+class CreateCreditCardView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
     
     login_url = reverse_lazy("main:login")
     model = CreditCard
     form_class = CreateCreditCardForm
     success_url = reverse_lazy("main:main")
     template_name = "main/create_credit_card.html"
+    success_message = "%(name)s credit card was created successfully."
 
     def form_valid(self, form):
         balance = form.cleaned_data["balance"]
@@ -429,10 +434,11 @@ class CreateCreditCardView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class PayCreditCardView(LoginRequiredMixin, FormView):
+class PayCreditCardView(SuccessMessageMixin, LoginRequiredMixin, FormView):
     form_class = PayCreditCardForm
     success_url = reverse_lazy("main:main")
     template_name = "main/credit_card_pay.html"
+    success_message = "Credit card payment done successfully."
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
