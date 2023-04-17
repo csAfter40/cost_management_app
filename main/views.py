@@ -128,6 +128,7 @@ def main(request):
                 data = form.cleaned_data
                 try:
                     create_transfer(data, request.user)
+                    messages.success(request, "Transfer operation made successfully.")
                 except IntegrityError:
                     messages.error(request, "Error during transfer")
                 return HttpResponseRedirect(reverse("main:main"))
@@ -140,6 +141,7 @@ def main(request):
             form = ExpenseInputForm(request.user, request.POST)
             if form.is_valid():
                 create_transaction(form.cleaned_data)
+                messages.success(request, "Expense transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
                 messages.error(request, "Future transactions are not permitted!")
@@ -149,14 +151,13 @@ def main(request):
             form = IncomeInputForm(request.user, request.POST)
             if form.is_valid():
                 create_transaction(form.cleaned_data)
+                messages.success(request, "Income transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
                 messages.error(request, "Future transactions are not permitted!")
                 income_form = form
 
     context = {
-        # "loans": Loan.objects.filter(user=request.user, is_active=True).exists(),
-        # "cards": CreditCard.objects.filter(user=request.user, is_active=True).exists(),
         "expense_form": expense_form,
         "income_form": income_form,
         "transfer_form": transfer_form,
@@ -200,6 +201,7 @@ class LoginView(View):
         if user is not None:
             login(request, user)
             next = request.POST.get("next", None)
+            messages.success(self.request, "You logged in successfully.")
             if next:
                 return HttpResponseRedirect(next)
             return HttpResponseRedirect(reverse("main:main"))
@@ -232,6 +234,7 @@ class RegisterView(View):
             messages.error(request, "Username already taken!")
             return HttpResponseRedirect(reverse("main:register"))
         login(request, user)
+        messages.success(request, f"User {request.user} created successfully.")
         return HttpResponseRedirect(reverse("main:setup"))
 
 
