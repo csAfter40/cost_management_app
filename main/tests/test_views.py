@@ -2243,7 +2243,7 @@ class TestWorthView(BaseViewTestMixin, TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.test_url = reverse('main:worth')
-        cls.context_list = ['stats', 'currency_details', 'grand_total']
+        cls.context_list = ['stats', 'total_stats', 'currency_details', 'grand_total']
         cls.template = 'main/worth.html'
         cls.view_function = views.WorthView.as_view()
         cls.login_required = True

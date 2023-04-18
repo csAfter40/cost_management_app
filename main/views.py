@@ -82,6 +82,7 @@ from .utils import (
     get_loan_progress,
     get_payment_stats,
     get_worth_stats,
+    get_total_worth_stats,
     get_currency_details,
     get_users_grand_total,
     withdraw_asset_balance,
@@ -914,8 +915,10 @@ class WorthView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
+        stats = get_worth_stats(self.request.user)
         extra_context = {
-            "stats": get_worth_stats(self.request.user),
+            "stats": stats,
+            "total_stats": get_total_worth_stats(self.request.user, stats),
             "currency_details": get_currency_details(self.request.user),
         }
         extra_context["grand_total"] = get_users_grand_total(
