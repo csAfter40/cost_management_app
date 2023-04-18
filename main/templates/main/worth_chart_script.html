@@ -15,12 +15,24 @@
         {
         label: '{{currency}}',
         data: [{% for values in currency_stats %}{x:'{{values.0}}', y:{{ values.1 }}}, {% endfor %}],
-        yAxisID: 'y{{forloop.counter}}',
+        yAxisID: 'y{{currency}}',
         borderColor: colors[{{forloop.counter0}} % colors.length],
         backgroundColor: colors[{{forloop.counter0}} % colors.length],
         },
 
       {% endfor %}
+      {% for currency, currency_stats in total_stats.items %}
+        {
+        label: 'Total({{currency}})',
+        data: [{% for values in currency_stats %}{x:'{{values.0}}', y:{{ values.1 }}}, {% endfor %}],
+        yAxisID: 'y{{currency}}',
+        borderColor: '#ed665d',
+        backgroundColor: '#ed665d',
+        borderWidth: 3,
+        },
+
+      {% endfor %}
+      
   ]
   };
 
@@ -45,7 +57,7 @@
             },
           },
           {% for currency, currency_stats in stats.items %}
-            y{{forloop.counter}}: {
+            y{{currency}}: {
               suggestedMin: 0,
               ticks: {
                 color: colors[{{forloop.counter0}} % colors.length],
