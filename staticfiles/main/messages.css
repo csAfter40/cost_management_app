@@ -1,0 +1,32 @@
+@keyframes hide {
+    0% {
+        opacity: 1;
+        height: 58;
+        line-height: 100%;
+        padding: 16;
+        margin-bottom: 16px;
+    }
+
+    75% {
+        opacity: 0;
+        height: 58;
+        line-height: 100%;
+        padding: 16;
+        margin-bottom: 16px;
+    }
+
+    100% {
+        opacity: 0;
+        height: 0px;
+        line-height: 0px;
+        padding: 0px;
+        margin-bottom: 0px;
+    }
+}
+
+.auto-hide-alert {
+    animation-name: hide;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    animation-play-state: paused;
+}
