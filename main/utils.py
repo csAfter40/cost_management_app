@@ -337,12 +337,15 @@ def get_multi_currency_main_category_stats(qs, category_type, user, target_curre
 
     categories = Category.objects.filter(user=user, type=category_type)
 
-    categories_with_sum = categories.annotate(
-        sum=Sum(
-            F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
-            filter=Q(transactions__in=qs)
-            )
-    ).exclude(sum=None)
+    if qs:
+        categories_with_sum = categories.annotate(
+            sum=Sum(
+                F('transactions__amount')/F('transactions__account__currency__rate__rate')*target_currency.get_rate(), 
+                filter=Q(transactions__in=qs)
+                )
+        ).exclude(sum=None)
+    else: 
+        categories_with_sum = Category.objects.none()
     children_categories = Category.objects.filter(type=category_type, user=user, parent=None, is_transfer=False)
     for category in children_categories:
         for category_with_sum in categories_with_sum:
