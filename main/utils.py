@@ -252,7 +252,7 @@ def convert_money(from_currency, to_currency, amount):
     Returns converted amount.
     """
     conversion_rate = get_conversion_rate(from_currency, to_currency)
-    return amount * conversion_rate
+    return round(amount * conversion_rate, 2)
 
 def get_transactions_currencies(qs):
     """
@@ -555,6 +555,15 @@ def get_worth_stats(user):
         stats[currency] = get_monthly_currency_balance(user=user, currency=currency)
     return stats
 
+def get_total_worth_stats(user, stats):
+    primary_currency = user.primary_currency
+    total_stats = {}
+    for currency, currency_stats in stats.items():
+        for date, amount in currency_stats:
+            amount = convert_money(currency, primary_currency, amount)
+            total_stats[date] = total_stats.get(date, 0) + amount
+    total_stats_list = [(date, amount) for date, amount in total_stats.items()]
+    return {primary_currency: total_stats_list}
 
 def get_net_worth_by_currency(user, currency):
     """
