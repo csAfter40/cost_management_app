@@ -1,6 +1,8 @@
+{% load main_filters %}
+
 <div class="row justify-content-center py-3">
     <div class="col-lg-12">
-        <div class="card l-bg-cherry">
+        <div class="card l-bg-{{account.currency.id|modulus:7}}">
             <div class="card-statistic-3 p-4">
                 <div class="card-currency card-icon-large"><span class="fas">{{account.currency.symbol}}</span>
                 </div>

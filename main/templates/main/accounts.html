@@ -1,5 +1,6 @@
 {% extends 'main/user_layout.html' %}
 {% load static %}
+{% load main_filters %}
 {% block style %}
 <link rel="stylesheet" type="text/css" href="{% static 'main/account.css' %}">
 {% endblock style %}
@@ -12,7 +13,7 @@
     <div class="row justify-content-center" onclick="location.href='{% url 'main:account_detail' pk=account.id %}'"
         style="cursor: pointer;">
         <div class="col-lg-12">
-            <div class="card l-bg-cherry">
+            <div class="card l-bg-{{account.currency.id|modulus:7}}">
                 <div class="card-statistic-3 p-4">
                     <div class="card-currency card-icon-large"><span class="fas">{{account.currency.symbol}}</span>
                     </div>
