@@ -9,6 +9,11 @@
 {% endblock %}
 {% block body %}
 <div class="container py-5">
+    {% if not object_list %}
+        <div class="row text-center">
+            <h4>No accounts available. <a href="{% url 'main:create_account' %}">Click to create an account.</a> </h4> 
+        </div>
+    {% endif %}
     {% for account in object_list %}
     <div class="row justify-content-center" onclick="location.href='{% url 'main:account_detail' pk=account.id %}'"
         style="cursor: pointer;">
