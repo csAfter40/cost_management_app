@@ -77,6 +77,7 @@ from main.utils import (
     setup_guest_user,
     create_guest_user_data,
     create_guest_user_accounts,
+    get_total_worth_stats,
 )
 from main.tests.factories import (
     CategoryFactory,
@@ -311,6 +312,27 @@ class TestUtilityFunctions(TestCase):
     def test_get_worth_stats(self):
         response = get_worth_stats(self.user)
         self.assertIsInstance(response, dict)
+    
+    def test_get_total_worth_stats(self):
+        currency1 = CurrencyFactory(code='USD', rate__rate=1)
+        currency2 = CurrencyFactory(code='TRY', rate__rate=2)
+        user = UserFactoryNoSignal()
+        profile = UserPreferencesFactory(user=user, primary_currency=currency1)
+        stats = {
+            currency1: [
+                ('2000-01', 10), ('2000-02', 20)
+            ],
+            currency2: [
+                ('2000-01', 10), ('2000-02', 20)
+            ]
+        }
+        expected_total_stats = {
+            currency1: [
+                ('2000-01', 15), ('2000-02', 30)
+            ],
+        }
+        result = get_total_worth_stats(user, stats)
+        self.assertEquals(result, expected_total_stats)
 
     def test_get_mothly_asset_balance_change(self):
         account = AccountFactory()
