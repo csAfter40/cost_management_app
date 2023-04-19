@@ -14,3 +14,4 @@ In this project I have experienced:
 * Writing unit tests and integration tests. Using mocks and patch.
 * Using Django contenttype framework.
 * Writing commit messages in Conventional Commits style.
+* Writing custom template filters.
