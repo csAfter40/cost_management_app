@@ -887,7 +887,14 @@ def get_ins_outs_report(user, qs, target_currency=None):
                 'income': currency.income,
                 'balance': currency.balance
             }
-            report.append(data)
+        else:
+            data = {
+                'currency': currency,
+                'expense': 0,
+                'income': 0,
+                'balance': 0
+            }
+        report.append(data)
     total = get_report_total(currencies, target_currency)
     return report, total
 

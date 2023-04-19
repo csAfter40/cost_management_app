@@ -11,10 +11,20 @@
         {% for data in report %}
             <tr>
                 <td>{{data.currency}}</td>
-                <td class="text-danger">-{{data.expense}}</td>
-                <td class="text-success">+{{data.income}}</td>
+                {% if data.expense == 0 %}
+                    <td class="text-dark">0</td>
+                {% else %}
+                    <td class="text-danger">-{{data.expense}}</td>
+                {% endif %}
+                {% if data.income == 0 %}
+                    <td class="text-dark">0</td>
+                {% else %}
+                    <td class="text-success">+{{data.income}}</td>
+                {% endif %}
                 {% if data.balance < 0 %}
                     <td class="text-danger">{{data.balance}}</td>
+                {% elif data.balance == 0 %}
+                    <td class="text-dark">0</td>
                 {% else %}    
                     <td class="text-success">+{{data.balance}}</td>
                 {% endif %}
@@ -23,10 +33,20 @@
         <tfoot>
             <tr class="table-active" style="font-weight:bold;">
                 <td>Total in {{total.currency}}</td>
-                <td class="text-danger">-{{total.expense}}</td>
-                <td class="text-success">+{{total.income}}</td>
+                {% if total.expense == 0 %}
+                    <td class="text-dark">0</td>
+                {% else %}
+                    <td class="text-danger">-{{total.expense}}</td>
+                {% endif %}
+                {% if total.income == 0 %}
+                    <td class="text-dark">0</td>
+                {% else %}
+                    <td class="text-success">+{{total.income}}</td>
+                {% endif %}
                 {% if total.balance < 0 %}
                     <td class="text-danger">{{total.balance}}</td>
+                {% elif total.balance == 0 %}
+                    <td class="text-dark">0</td>
                 {% else %}
                     <td class="text-success">+{{total.balance}}</td>
                 {% endif %}
