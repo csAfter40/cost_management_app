@@ -43,7 +43,7 @@ def get_latest_transactions(user, qty):
             Q(content_type__model="creditcard") & Q(object_id__in=card_ids)
         )
         .exclude(category__is_transfer=True)
-        .order_by("-date")[:qty]
+        .order_by("-date", "-created")[:qty]
     )
     return transactions
 
@@ -56,7 +56,7 @@ def get_latest_transfers(user, qty):
             "to_transaction__content_object__currency",
         )
         .exclude(from_transaction__name="Pay Debt")
-        .order_by("-date")[:qty]
+        .order_by("-date", "-created")[:qty]
     )
     return transfers
 

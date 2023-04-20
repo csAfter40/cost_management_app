@@ -51,6 +51,7 @@ class TransactionsDateArchiveMixin(LoginRequiredMixin):
                 Q(content_type__model="account") & Q(object_id__in=user_accounts_list) |
                 Q(content_type__model="creditcard") & Q(object_id__in=user_cards_list)
             )
+            .order_by("-date", "-created")
         )
 
 
@@ -75,6 +76,7 @@ class TransfersDateArchiveMixin(LoginRequiredMixin):
             .get_queryset()
             .filter(user=self.request.user)
             .exclude(from_transaction__name="Pay Loan")
+            .order_by("-date", "-created")
         )
 
 
