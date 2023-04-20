@@ -14,7 +14,7 @@ from django.forms import (
 from .models import Account, Currency, Transaction, Transfer, Category, Loan, CreditCard
 from mptt.forms import TreeNodeChoiceField
 from datetime import date
-
+from .form_fields import MathDecimalField
 
 class MyModelChoiceField(ModelChoiceField):
 
@@ -48,6 +48,10 @@ class ExpenseInputForm(ModelForm):
         choices=[("", "No Installments")]+[(str(x), f"{x} months") for x in range(2,37)],
         initial="",
         required=False
+    )
+    amount = MathDecimalField(
+        max_digits=5, decimal_places=2, required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Decimal or simple arithmetic.'})
     )
 
     class Meta:
@@ -110,6 +114,10 @@ class IncomeInputForm(ModelForm):
     category = TreeNodeChoiceField(None)
     name = CharField(max_length=128, label="Description")
     content_object = MyModelChoiceField(queryset=None, label='Account')
+    amount = MathDecimalField(
+        max_digits=14, decimal_places=2, required=True,
+        widget=forms.TextInput(attrs={'placeholder': 'Decimal or simple arithmetic.'})
+    )
 
     class Meta:
         model = Transaction
