@@ -1,4 +1,5 @@
 <script id="chart-script">
+  const currency = '{{user.primary_currency}}'
   const dataChart = {
     labels: [{% for key, value in category_stats.items %}'{{key}}', {% endfor %}],
   datasets: [{
@@ -10,32 +11,16 @@
         }]
       };
 
-  const dataModal = {
-    labels: [],
-    datasets: [{
-      label: '',
-      data: [],
-      backgroundColor: ['#729ece', '#ff9e4a', '#67bf5c', '#ed665d', '#ad8bc9', '#a8786e', '#ed97ca', '#a2a2a2', '#cdcc5d', '#6dccda'],
-      hoverOffset: 4
-    }]
-  };
-
   const configChart = {
     type: 'pie',
     data: dataChart,
-  };
-
-
-  const configModal = {
-    type: 'pie',
-    data: dataModal,
     options: {
       plugins: {
-        title: {
-          display: true,
-          text: '',
-          font: {
-            size: 20,
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              return context.label + ': ' + context.formattedValue + ` ${currency}`;
+            }
           }
         }
       }
@@ -43,9 +28,7 @@
   };
 
   const categoryCtx = document.querySelector('#categoryChart');
-  const modalCtx = document.querySelector('#subcategoryChart');
   const categoryChart = new Chart(categoryCtx, configChart);
-  const modalChart = new Chart(modalCtx, configModal);
   const chart = categoryChart;
   const canvas = document.querySelector('canvas');
 

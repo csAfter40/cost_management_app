@@ -1,4 +1,6 @@
 <script id="chart-script">
+  const currency = '{{user.primary_currency}}'
+
   const dataExpense = {
     labels: [{% for key, value in expense_stats.items %}'{{key}}', {% endfor %}],
   datasets: [{
@@ -44,16 +46,49 @@
   const configExpense = {
     type: 'pie',
     data: dataExpense,
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              return context.label + ': ' + context.formattedValue + ` ${currency}`;
+            }
+          }
+        }
+      }
+    }
   };
 
   const configIncome = {
     type: 'pie',
     data: dataIncome,
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              return context.label + ': ' + context.formattedValue + ` ${currency}`;
+            }
+          }
+        }
+      }
+    }
   };
 
   const configComparison = {
     type: 'bar',
     data: dataComparison,
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              return context.formattedValue + ` ${currency}`;
+            }
+          }
+        }
+      }
+    }
   };
 
   const configModal = {
@@ -66,6 +101,13 @@
           text: '',
           font: {
             size: 20,
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              return context.label + ': ' + context.formattedValue + ` ${currency}`;
+            }
           }
         }
       }
