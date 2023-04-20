@@ -135,7 +135,8 @@ def main(request):
                     messages.error(request, "Error during transfer")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                messages.error(request, "Future transfers are not permitted!")
+                for error in form.errors['__all__']:
+                    messages.error(request, error)
                 transfer_form = form
 
         # expense form operations
@@ -146,7 +147,8 @@ def main(request):
                 messages.success(request, "Expense transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                messages.error(request, "Future transactions are not permitted!")
+                for error in form.errors['__all__']:
+                    messages.error(request, error)
                 expense_form = form
         #  income form operations
         if request.POST.get("submit-income"):
@@ -156,7 +158,8 @@ def main(request):
                 messages.success(request, "Income transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                messages.error(request, "Future transactions are not permitted!")
+                for error in form.errors['__all__']:
+                    messages.error(request, error)
                 income_form = form
 
     context = {
