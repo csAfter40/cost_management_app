@@ -71,11 +71,12 @@ class TransfersDateArchiveMixin(LoginRequiredMixin):
     month_format = "%m"
 
     def get_queryset(self):
+        excluded_categories = ['Pay Loan', 'Pay Card']
         return (
             super()
             .get_queryset()
             .filter(user=self.request.user)
-            .exclude(from_transaction__name="Pay Loan")
+            .exclude(from_transaction__name__in=excluded_categories)
             .order_by("-date", "-created")
         )
 
