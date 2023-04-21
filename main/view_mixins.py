@@ -47,10 +47,10 @@ class TransactionsDateArchiveMixin(LoginRequiredMixin):
             super()
             .get_queryset()
             .filter(
-                # content_type__model="account", object_id__in=user_accounts_list
                 Q(content_type__model="account") & Q(object_id__in=user_accounts_list) |
                 Q(content_type__model="creditcard") & Q(object_id__in=user_cards_list)
             )
+            .exclude(Q(content_type__model='creditcard') & Q(category__name='Pay Card'))
             .order_by("-date", "-created")
         )
 

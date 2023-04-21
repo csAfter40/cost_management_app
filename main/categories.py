@@ -81,9 +81,8 @@ expense_categories = {
     },
     # Protected categories
     "Transfer Out": {"type": "E", "children": None, "is_transfer": True, 'is_protected': True},
-    # "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
-    # "Pay Card": {"type": "E", 'children': None, 'is_protected': True},
-    "Pay Debt": {"type": "E", 'children': None, 'is_protected': True},
+    "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
+    "Pay Card": {"type": "E", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "E", "children":None, "is_protected": True},
 }
 
@@ -105,8 +104,7 @@ income_categories = {
     # Protected categories
     "Transfer In": {"type": "I", "children": None, "is_transfer": True, 'is_protected': True},
     "Loan In": {"type": 'I', 'children': None, 'is_protected': True},
-    # "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
-    # "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
-    "Pay Debt": {"type": "I", 'children': None, 'is_protected': True},
+    "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
+    "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "I", "children":None, "is_protected": True},
 }

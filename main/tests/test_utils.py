@@ -117,7 +117,7 @@ class TestUtilityFunctions(TestCase):
         user = 'user'
         mock_account.objects.filter.return_value.values_list.return_value = [AccountFactory.build().id]
         mock_card.objects.filter.return_value.values_list.return_value = [CreditCardFactory.build().id]
-        mock_transaction.objects.filter.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
+        mock_transaction.objects.filter.return_value.exclude.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
         transactions = get_latest_transactions(user, 5)
         self.assertTrue(mock_account.called_once)
         self.assertTrue(mock_card.called_once)
@@ -687,11 +687,11 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='E')
-        result = get_payment_transaction_data(form, 'account')
+        category = CategoryFactory(user=user, name='Pay Loan', parent=None, type='E')
+        result = get_payment_transaction_data(form, 'account', 'Pay Loan')
         validation_data = {
             'content_object': account,
-            'name': 'Pay Debt',
+            'name': 'Pay Loan',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,
@@ -712,11 +712,11 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='I')
-        result = get_payment_transaction_data(form, 'loan')
+        category = CategoryFactory(user=user, name='Pay Loan', parent=None, type='I')
+        result = get_payment_transaction_data(form, 'loan', 'Pay Loan')
         validation_data = {
             'content_object': loan,
-            'name': 'Pay Debt',
+            'name': 'Pay Loan',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,
@@ -737,11 +737,11 @@ class TestUtilityFunctions(TestCase):
         form.cleaned_data = data
         user = UserFactoryNoSignal()
         form.user = user
-        category = CategoryFactory(user=user, name='Pay Debt', parent=None, type='I')
-        result = get_payment_transaction_data(form, 'card')
+        category = CategoryFactory(user=user, name='Pay Card', parent=None, type='I')
+        result = get_payment_transaction_data(form, 'card', 'Pay Card')
         validation_data = {
             'content_object': card,
-            'name': 'Pay Debt',
+            'name': 'Pay Card',
             'amount': 10,
             'date': datetime.date(2001, 1, 1),
             'category': category,

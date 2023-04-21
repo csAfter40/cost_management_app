@@ -38,24 +38,25 @@ def get_latest_transactions(user, qty):
     card_ids = CreditCard.objects.filter(user=user).values_list("id", flat=True)
     transactions = (
         Transaction.objects.filter(
-            # content_type__model="account", object_id__in=account_ids
             Q(content_type__model="account") & Q(object_id__in=account_ids) | 
             Q(content_type__model="creditcard") & Q(object_id__in=card_ids)
         )
         .exclude(category__is_transfer=True)
+        .exclude(Q(content_type__model="creditcard") & Q(category__name='Pay Card'))
         .order_by("-date", "-created")[:qty]
     )
     return transactions
 
 
 def get_latest_transfers(user, qty):
+    debt_payments = ['Pay Loan', 'Pay Card']
     transfers = (
         Transfer.objects.filter(user=user)
         .prefetch_related(
             "from_transaction__content_object__currency",
             "to_transaction__content_object__currency",
         )
-        .exclude(from_transaction__name="Pay Debt")
+        .exclude(from_transaction__name__in=debt_payments)
         .order_by("-date", "-created")[:qty]
     )
     return transfers
@@ -744,14 +745,13 @@ def create_transfer(data, user):
             date = data['date']
         )
 
-def get_payment_transaction_data(form, asset):
+def get_payment_transaction_data(form, asset, name):
     '''
-    Accepts a Django form and asset string. Creates and returns a data dictionary 
+    Accepts a Django form, asset string and transaction name. Creates and returns a data dictionary 
     required for creating a transaction object.
     '''
     type = 'E' if asset=='account' else 'I'
     data = form.cleaned_data
-    name = 'Pay Debt'
     category = Category.objects.get(user=form.user, name=name, type=type)
     transaction_data = {
         'content_object': data.get(asset),
@@ -768,8 +768,9 @@ def handle_debt_payment(form, paid_asset):
     Accepts a Django form, creates transaction and transfer objects needed for loan payment process.
     '''
     with transaction.atomic():
-        account_transaction = create_transaction(get_payment_transaction_data(form, asset='account'))
-        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, asset=paid_asset))
+        name = 'Pay Loan' if paid_asset=='loan' else 'Pay Card'
+        account_transaction = create_transaction(get_payment_transaction_data(form, 'account', name))
+        paid_asset_transaction = create_transaction(get_payment_transaction_data(form, paid_asset, name))
         Transfer.objects.create(
                 user = form.user,
                 from_transaction = account_transaction,

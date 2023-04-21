@@ -455,8 +455,8 @@ class TestPayCreditCardView(BaseViewTestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        CategoryFactory(user=self.user, name='Pay Debt', parent=None, type='I')
-        CategoryFactory(user=self.user, name='Pay Debt', parent=None, type='E')
+        CategoryFactory(user=self.user, name='Pay Card', parent=None, type='I')
+        CategoryFactory(user=self.user, name='Pay Card', parent=None, type='E')
         currency = CurrencyFactory()
         account = AccountFactory(user=self.user, currency=currency)
         card = CreditCardFactory(user=self.user, currency=currency)
@@ -1649,8 +1649,8 @@ class TestPayLoanView(BaseViewTestMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        CategoryFactory(user=self.user, name='Pay Debt', parent=None, type='I')
-        CategoryFactory(user=self.user, name='Pay Debt', parent=None, type='E')
+        CategoryFactory(user=self.user, name='Pay Loan', parent=None, type='I')
+        CategoryFactory(user=self.user, name='Pay Loan', parent=None, type='E')
         currency = CurrencyFactory()
         account = AccountFactory(user=self.user, currency=currency)
         loan = LoanFactory(user=self.user, currency=currency)
