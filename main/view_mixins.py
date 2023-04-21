@@ -99,7 +99,7 @@ class InsOutsDateArchiveMixin(LoginRequiredMixin):
             super()
             .get_queryset()
             .filter(account__user=self.request.user)
-            .exclude(category__is_transfer=True)
+            .exclude(Q(category__is_transfer=True) | Q(name='Pay Card'))
             .select_related("category")
             .prefetch_related("content_object__currency")
         )
