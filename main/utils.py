@@ -1049,6 +1049,7 @@ def create_guest_user_data(user):
     create_guest_user_transfers(user, user_accounts)
     create_guest_user_debt_payments(user, user_accounts)
 
+@transaction.atomic
 def setup_guest_user(request):
     user = create_guest_user()
     login(request, user)
