@@ -135,7 +135,8 @@ def main(request):
                     messages.error(request, "Error during transfer")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                for error in form.errors['__all__']:
+                errors = form.errors.get('__all__', [])
+                for error in errors:
                     messages.error(request, error)
                 transfer_form = form
 
@@ -147,7 +148,8 @@ def main(request):
                 messages.success(request, "Expense transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                for error in form.errors['__all__']:
+                errors = form.errors.get('__all__', [])
+                for error in errors:
                     messages.error(request, error)
                 expense_form = form
         #  income form operations
@@ -158,7 +160,8 @@ def main(request):
                 messages.success(request, "Income transaction made successfully.")
                 return HttpResponseRedirect(reverse("main:main"))
             else:
-                for error in form.errors['__all__']:
+                errors = form.errors.get('__all__', [])
+                for error in errors:
                     messages.error(request, error)
                 income_form = form
 
