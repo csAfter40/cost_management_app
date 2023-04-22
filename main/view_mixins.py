@@ -265,7 +265,6 @@ class SubcategoryDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
                 super()
                 .get_queryset()
                 .filter(account=account)
-                .exclude(category__is_transfer=True)
                 .select_related("category")
                 .prefetch_related("content_object__currency")
             )
