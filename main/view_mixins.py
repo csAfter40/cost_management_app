@@ -51,6 +51,7 @@ class TransactionsDateArchiveMixin(LoginRequiredMixin):
                 Q(content_type__model="creditcard") & Q(object_id__in=user_cards_list)
             )
             .exclude(Q(content_type__model='creditcard') & Q(category__name='Pay Card'))
+            .exclude(Q(category__is_protected=True) & Q(category__name='Balance Adjustment'))
             .order_by("-date", "-created")
         )
 
@@ -100,6 +101,7 @@ class InsOutsDateArchiveMixin(LoginRequiredMixin):
             .get_queryset()
             .filter(account__user=self.request.user)
             .exclude(Q(category__is_transfer=True) | Q(name='Pay Card'))
+            .exclude(Q(category__is_protected=True) & Q(category__name='Balance Adjustment'))
             .select_related("category")
             .prefetch_related("content_object__currency")
         )
@@ -218,6 +220,7 @@ class AccountDetailDateArchiveMixin(UserPassesTestMixin, LoginRequiredMixin):
             super()
             .get_queryset()
             .filter(account=self.account)
+            .exclude(Q(category__is_protected=True) & Q(category__name='Balance Adjustment'))
             .prefetch_related("content_object__currency")
         )
 

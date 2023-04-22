@@ -43,6 +43,7 @@ def get_latest_transactions(user, qty):
         )
         .exclude(category__is_transfer=True)
         .exclude(Q(content_type__model="creditcard") & Q(category__name='Pay Card'))
+        .exclude(Q(category__is_protected=True) & Q(category__name='Balance Adjustment'))
         .order_by("-date", "-created")[:qty]
     )
     return transactions
@@ -439,7 +440,7 @@ def get_payment_stats(loan_object):
     ).order_by("date")
     balance = loan_object.initial
     for tr in transactions:
-        balance += tr.amount
+        balance += (tr.amount if tr.category.type=='I' else -tr.amount)
         data[tr.date.strftime("%Y-%m-%d")] = abs(balance)
     return data
 
@@ -1058,6 +1059,17 @@ def setup_guest_user(request):
     create_guest_user_data(user)
     return user
 
+def create_balance_adjustment_transaction(account, balance_diff):
+    type = 'I' if balance_diff>0 else 'E'
+    category = Category.objects.get(type=type, user=account.user, name="Balance Adjustment")
+    Transaction.objects.create(
+        content_object=account, 
+        type=type, 
+        amount=abs(balance_diff), 
+        category=category,
+        name='Balance Adjustment'
+    )
+    
 @receiver(post_save, sender=User)
 def create_user_categories(sender, instance, created, **kwargs):
     if created:

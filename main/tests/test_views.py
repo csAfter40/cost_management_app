@@ -643,6 +643,8 @@ class TestEditAccountView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='E', parent=None, user=self.user)
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='I', parent=None, user=self.user)
         duplicate_account = AccountFactory(user=self.user, name='duplicate')
         self.valid_data = [
             {
@@ -677,6 +679,8 @@ class TestDuplicateAccountUpdateData(TransactionTestCase):
         self.client.force_login(self.user)
         self.object = AccountFactory(user=self.user)
         duplicate_account = AccountFactory(user=self.user, name='duplicate')
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='E', parent=None, user=self.user)
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='I', parent=None, user=self.user)
         self.test_url = f'/accounts/{self.object.id}/edit'
         currency = CurrencyFactory()
         self.data={
@@ -701,6 +705,8 @@ class TestDuplicateLoanUpdateData(TransactionTestCase):
         self.client.force_login(self.user)
         self.object = LoanFactory(user=self.user)
         duplicate_account = LoanFactory(user=self.user, name='duplicate')
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='E', parent=None, user=self.user)
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='I', parent=None, user=self.user)
         self.test_url = f'/loans/{self.object.id}/edit'
         currency = CurrencyFactory()
         self.data={
@@ -1593,6 +1599,8 @@ class TestEditLoanView(TestUpdateViewMixin, UserFailTestMixin, TestCase):
     def setUp(self) -> None:
         super().setUp()
         currency = CurrencyFactory()
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='E', parent=None, user=self.user)
+        CategoryFactory(name='Balance Adjustment', is_protected=True, type='I', parent=None, user=self.user)
         self.valid_data = [
             {
                 'name': 'new_loan_name',

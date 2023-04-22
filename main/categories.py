@@ -84,6 +84,7 @@ expense_categories = {
     "Pay Loan": {"type": "E", 'children': None, 'is_protected': True},
     "Pay Card": {"type": "E", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "E", "children":None, "is_protected": True},
+    "Balance Adjustment": {"type": "E", "children":None, "is_protected": True},
 }
 
 income_categories = {
@@ -107,4 +108,5 @@ income_categories = {
     "Pay Loan": {"type": "I", 'children': None, 'is_protected': True},
     "Pay Card": {"type": "I", 'children': None, 'is_protected': True},
     "Asset Delete": {"type": "I", "children":None, "is_protected": True},
+    "Balance Adjustment": {"type": "I", "children":None, "is_protected": True},
 }

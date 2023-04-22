@@ -117,7 +117,15 @@ class TestUtilityFunctions(TestCase):
         user = 'user'
         mock_account.objects.filter.return_value.values_list.return_value = [AccountFactory.build().id]
         mock_card.objects.filter.return_value.values_list.return_value = [CreditCardFactory.build().id]
-        mock_transaction.objects.filter.return_value.exclude.return_value.exclude.return_value.order_by.return_value = AccountTransactionFactory.build_batch(5)
+        (
+            mock_transaction.objects
+            .filter.return_value
+            .exclude.return_value
+            .exclude.return_value
+            .exclude.return_value
+            .order_by.return_value
+        ) = AccountTransactionFactory.build_batch(5)
+        
         transactions = get_latest_transactions(user, 5)
         self.assertTrue(mock_account.called_once)
         self.assertTrue(mock_card.called_once)
@@ -128,7 +136,13 @@ class TestUtilityFunctions(TestCase):
     def test_get_latest_transfers(self, mock):
         user = 'user'
         qty = 5
-        mock.objects.filter.return_value.prefetch_related.return_value.exclude.return_value.order_by.return_value = range(qty)
+        (
+            mock.objects
+            .filter.return_value
+            .prefetch_related.return_value
+            .exclude.return_value
+            .order_by.return_value
+         ) = range(qty)
         transfers = get_latest_transfers(user, qty)
         self.assertTrue(mock.called_once)
         self.assertEquals(len(transfers), qty)

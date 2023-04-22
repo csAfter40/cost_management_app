@@ -96,6 +96,7 @@ from .utils import (
     get_multi_currency_category_detail_stats,
     get_multi_currency_category_json_stats,
     setup_guest_user,
+    create_balance_adjustment_transaction,
 )
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
@@ -369,16 +370,25 @@ class EditAccountView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.initial_balance = self.object.balance
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
+        balance_diff = self.object.balance - self.initial_balance
         try:
-            self.object = form.save()
+            with transaction.atomic():
+                if balance_diff:
+                    create_balance_adjustment_transaction(self.object, balance_diff)
+                self.object = form.save()
         except IntegrityError:
             messages.error(
                 self.request,
                 f"There is already a {self.object.name} account in your accounts.",
             )
             return self.form_invalid(form)
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class DeleteAccountView(LoginRequiredMixin, DeleteView):
@@ -675,10 +685,19 @@ class EditLoanView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.initial_balance = self.object.balance
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.balance = -abs(form.cleaned_data["balance"])
+        balance_diff = self.object.balance - self.initial_balance
         try:
-            self.object = form.save()
+            with transaction.atomic():
+                if balance_diff:
+                    create_balance_adjustment_transaction(self.object, balance_diff)
+                self.object = form.save()
         except IntegrityError:
             messages.error(
                 self.request,
