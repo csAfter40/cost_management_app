@@ -38,8 +38,16 @@ DEBUG = env("DEBUG")
 DEBUG_TOOLBAR = env("DEBUG_TOOLBAR")
 
 ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com", 'testserver', "costmanagementapp-production.up.railway.app"]
+
+
 CSRF_TRUSTED_ORIGINS = ["https://127.0.0.1","https://costmanagementapp-production.up.railway.app"]
 
+# Render settings
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_HOSTNAME)
+    
 # Application definition
 
 INSTALLED_APPS = [
