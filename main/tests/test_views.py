@@ -2827,7 +2827,7 @@ class TestCategoryWeekArchiveView(BaseViewTestMixin, TestCase):
         super().setUpTestData()
         cls.context_list = ['transactions']
         cls.template = 'main/group_table_paginator_chart.html'
-        cls.view_function = views.CategoryMonthArchiveView.as_view()
+        cls.view_function = views.CategoryWeekArchiveView.as_view()
         cls.login_required = True
         cls.user_factory = UserFactoryNoSignal
 
