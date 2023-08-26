@@ -161,7 +161,7 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 ex6/project.db
-# staticfiles/
+staticfiles/
 runserver.bat
 
 # vscode settings

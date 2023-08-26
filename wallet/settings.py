@@ -37,17 +37,27 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 DEBUG_TOOLBAR = env("DEBUG_TOOLBAR")
 
-ALLOWED_HOSTS = ["127.0.0.1", "django-wallet-app.herokuapp.com", 'testserver', "costmanagementapp-production.up.railway.app"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "django-wallet-app.herokuapp.com",
+    "testserver",
+    "costmanagementapp-production.up.railway.app",
+    ".vercel.app",
+]
 
 
-CSRF_TRUSTED_ORIGINS = ["https://127.0.0.1","https://costmanagementapp-production.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1",
+    "https://costmanagementapp-production.up.railway.app",
+    # ".vercel.app",
+]
 
 # Render settings
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     CSRF_TRUSTED_ORIGINS.append(RENDER_EXTERNAL_HOSTNAME)
-    
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -145,7 +155,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "main.User"
 
-DEFAULT_CURRENCY_PK = 5  # Primary key value of default currency. It is 5 for "USD".
+DEFAULT_CURRENCY_PK = (
+    5  # Primary key value of default currency. It is 5 for "USD".
+)
 
 DEFAULT_PAGINATION_QTY = 10
 
@@ -154,7 +166,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 TEST_RUNNER = "main.tests.runner.CustomRunner"
 
 #  needed for testing views with LoginRequiredMixin
-LOGIN_URL = reverse_lazy('main:login')
+LOGIN_URL = reverse_lazy("main:login")
 
 # used for testing atomic transaction failures
 TESTING_ATOMIC = False
@@ -167,4 +179,4 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-CURRENCY_RATES_API_KEY = env('CURRENCY_RATES_API_KEY')
+CURRENCY_RATES_API_KEY = env("CURRENCY_RATES_API_KEY")
