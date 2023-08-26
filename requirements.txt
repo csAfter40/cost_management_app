@@ -98,6 +98,8 @@ trio-websocket==0.9.2
     # via selenium
 urllib3[secure,socks]==1.26.9
     # via selenium
+wheel==0.41.2
+    # via -r requirements.in
 whitenoise==6.2.0
     # via -r requirements.in
 wsproto==1.1.0
