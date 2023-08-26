@@ -60,8 +60,6 @@ idna==3.3
     #   urllib3
 outcome==1.2.0
     # via trio
-psycopg2==2.9.3
-    # via -r requirements.in
 psycopg2-binary==2.9.3
     # via -r requirements.in
 pycparser==2.21
